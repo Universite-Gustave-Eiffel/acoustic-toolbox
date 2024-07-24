@@ -40,7 +40,7 @@ from .iso_tr_25417_2007 import REFERENCE_PRESSURE
 
 
 WEIGHTING_DATA = pd.read_csv(
-    io.BytesIO(pkgutil.get_data('acoustics', os.path.join('data', 'iec_61672_1_2013.csv'))), sep=',', index_col=0)
+    io.BytesIO(pkgutil.get_data('acoustic_toolbox', os.path.join('data', 'iec_61672_1_2013.csv'))), sep=',', index_col=0)
 """DataFrame with indices, nominal frequencies and weighting values.
 """
 

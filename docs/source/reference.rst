@@ -5,7 +5,7 @@ API Reference
 
 This section contains a description of all classes and functions.
 
-.. automodule:: acoustics
+.. automodule:: acoustic_toolbox
 
 
 Modules
