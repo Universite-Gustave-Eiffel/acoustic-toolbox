@@ -6,7 +6,7 @@ Module for working with octaves.
 
 The following is an example on how to use :class:`acoustic_toolbox.octave.Octave`.
 
-.. literalinclude:: ../examples/octave.py
+.. literalinclude:: ../../examples/example_octave.py
 
 """
 import numpy as np

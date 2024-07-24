@@ -1,21 +1,59 @@
-.. acoustic-toolbox documentation master file, created by
-   sphinx-quickstart on Fri Aug 16 09:40:59 2013.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. acoustic-toolbox documentation master file
+
+Acoustic Toolbox
+================
 
 Welcome to the documentation of the acoustic-toolbox module!
-=====================================================
 
+API Reference
+#############
 
+This section contains a description of all classes and functions.
 
-
-Contents:
-
+Signal class
+------------
 
 .. toctree::
    :maxdepth: 1
-   
-   reference
+
+   signal
+
+Modules
+-------
+
+.. toctree::
+   :maxdepth: 1
+
+   ambisonics
+   atmosphere
+   bands
+   building
+   cepstrum
+   criterion
+   decibel
+   generator
+   descriptors
+   directivity
+   doppler
+   imaging
+   octave
+   power
+   reflection
+   room
+   utils
+   weighting
+   quantity
+
+Standards
+---------
+
+The ``acoustic_toolbox.standards`` module consists of modules where all code and
+values are according to the respective standard.
+
+.. toctree::
+   :maxdepth: 1
+
+   standards
 
 Indices and tables
 ==================

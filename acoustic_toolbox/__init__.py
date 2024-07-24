@@ -1,6 +1,6 @@
 """
 Acoustic Toolbox
-=========
+================
 
 The acoustic_toolbox module.
 

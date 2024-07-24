@@ -31,7 +31,7 @@ def complex_cepstrum(x, n=None):
 
     .. math:: c[n] = F^{-1}\\left{\\log_{10}{\\left(F{x[n]}\\right)}\\right}
 
-    where :math:`x_[n]` is the input signal and :math:`F` and :math:`F_{-1}
+    where :math:`x_[n]` is the input signal and :math:`F` and :math:`F_{-1}`
     are respectively the forward and backward Fourier transform.
 
     See Also
@@ -121,7 +121,7 @@ def real_cepstrum(x, n=None):
 
     .. math:: c[n] = F^{-1}\left{\log_{10}{\left|F{x[n]}\right|}\right}
 
-    where :math:`x_[n]` is the input signal and :math:`F` and :math:`F_{-1}
+    where :math:`x_[n]` is the input signal and :math:`F` and :math:`F_{-1}`
     are respectively the forward and backward Fourier transform. Note that
     contrary to the complex cepstrum the magnitude is taken of the spectrum.
 
@@ -165,7 +165,7 @@ def inverse_complex_cepstrum(ceps, ndelay):
 
     .. math:: x[n] = F^{-1}\left{\exp(F(c[n]))\right}
 
-    where :math:`c_[n]` is the input signal and :math:`F` and :math:`F_{-1}
+    where :math:`c_[n]` is the input signal and :math:`F` and :math:`F_{-1}`
     are respectively the forward and backward Fourier transform.
 
     See Also
@@ -233,7 +233,7 @@ def minimum_phase(x, n=None):
 
     References
     ----------
-    .. [1] Soo-Chang Pei, Huei-Shan Lin. Minimum-Phase FIR Filter Design Using
+    .. `[1]` Soo-Chang Pei, Huei-Shan Lin. Minimum-Phase FIR Filter Design Using
            Real Cepstrum. IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS-II:
            EXPRESS BRIEFS, VOL. 53, NO. 10, OCTOBER 2006
 

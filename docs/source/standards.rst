@@ -1,3 +1,4 @@
 .. automodule:: acoustic_toolbox.standards
-    :show-inheritance:
-    
+    :noindex:
+    :members:
+
