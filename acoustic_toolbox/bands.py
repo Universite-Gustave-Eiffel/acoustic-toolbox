@@ -5,7 +5,7 @@ Bands
 """
 import numpy as np
 #from acoustic_toolbox.decibel import dbsum
-import acoustics
+import acoustic_toolbox
 from acoustic_toolbox.standards.iec_61672_1_2013 import (NOMINAL_OCTAVE_CENTER_FREQUENCIES,
                                                   NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES)
 

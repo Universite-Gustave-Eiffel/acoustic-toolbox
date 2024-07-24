@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.io import wavfile
 from scipy.signal import detrend, lfilter, bilinear, spectrogram, filtfilt, resample, fftconvolve
-import acoustics
+import acoustic_toolbox
 
 from acoustic_toolbox.standards.iso_tr_25417_2007 import REFERENCE_PRESSURE
 from acoustic_toolbox.standards.iec_61672_1_2013 import WEIGHTING_SYSTEMS

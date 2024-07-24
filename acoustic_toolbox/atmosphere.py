@@ -35,7 +35,7 @@ Functions
 import numpy as np
 import matplotlib.pyplot as plt
 
-import acoustics
+import acoustic_toolbox
 from acoustic_toolbox.standards.iso_9613_1_1993 import *  # pylint: disable=wildcard-import
 
 

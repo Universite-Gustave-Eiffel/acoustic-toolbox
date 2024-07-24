@@ -10,7 +10,7 @@ The following is an example on how to use :class:`acoustic_toolbox.octave.Octave
 
 """
 import numpy as np
-import acoustics
+import acoustic_toolbox
 
 #REFERENCE = 1000.0
 #"""

@@ -1,5 +1,5 @@
 import numpy as np
-from acoustics import Signal
+from acoustic_toolbox import Signal
 import pytest
 import tempfile
 

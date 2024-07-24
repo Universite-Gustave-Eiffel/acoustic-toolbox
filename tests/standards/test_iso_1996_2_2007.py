@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 from acoustic_toolbox.standards.iso_1996_2_2007 import Tonality
-from acoustics import Signal
+from acoustic_toolbox import Signal
 import collections
 
 
