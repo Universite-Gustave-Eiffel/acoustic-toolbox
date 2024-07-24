@@ -1,1 +1,1 @@
-.. automodule:: acoustics.reflection
+.. automodule:: acoustic_toolbox.reflection

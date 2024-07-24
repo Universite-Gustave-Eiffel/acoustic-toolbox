@@ -1,2 +1,2 @@
-.. automodule:: acoustics.imaging
+.. automodule:: acoustic_toolbox.imaging
     

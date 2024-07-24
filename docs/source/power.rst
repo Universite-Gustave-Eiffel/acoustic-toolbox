@@ -1,1 +1,1 @@
-.. automodule:: acoustics.power
+.. automodule:: acoustic_toolbox.power

@@ -1,1 +1,1 @@
-.. automodule:: acoustics.cepstrum
+.. automodule:: acoustic_toolbox.cepstrum

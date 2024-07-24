@@ -1,1 +1,1 @@
-.. automodule:: acoustics.ambisonics
+.. automodule:: acoustic_toolbox.ambisonics

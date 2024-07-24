@@ -1,2 +1,2 @@
-.. automodule:: acoustics.atmosphere
+.. automodule:: acoustic_toolbox.atmosphere
     :no-members:

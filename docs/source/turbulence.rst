@@ -1,1 +1,1 @@
-.. automodule:: acoustics.turbulence
+.. automodule:: acoustic_toolbox.turbulence

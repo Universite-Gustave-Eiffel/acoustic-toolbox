@@ -1,1 +1,1 @@
-.. automodule:: acoustics.octave
+.. automodule:: acoustic_toolbox.octave

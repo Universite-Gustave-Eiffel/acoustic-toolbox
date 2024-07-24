@@ -1,1 +1,1 @@
-.. automodule:: acoustics.utils
+.. automodule:: acoustic_toolbox.utils

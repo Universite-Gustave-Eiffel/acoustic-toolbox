@@ -1,3 +1,3 @@
-.. automodule:: acoustics.quantity
+.. automodule:: acoustic_toolbox.quantity
 
   

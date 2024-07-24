@@ -1,1 +1,1 @@
-.. automodule:: acoustics.decibel
+.. automodule:: acoustic_toolbox.decibel

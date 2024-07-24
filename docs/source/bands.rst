@@ -1,2 +1,2 @@
-.. automodule:: acoustics.bands
+.. automodule:: acoustic_toolbox.bands
     

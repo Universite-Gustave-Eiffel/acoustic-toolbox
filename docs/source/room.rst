@@ -1,2 +1,2 @@
-.. automodule:: acoustics.room
+.. automodule:: acoustic_toolbox.room
     

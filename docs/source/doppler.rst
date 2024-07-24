@@ -1,1 +1,1 @@
-.. automodule:: acoustics.doppler
+.. automodule:: acoustic_toolbox.doppler

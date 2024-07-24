@@ -1,3 +1,3 @@
-.. automodule:: acoustics.standards
+.. automodule:: acoustic_toolbox.standards
     :show-inheritance:
     

@@ -1,1 +1,1 @@
-.. automodule:: acoustics.weighting
+.. automodule:: acoustic_toolbox.weighting

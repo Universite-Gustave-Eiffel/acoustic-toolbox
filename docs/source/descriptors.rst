@@ -1,2 +1,2 @@
-.. automodule:: acoustics.descriptors
+.. automodule:: acoustic_toolbox.descriptors
   

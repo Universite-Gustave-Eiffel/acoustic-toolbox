@@ -1,1 +1,1 @@
-.. automodule:: acoustics.directivity
+.. automodule:: acoustic_toolbox.directivity

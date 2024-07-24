@@ -1,3 +1,3 @@
-.. automodule:: acoustics.generator
+.. automodule:: acoustic_toolbox.generator
     :no-members:
 
