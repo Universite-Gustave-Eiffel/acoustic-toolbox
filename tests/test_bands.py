@@ -3,7 +3,7 @@ from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 import pytest
 
-from acoustics.bands import (octave, octave_high, octave_low, third, third_low, third_high, third2oct, _check_band_type)
+from acoustic_toolbox.bands import (octave, octave_high, octave_low, third, third_low, third_high, third2oct, _check_band_type)
 
 
 @pytest.fixture

@@ -1,5 +1,5 @@
 import numpy as np
-from acoustics.atmosphere import Atmosphere
+from acoustic_toolbox.atmosphere import Atmosphere
 
 import sys
 sys.path.append('..')

@@ -1,12 +1,12 @@
 """
-Tests for :func:`acoustics.signal`
+Tests for :func:`acoustic_toolbox.signal`
 """
-from acoustics.signal import convolve as convolveLTV
+from acoustic_toolbox.signal import convolve as convolveLTV
 from scipy.signal import convolve as convolveLTI
 import numpy as np
 import itertools
 
-from acoustics.signal import *  #decibel_to_neper, neper_to_decibel, ir2fr, zero_crossings
+from acoustic_toolbox.signal import *  #decibel_to_neper, neper_to_decibel, ir2fr, zero_crossings
 from numpy.testing import assert_almost_equal, assert_array_almost_equal, assert_array_equal, assert_approx_equal
 
 import pytest
@@ -17,7 +17,7 @@ import pytest
     (np.array([1, 2, 3, 4, 3, 2, 1, 1], dtype='float'), np.array([1, 2, 3, 4, 5], dtype='float')),
 ])
 def test_convolve_lti(u, h):
-    """Test whether :func:`acoustics.signal.convolve` behaves properly when
+    """Test whether :func:`acoustic_toolbox.signal.convolve` behaves properly when
     performing a convolution with a time-invariant system.
     """
     H = np.tile(h, (len(u), 1)).T
@@ -30,7 +30,7 @@ def test_convolve_lti(u, h):
 
 
 def test_convolve_ltv():
-    """Test whether :func:`acoustics.signal.convolve` behaves properly when
+    """Test whether :func:`acoustic_toolbox.signal.convolve` behaves properly when
     performing a convolution with a time-variant system.
     """
     """Input signal"""
@@ -75,7 +75,7 @@ def test_ir2fr():
 
 class TestEqualBand:  #(unittest.TestCase):
     """
-    Test :class:`acoustics.signal.EqualBand`.
+    Test :class:`acoustic_toolbox.signal.EqualBand`.
     """
 
     def test_construction_1(self):
@@ -129,7 +129,7 @@ class TestEqualBand:  #(unittest.TestCase):
 
 class Test_integrate_bands():
     """
-    Test :func:`acoustics.signal.test_integrate_bands`.
+    Test :func:`acoustic_toolbox.signal.test_integrate_bands`.
     """
 
     def test_narrowband_to_octave(self):

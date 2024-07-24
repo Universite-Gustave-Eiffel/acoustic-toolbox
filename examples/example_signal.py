@@ -3,7 +3,7 @@ Perform a convolution with a linear time-variant system.
 """
 
 import numpy as np
-from acoustics.signal import convolve as convolveLTV
+from acoustic_toolbox.signal import convolve as convolveLTV
 from scipy.signal import convolve as convolveLTI
 
 def main():

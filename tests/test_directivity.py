@@ -1,4 +1,4 @@
-from acoustics.directivity import *
+from acoustic_toolbox.directivity import *
 import numpy as np
 import pytest
 

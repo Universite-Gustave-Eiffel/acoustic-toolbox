@@ -1,12 +1,12 @@
 import pytest
 import numpy as np
-from acoustics.generator import noise
-from acoustics.signal import octaves
+from acoustic_toolbox.generator import noise
+from acoustic_toolbox.signal import octaves
 
 
 class Test_noise():
     """
-    Test :func:`acoustics.generator.noise`.
+    Test :func:`acoustic_toolbox.generator.noise`.
     """
     parameters = [
         ('white', +3.0, 0.0),

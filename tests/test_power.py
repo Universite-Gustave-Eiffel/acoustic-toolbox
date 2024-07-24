@@ -3,7 +3,7 @@ from numpy.testing import assert_almost_equal
 
 import pytest
 
-from acoustics.power import lw_iso3746
+from acoustic_toolbox.power import lw_iso3746
 
 
 @pytest.mark.parametrize("background_noise, expected", [

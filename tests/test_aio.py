@@ -41,7 +41,7 @@ cirrus_files.extend(list(itertools.product(
 @pytest.mark.skip("read_csv_cirrus time parsing is broken")
 @pytest.mark.parametrize('filename', cirrus_files)
 def test_read_csv_cirrus_details(filename):
-    from acoustics.aio import read_csv_cirrus
+    from acoustic_toolbox.aio import read_csv_cirrus
     file = "_".join(filename) + ".csv"
     csv_path = os.path.join(data_path(), "cirrus", file)
     data = read_csv_cirrus(csv_path)

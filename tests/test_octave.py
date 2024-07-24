@@ -1,8 +1,8 @@
 """
-Tests for :class:`Acoustics.Octave.Octave`
+Tests for :class:`acoustic_toolbox.Octave.Octave`
 """
 
-from acoustics.octave import Octave
+from acoustic_toolbox.octave import Octave
 import numpy as np
 
 
