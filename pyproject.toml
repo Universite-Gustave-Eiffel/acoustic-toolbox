@@ -17,7 +17,6 @@ classifiers = [
 ]
 dependencies = [
 ]
-dynamic = ["version", "description"]
 
 [project.license]
 file = "LICENSE"
