@@ -1205,6 +1205,7 @@ def decimate(x, q, n=None, ftype='iir', axis=-1, zero_phase=False):
         The axis along which to decimate.
     zero_phase : bool
         Prevent phase shift by filtering with ``filtfilt`` instead of ``lfilter``.
+
     Returns
     -------
     y : ndarray

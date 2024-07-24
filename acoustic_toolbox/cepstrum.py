@@ -74,11 +74,11 @@ def complex_cepstrum(x, n=None):
 
     References
     ----------
-    .. [1] Wikipedia, "Cepstrum".
+    [1] Wikipedia, "Cepstrum".
            http://en.wikipedia.org/wiki/Cepstrum
-    .. [2] M.P. Norton and D.G. Karczub, D.G.,
+    [2] M.P. Norton and D.G. Karczub, D.G.,
            "Fundamentals of Noise and Vibration Analysis for Engineers", 2003.
-    .. [3] B. P. Bogert, M. J. R. Healy, and J. W. Tukey:
+    [3] B. P. Bogert, M. J. R. Healy, and J. W. Tukey:
            "The Quefrency Analysis of Time Series for Echoes: Cepstrum, Pseudo
            Autocovariance, Cross-Cepstrum and Saphe Cracking".
            Proceedings of the Symposium on Time Series Analysis
@@ -138,7 +138,7 @@ def real_cepstrum(x, n=None):
 
     References
     ----------
-    .. [1] Wikipedia, "Cepstrum".
+    [1] Wikipedia, "Cepstrum".
            http://en.wikipedia.org/wiki/Cepstrum
 
     """
@@ -188,7 +188,7 @@ def inverse_complex_cepstrum(ceps, ndelay):
 
     References
     ----------
-    .. [1] Wikipedia, "Cepstrum".
+    [1] Wikipedia, "Cepstrum".
            http://en.wikipedia.org/wiki/Cepstrum
 
     """
