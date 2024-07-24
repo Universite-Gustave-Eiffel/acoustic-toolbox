@@ -8,7 +8,7 @@ version = "0.1.0"
 authors = [
     { name = "Valentin LE BESCOND", email = "valentin.lebescond@univ-eiffel.fr" }
 ]
-description = "Acoustics module for Python."
+description = "Acoustic Toolbox module for Python."
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [

@@ -18,7 +18,7 @@ from matplotlib import transforms as mtransforms
 from matplotlib.ticker import NullLocator, FixedLocator
 from matplotlib.ticker import ScalarFormatter, NullFormatter
 
-from acoustics.bands import octave, third
+from acoustic_toolbox.bands import octave, third
 
 
 class OctaveBandScale(mscale.ScaleBase):

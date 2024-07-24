@@ -3,9 +3,9 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 import pytest
 
-from acoustics.room import (mean_alpha, nrc, t60_sabine, t60_eyring, t60_millington, t60_fitzroy, t60_arau, t60_impulse,
+from acoustic_toolbox.room import (mean_alpha, nrc, t60_sabine, t60_eyring, t60_millington, t60_fitzroy, t60_arau, t60_impulse,
                             c50_from_file, c80_from_file)
-from acoustics.bands import octave, third
+from acoustic_toolbox.bands import octave, third
 
 import sys
 sys.path.append('..')

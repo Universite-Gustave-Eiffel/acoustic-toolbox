@@ -9,7 +9,7 @@ the principal aim of harmonizing the terminology used [ISO25417]_.
 
 .. [ISO24517] http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=42915
 
-.. inheritance-diagram:: acoustics.standards.iso_tr_25417_2007
+.. inheritance-diagram:: acoustic_toolbox.standards.iso_tr_25417_2007
 
 """
 import numpy as np

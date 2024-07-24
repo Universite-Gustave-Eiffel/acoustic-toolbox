@@ -4,7 +4,7 @@ Utils
 
 """
 import numpy as np
-from acoustics.decibel import dbsum
+from acoustic_toolbox.decibel import dbsum
 
 SOUNDSPEED = 343.0
 """

@@ -11,8 +11,8 @@ import pandas as pd
 from scipy.signal import welch
 from scipy.stats import linregress
 import matplotlib.pyplot as plt
-from acoustics.decibel import dbsum
-from acoustics.standards.iso_tr_25417_2007 import REFERENCE_PRESSURE
+from acoustic_toolbox.decibel import dbsum
+from acoustic_toolbox.standards.iso_tr_25417_2007 import REFERENCE_PRESSURE
 import weakref
 from tabulate import tabulate
 

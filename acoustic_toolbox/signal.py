@@ -4,7 +4,7 @@ Signal
 
 The signal module constains all kinds of signal processing related functions.
 
-.. inheritance-diagram:: acoustics.signal
+.. inheritance-diagram:: acoustic_toolbox.signal
 
 
 Filtering
@@ -81,13 +81,13 @@ import numpy as np
 from scipy.sparse import spdiags
 from scipy.signal import butter, lfilter, freqz, filtfilt, sosfilt
 
-import acoustics.octave
-#from acoustics.octave import REFERENCE
+import acoustic_toolbox.octave
+#from acoustic_toolbox.octave import REFERENCE
 
-import acoustics.bands
+import acoustic_toolbox.bands
 from scipy.signal import hilbert
-from acoustics.standards.iso_tr_25417_2007 import REFERENCE_PRESSURE
-from acoustics.standards.iec_61672_1_2013 import (NOMINAL_OCTAVE_CENTER_FREQUENCIES,
+from acoustic_toolbox.standards.iso_tr_25417_2007 import REFERENCE_PRESSURE
+from acoustic_toolbox.standards.iec_61672_1_2013 import (NOMINAL_OCTAVE_CENTER_FREQUENCIES,
                                                   NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES)
 
 try:
@@ -452,7 +452,7 @@ class OctaveBand(Frequencies):
     """
 
     def __init__(self, center=None, fstart=None, fstop=None, nbands=None, fraction=1,
-                 reference=acoustics.octave.REFERENCE):
+                 reference=acoustic_toolbox.octave.REFERENCE):
 
         if center is not None:
             try:
@@ -460,25 +460,25 @@ class OctaveBand(Frequencies):
             except TypeError:
                 center = [center]
             center = np.asarray(center)
-            indices = acoustics.octave.index_of_frequency(center, fraction=fraction, ref=reference)
+            indices = acoustic_toolbox.octave.index_of_frequency(center, fraction=fraction, ref=reference)
         elif fstart is not None and fstop is not None:
-            nstart = acoustics.octave.index_of_frequency(fstart, fraction=fraction, ref=reference)
-            nstop = acoustics.octave.index_of_frequency(fstop, fraction=fraction, ref=reference)
+            nstart = acoustic_toolbox.octave.index_of_frequency(fstart, fraction=fraction, ref=reference)
+            nstop = acoustic_toolbox.octave.index_of_frequency(fstop, fraction=fraction, ref=reference)
             indices = np.arange(nstart, nstop + 1)
         elif fstart is not None and nbands is not None:
-            nstart = acoustics.octave.index_of_frequency(fstart, fraction=fraction, ref=reference)
+            nstart = acoustic_toolbox.octave.index_of_frequency(fstart, fraction=fraction, ref=reference)
             indices = np.arange(nstart, nstart + nbands)
         elif fstop is not None and nbands is not None:
-            nstop = acoustics.octave.index_of_frequency(fstop, fraction=fraction, ref=reference)
+            nstop = acoustic_toolbox.octave.index_of_frequency(fstop, fraction=fraction, ref=reference)
             indices = np.arange(nstop - nbands, nstop)
         else:
             raise ValueError("Insufficient parameters. Cannot determine fstart and/or fstop.")
 
-        center = acoustics.octave.exact_center_frequency(None, fraction=fraction, n=indices, ref=reference)
-        lower = acoustics.octave.lower_frequency(center, fraction=fraction)
-        upper = acoustics.octave.upper_frequency(center, fraction=fraction)
+        center = acoustic_toolbox.octave.exact_center_frequency(None, fraction=fraction, n=indices, ref=reference)
+        lower = acoustic_toolbox.octave.lower_frequency(center, fraction=fraction)
+        upper = acoustic_toolbox.octave.upper_frequency(center, fraction=fraction)
         bandwidth = upper - lower
-        nominal = acoustics.octave.nominal_center_frequency(None, fraction, indices)
+        nominal = acoustic_toolbox.octave.nominal_center_frequency(None, fraction, indices)
 
         super(OctaveBand, self).__init__(center, lower, upper, bandwidth)
 
@@ -814,7 +814,7 @@ def third_octaves(p, fs, density=False, frequencies=NOMINAL_THIRD_OCTAVE_CENTER_
 
     .. note:: Based on power spectrum (FFT)
 
-    .. seealso:: :attr:`acoustics.bands.THIRD_OCTAVE_CENTER_FREQUENCIES`
+    .. seealso:: :attr:`acoustic_toolbox.bands.THIRD_OCTAVE_CENTER_FREQUENCIES`
 
     .. note:: Exact center frequencies are always calculated.
 
@@ -841,7 +841,7 @@ def octaves(p, fs, density=False, frequencies=NOMINAL_OCTAVE_CENTER_FREQUENCIES,
 
     .. note:: Based on power spectrum (FFT)
 
-    .. seealso:: :attr:`acoustics.bands.OCTAVE_CENTER_FREQUENCIES`
+    .. seealso:: :attr:`acoustic_toolbox.bands.OCTAVE_CENTER_FREQUENCIES`
 
     .. note:: Exact center frequencies are always calculated.
 

@@ -1,8 +1,8 @@
 """
-An example of how to use :class:`acoustics.octave.Octave`.
+An example of how to use :class:`acoustic_toolbox.octave.Octave`.
 """
 
-from acoustics.octave import Octave
+from acoustic_toolbox.octave import Octave
 import numpy as np
 
 

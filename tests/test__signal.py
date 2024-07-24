@@ -4,7 +4,7 @@ import pytest
 import tempfile
 
 import itertools as it
-from acoustics.signal import EqualBand
+from acoustic_toolbox.signal import EqualBand
 import matplotlib.pyplot as plt
 
 #def test_operator():

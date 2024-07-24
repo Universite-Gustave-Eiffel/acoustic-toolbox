@@ -2,7 +2,7 @@
 Building
 ========
 
-The building module contains functions related to building acoustics.
+The building module contains functions related to building acoustic_toolbox.
 
 """
 import numpy as np

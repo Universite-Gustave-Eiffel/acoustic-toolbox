@@ -39,7 +39,7 @@ Modules
 Standards
 ---------
 
-The ``acoustics.standards`` module consists of modules where all code and
+The ``acoustic_toolbox.standards`` module consists of modules where all code and
 values are according to the respective standard.
 
 .. toctree::
@@ -50,7 +50,7 @@ values are according to the respective standard.
 Signal class
 ------------
 
-.. autoclass:: acoustics.Signal
+.. autoclass:: acoustic_toolbox.Signal
 
 
 

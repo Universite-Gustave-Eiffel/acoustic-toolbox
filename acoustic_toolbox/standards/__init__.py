@@ -21,7 +21,7 @@ The standards module provides implementations of standards.
 .. automodule:: acoustic_toolbox.standards.iec_61260_1_2014
 
 """
-from acoustics.standards import (
+from acoustic_toolbox.standards import (
     iso_tr_25417_2007,
     iec_61672_1_2013,
     iec_61260_1_2014,

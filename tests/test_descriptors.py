@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
-from acoustics.descriptors import leq, sel, lw, lden, ldn
+from acoustic_toolbox.descriptors import leq, sel, lw, lden, ldn
 
 @pytest.fixture
 def levels():

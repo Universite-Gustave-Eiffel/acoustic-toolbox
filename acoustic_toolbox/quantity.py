@@ -5,11 +5,11 @@ Quantities and units
 The Quantity module provides two classes to work with quantities and units.
 
 
-.. inheritance-diagram:: acoustics.quantity
+.. inheritance-diagram:: acoustic_toolbox.quantity
 
 """
 
-from acoustics.standards.iso_tr_25417_2007 import REFERENCE_PRESSURE
+from acoustic_toolbox.standards.iso_tr_25417_2007 import REFERENCE_PRESSURE
 
 quantities = {
     'pressure': ('Pressure', 'pascal', True, 'p', '$p$', REFERENCE_PRESSURE),

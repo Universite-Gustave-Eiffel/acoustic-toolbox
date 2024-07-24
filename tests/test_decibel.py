@@ -1,4 +1,4 @@
-from acoustics.decibel import *
+from acoustic_toolbox.decibel import *
 
 
 def test_dbsum():

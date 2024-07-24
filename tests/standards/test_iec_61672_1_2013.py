@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from acoustics.standards.iec_61672_1_2013 import *
+from acoustic_toolbox.standards.iec_61672_1_2013 import *
 from scipy.signal import freqresp
 
 

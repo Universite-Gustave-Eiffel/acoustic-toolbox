@@ -4,7 +4,7 @@ Octave
 
 Module for working with octaves.
 
-The following is an example on how to use :class:`acoustics.octave.Octave`.
+The following is an example on how to use :class:`acoustic_toolbox.octave.Octave`.
 
 .. literalinclude:: ../examples/octave.py
 
@@ -17,8 +17,8 @@ import acoustics
 #Reference frequency.
 #"""
 
-from acoustics.standards.iec_61260_1_2014 import index_of_frequency
-from acoustics.standards.iec_61260_1_2014 import REFERENCE_FREQUENCY as REFERENCE
+from acoustic_toolbox.standards.iec_61260_1_2014 import index_of_frequency
+from acoustic_toolbox.standards.iec_61260_1_2014 import REFERENCE_FREQUENCY as REFERENCE
 
 
 def exact_center_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
@@ -30,13 +30,13 @@ def exact_center_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
     :param ref: Reference frequency.
     :return: Exact center frequency for the given frequency or band index.
 
-    .. seealso:: :func:`acoustics.standards.iec_61260_1_2014.exact_center_frequency`
-    .. seealso:: :func:`acoustics.standards.iec_61260_1_2014.index_of_frequency`
+    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency`
+    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.index_of_frequency`
 
     """
     if frequency is not None:
-        n = acoustics.standards.iec_61260_1_2014.index_of_frequency(frequency, fraction=fraction, ref=ref)
-    return acoustics.standards.iec_61260_1_2014.exact_center_frequency(n, fraction=fraction, ref=ref)
+        n = acoustic_toolbox.standards.iec_61260_1_2014.index_of_frequency(frequency, fraction=fraction, ref=ref)
+    return acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency(n, fraction=fraction, ref=ref)
 
 
 def nominal_center_frequency(frequency=None, fraction=1, n=None):
@@ -47,14 +47,14 @@ def nominal_center_frequency(frequency=None, fraction=1, n=None):
     :param n: Index of band.
     :returns: The nominal center frequency for the given frequency or band index.
 
-    .. seealso:: :func:`acoustics.standards.iec_61260_1_2014.exact_center_frequency`
-    .. seealso:: :func:`acoustics.standards.iec_61260_1_2014.nominal_center_frequency`
+    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency`
+    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.nominal_center_frequency`
 
     .. note:: Contrary to the other functions this function silently assumes 1000 Hz reference frequency.
 
     """
     center = exact_center_frequency(frequency, fraction, n)
-    return acoustics.standards.iec_61260_1_2014.nominal_center_frequency(center, fraction)
+    return acoustic_toolbox.standards.iec_61260_1_2014.nominal_center_frequency(center, fraction)
 
 
 def lower_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
@@ -66,12 +66,12 @@ def lower_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
     :param ref: Reference frequency.
     :returns: Lower band-edge frequency for the given frequency or band index.
 
-    .. seealso:: :func:`acoustics.standards.iec_61260_1_2014.exact_center_frequency`
-    .. seealso:: :func:`acoustics.standards.iec_61260_1_2014.lower_frequency`
+    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency`
+    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.lower_frequency`
 
     """
     center = exact_center_frequency(frequency, fraction, n, ref=ref)
-    return acoustics.standards.iec_61260_1_2014.lower_frequency(center, fraction)
+    return acoustic_toolbox.standards.iec_61260_1_2014.lower_frequency(center, fraction)
 
 
 def upper_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
@@ -83,17 +83,17 @@ def upper_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
     :param ref: Reference frequency.
     :returns: Upper band-edge frequency for the given frequency or band index.
 
-    .. seealso:: :func:`acoustics.standards.iec_61260_1_2014.exact_center_frequency`
-    .. seealso:: :func:`acoustics.standards.iec_61260_1_2014.upper_frequency`
+    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency`
+    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.upper_frequency`
 
     """
     center = exact_center_frequency(frequency, fraction, n, ref=ref)
-    return acoustics.standards.iec_61260_1_2014.upper_frequency(center, fraction)
+    return acoustic_toolbox.standards.iec_61260_1_2014.upper_frequency(center, fraction)
 
 
 #-- things below will be deprecated?---#
 
-frequency_of_band = acoustics.standards.iec_61260_1_2014.exact_center_frequency
+frequency_of_band = acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency
 band_of_frequency = index_of_frequency
 
 

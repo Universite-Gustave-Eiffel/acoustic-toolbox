@@ -1,4 +1,4 @@
-from acoustics.standards.iso_tr_25417_2007 import *
+from acoustic_toolbox.standards.iso_tr_25417_2007 import *
 
 
 def test_sound_exposure_level():

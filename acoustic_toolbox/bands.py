@@ -4,9 +4,9 @@ Bands
 
 """
 import numpy as np
-#from acoustics.decibel import dbsum
+#from acoustic_toolbox.decibel import dbsum
 import acoustics
-from acoustics.standards.iec_61672_1_2013 import (NOMINAL_OCTAVE_CENTER_FREQUENCIES,
+from acoustic_toolbox.standards.iec_61672_1_2013 import (NOMINAL_OCTAVE_CENTER_FREQUENCIES,
                                                   NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES)
 
 OCTAVE_CENTER_FREQUENCIES = NOMINAL_OCTAVE_CENTER_FREQUENCIES
@@ -37,19 +37,19 @@ def octave(first, last):
     #low = np.where(octave_bands == first)[0]
     #high = np.where(octave_bands == last)[0]
     #return octave_bands[low: high+1]
-    return acoustics.signal.OctaveBand(fstart=first, fstop=last, fraction=1).nominal
+    return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=1).nominal
 
 
 def octave_low(first, last):
     """Lower cornerfrequencies of octaves."""
     return octave(first, last) / np.sqrt(2.0)
-    #return acoustics.signal.OctaveBand(fstart=first, fstop=last, fraction=1).lower
+    #return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=1).lower
 
 
 def octave_high(first, last):
     """Upper cornerfrequencies of octaves."""
     return octave(first, last) * np.sqrt(2.0)
-    #return acoustics.signal.OctaveBand(fstart=first, fstop=last, fraction=1).upper
+    #return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=1).upper
 
 
 def third(first, last):
@@ -73,13 +73,13 @@ def third(first, last):
     #low = np.where(third_oct_bands == first)[0]
     #high = np.where(third_oct_bands == last)[0]
     #return third_oct_bands[low: high+1]
-    return acoustics.signal.OctaveBand(fstart=first, fstop=last, fraction=3).nominal
+    return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=3).nominal
 
 
 def third_low(first, last):
     """Lower cornerfrequencies of third-octaves."""
     return third(first, last) / 2.0**(1.0 / 6.0)
-    #return acoustics.signal.OctaveBand(fstart=first, fstop=last, fraction=3).lower
+    #return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=3).lower
 
 
 def third_high(first, last):
@@ -114,7 +114,7 @@ def third2oct(levels, axis=None):
     shape[axis] = shape[axis] // 3
     shape.insert(axis + 1, 3)
     levels = np.reshape(levels, shape)
-    return np.squeeze(acoustics.decibel.dbsum(levels, axis=axis + 1))
+    return np.squeeze(acoustic_toolbox.decibel.dbsum(levels, axis=axis + 1))
 
 
 def _check_band_type(freqs):

@@ -9,20 +9,20 @@ and digital implementations of band-pass filters.
 Frequency functions
 **************************************
 
-.. autofunction:: acoustics.standards.iec_61260_1_2014.exact_center_frequency
-.. autofunction:: acoustics.standards.iec_61260_1_2014.lower_frequency
-.. autofunction:: acoustics.standards.iec_61260_1_2014.upper_frequency
-.. autofunction:: acoustics.standards.iec_61260_1_2014.index_of_frequency
+.. autofunction:: acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency
+.. autofunction:: acoustic_toolbox.standards.iec_61260_1_2014.lower_frequency
+.. autofunction:: acoustic_toolbox.standards.iec_61260_1_2014.upper_frequency
+.. autofunction:: acoustic_toolbox.standards.iec_61260_1_2014.index_of_frequency
 
 
 Nominal center frequencies
 **************************
 
-.. autoattribute:: acoustics.standards.iec_61260_1_2014.NOMINAL_OCTAVE_CENTER_FREQUENCIES
-.. autoattribute:: acoustics.standards.iec_61260_1_2014.NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES
+.. autoattribute:: acoustic_toolbox.standards.iec_61260_1_2014.NOMINAL_OCTAVE_CENTER_FREQUENCIES
+.. autoattribute:: acoustic_toolbox.standards.iec_61260_1_2014.NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES
 
-.. autoattribute:: acoustics.standards.iec_61260_1_2014.REFERENCE_FREQUENCY
-.. autoattribute:: acoustics.standards.iec_61260_1_2014.OCTAVE_FREQUENCY_RATIO
+.. autoattribute:: acoustic_toolbox.standards.iec_61260_1_2014.REFERENCE_FREQUENCY
+.. autoattribute:: acoustic_toolbox.standards.iec_61260_1_2014.OCTAVE_FREQUENCY_RATIO
 
 """
 import acoustics
@@ -148,7 +148,7 @@ def _nominal_center_frequency(center, fraction):
     if b == 1:
         n = index_of_frequency(x, b)
         if -6 <= n < 5:  # Correspond to indices when n=0 corresponds to 1000 Hz
-            return acoustics.standards.iec_61672_1_2013.NOMINAL_OCTAVE_CENTER_FREQUENCIES[n + 6]
+            return acoustic_toolbox.standards.iec_61672_1_2013.NOMINAL_OCTAVE_CENTER_FREQUENCIES[n + 6]
         elif n >= 5:
             return 2.0 * _nominal_center_frequency(exact_center_frequency(n - 1, b), b)  # WARNING: Unclear in standard!
         else:
@@ -164,7 +164,7 @@ def _nominal_center_frequency(center, fraction):
         n = index_of_frequency(x, b)
 
         if -20 <= n < 14:  # Correspond to indices when n=0 corresponds to 1000 Hz
-            return acoustics.standards.iec_61672_1_2013.NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES[n + 20]
+            return acoustic_toolbox.standards.iec_61672_1_2013.NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES[n + 20]
         elif n >= 14:
             return 10. * _nominal_center_frequency(exact_center_frequency(n - 10, b),
                                                    b)  # WARNING: Unclear in standard!

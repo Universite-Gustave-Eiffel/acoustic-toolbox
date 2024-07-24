@@ -20,7 +20,7 @@ The test suite can be run with
 
 ## Documentation
 
-Documentation can be found [online](http://python-acoustics.github.io/python-acoustics/).
+Documentation can be found [online](http://python-acoustic_toolbox.github.io/python-acoustics/).
 
 ## License
 
