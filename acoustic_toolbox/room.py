@@ -23,7 +23,8 @@ def mean_alpha(alphas, surfaces):
     :param alphas: Absorption coefficients :math:`\\alpha`.
     :param surfaces: Surfaces :math:`S`.
     """
-    return np.average(alphas, axis=0, weights=surfaces)
+    axis = None if np.ndim(alphas) == 0 else 0
+    return np.average(alphas, axis=axis, weights=surfaces)
 
 
 def nrc(alphas):

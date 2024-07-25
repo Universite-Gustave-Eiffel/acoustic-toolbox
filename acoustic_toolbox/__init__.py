@@ -5,7 +5,6 @@ Acoustic Toolbox
 The acoustic_toolbox module.
 
 """
-import acoustic_toolbox.aio
 import acoustic_toolbox.ambisonics
 import acoustic_toolbox.atmosphere
 import acoustic_toolbox.bands

@@ -156,8 +156,6 @@ def integrate(data, sample_frequency, integration_time):
         This results in a drift of samples for longer signals (e.g. 60 minutes at 44.1 kHz).
 
     """
-    integration_time = np.asarray(integration_time)
-    sample_frequency = np.asarray(sample_frequency)
     samples = data.shape[-1]
     b, a = zpk2tf([1.0], [1.0, integration_time], [1.0])
     b, a = bilinear(b, a, fs=sample_frequency)
