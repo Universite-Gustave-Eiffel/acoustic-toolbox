@@ -1,6 +1,6 @@
 name: Test package
 
-on: [push, workflow_call]
+on: [push, pull_request, workflow_call]
 
 jobs:
   test-pytest:
