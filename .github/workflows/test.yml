@@ -1,6 +1,6 @@
-name: Run Unit Test via Pytest
+name: Test package
 
-on: [push]
+on: [push, workflow_call]
 
 jobs:
   build:
