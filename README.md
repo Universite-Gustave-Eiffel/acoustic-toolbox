@@ -1,4 +1,14 @@
-# acoustic-toolbox
+<p align="center">
+    <img height="100px" src="![Acoustic Toolbox](https://github.com/Universite-Gustave-Eiffel/acoustic-toolbox/blob/main/logo.txt.png?raw=true)" />
+    <!-- <h1 align="center">Acoustic Toolbox</h1> -->
+</p>
+
+<p align="center">
+    <a href="https://pypi.org/project/acoustic-toolbox/"><img src="https://badgen.net/pypi/v/acoustic-toolbox" /></a>
+    <a href="https://pypi.org/project/acoustic-toolbox/"><img src="https://badgen.net/pypi/python/acoustic-toolbox" /></a>
+    <a href="LICENSE"><img src="https://badgen.net/github/license/Universite-Gustave-Eiffel/acoustic-toolbox" /></a>
+    <a href="."><img src="https://badgen.net/github/checks/Universite-Gustave-Eiffel/acoustic-toolbox" /></a>
+</p>
 
 The `acoustic-toolbox` module is a Python module with useful tools for acousticians.
 
