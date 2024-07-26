@@ -3,7 +3,9 @@ name: Test package
 on: [push, workflow_call]
 
 jobs:
-  build:
+  test-pytest:
+    name: Test with Pytest
+
     runs-on: ubuntu-latest
     strategy:
       matrix:

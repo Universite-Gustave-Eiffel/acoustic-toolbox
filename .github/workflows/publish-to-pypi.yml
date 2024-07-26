@@ -11,8 +11,7 @@ jobs:
   build:
     uses: ./.github/workflows/build-dist.yml
   publish-to-pypi:
-    name: >-
-      Publish Python 🐍 distribution 📦 to PyPI
+    name: Publish to PyPI
     if: startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
     needs: [test, build]
     runs-on: ubuntu-latest
@@ -27,5 +26,5 @@ jobs:
         with:
           name: python-package-distributions
           path: dist/
-      - name: Publish distribution 📦 to PyPI
+      - name: Publish distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
