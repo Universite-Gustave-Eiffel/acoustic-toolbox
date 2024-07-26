@@ -1,6 +1,12 @@
 name: Publish package to TestPyPi
 
-on: [push, workflow_call]
+
+on:
+  push:
+    # disable for tests
+    # branches:
+    #   - 'main'
+  workflow_dispatch:
 
 jobs:
   test:
