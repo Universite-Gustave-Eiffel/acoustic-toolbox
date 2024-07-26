@@ -1,9 +1,11 @@
-name: Run Unit Test via Pytest
+name: Test package
 
-on: [push]
+on: [push, workflow_call]
 
 jobs:
-  build:
+  test-pytest:
+    name: Test with Pytest
+
     runs-on: ubuntu-latest
     strategy:
       matrix:
