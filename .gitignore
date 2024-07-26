@@ -45,7 +45,7 @@ nosetests.xml
 _build
 *.bak
 
-*.png
+# *.png
 .cache
 
 # Emacs
