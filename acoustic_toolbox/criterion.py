@@ -3,6 +3,7 @@ Criterion
 =========
 
 """
+
 import numpy as np
 
 NC_CURVES = {
@@ -17,7 +18,7 @@ NC_CURVES = {
     55: np.array([74.0, 67.0, 62.0, 58.0, 56.0, 54.0, 53.0, 52.0]),
     60: np.array([77.0, 71.0, 67.0, 63.0, 61.0, 59.0, 58.0, 57.0]),
     65: np.array([80.0, 75.0, 71.0, 68.0, 66.0, 64.0, 63.0, 62.0]),
-    70: np.array([83.0, 79.0, 75.0, 72.0, 71.0, 70.0, 69.0, 68.0])
+    70: np.array([83.0, 79.0, 75.0, 72.0, 71.0, 70.0, 69.0, 68.0]),
 }
 """
 NC curves.
@@ -51,9 +52,9 @@ def nc(levels):
         if (levels <= curve).all():
             break
         if nc_test == 70:
-            nc_test = '70+'
+            nc_test = "70+"
             break
     return nc_test  # pylint: disable=undefined-loop-variable
 
 
-__all__ = ['NC_CURVES', 'nc_curve', 'nc']
+__all__ = ["NC_CURVES", "nc_curve", "nc"]

@@ -10,6 +10,7 @@ The following conventions are used within this module:
 * The azimuth angle :math:`\\phi` has a range :math:`[0 , 2 \\pi]`.
 
 """
+
 import abc
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
@@ -37,7 +38,7 @@ def figure_eight(theta, phi=0.0):
     :param theta: angle :math:`\\theta`
     """
     del phi
-    #return spherical_harmonic(theta, phi, m=0, n=1)
+    # return spherical_harmonic(theta, phi, m=0, n=1)
     return np.abs(np.cos(theta))
 
 
@@ -67,7 +68,11 @@ def spherical_to_cartesian(r, theta, phi):
     r = np.asanyarray(r)
     theta = np.asanyarray(theta)
     phi = np.asanyarray(phi)
-    return (r * np.sin(theta) * np.cos(phi), r * np.sin(theta) * np.sin(phi), r * np.cos(theta))
+    return (
+        r * np.sin(theta) * np.cos(phi),
+        r * np.sin(theta) * np.sin(phi),
+        r * np.cos(theta),
+    )
 
 
 def cartesian_to_spherical(x, y, z):
@@ -97,8 +102,9 @@ class Directivity:
     """
 
     def __init__(self, rotation=None):
-
-        self.rotation = rotation if rotation else np.array([1.0, 0.0, 0.0])  # X, Y, Z rotation
+        self.rotation = (
+            rotation if rotation else np.array([1.0, 0.0, 0.0])
+        )  # X, Y, Z rotation
         """
         Rotation of the directivity pattern.
         """
@@ -176,21 +182,17 @@ class Cardioid(Directivity):
 
 
 class FigureEight(Directivity):
-    """Directivity of a figure of eight.
-    """
+    """Directivity of a figure of eight."""
 
     def _directivity(self, theta, phi):
-        """Directivity
-        """
+        """Directivity"""
         return figure_eight(theta, phi)
 
 
 class SphericalHarmonic(Directivity):
-    """Directivity of a spherical harmonic of degree `n` and order `m`.
-    """
+    """Directivity of a spherical harmonic of degree `n` and order `m`."""
 
     def __init__(self, rotation=None, m=None, n=None):
-
         super().__init__(rotation=rotation)
         self.m = m
         """Order `m`.
@@ -200,8 +202,7 @@ class SphericalHarmonic(Directivity):
         """
 
     def _directivity(self, theta, phi):
-        """Directivity
-        """
+        """Directivity"""
         return spherical_harmonic(theta, phi, self.m, self.n)
 
 
@@ -248,7 +249,9 @@ def plot(d, sphere=False):
 
     :returns: Figure
     """
-    theta, phi = np.meshgrid(np.linspace(0.0, np.pi, 50), np.linspace(0.0, +2.0 * np.pi, 50))
+    theta, phi = np.meshgrid(
+        np.linspace(0.0, np.pi, 50), np.linspace(0.0, +2.0 * np.pi, 50)
+    )
 
     # Directivity strength. Real-valued. Can be positive and negative.
     dr = d.using_spherical(theta, phi)
@@ -258,11 +261,11 @@ def plot(d, sphere=False):
 
     else:
         x, y, z = spherical_to_cartesian(np.abs(dr), theta, phi)
-    #R, theta, phi = cartesian_to_spherical(x, y, z)
+    # R, theta, phi = cartesian_to_spherical(x, y, z)
 
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    #p = ax.plot_surface(x, y, z, cmap=plt.cm.jet, rstride=1, cstride=1, linewidth=0)
+    ax = fig.add_subplot(111, projection="3d")
+    # p = ax.plot_surface(x, y, z, cmap=plt.cm.jet, rstride=1, cstride=1, linewidth=0)
 
     norm = Normalize()
     norm.autoscale(dr)
@@ -272,7 +275,7 @@ def plot(d, sphere=False):
     ax.plot_surface(x, y, z, facecolors=colors, rstride=1, cstride=1, linewidth=0)
     plt.colorbar(m, ax=ax)
 
-    ax.set_xlabel('$x$')
-    ax.set_ylabel('$y$')
-    ax.set_zlabel('$z$')
+    ax.set_xlabel("$x$")
+    ax.set_ylabel("$y$")
+    ax.set_zlabel("$z$")
     return fig

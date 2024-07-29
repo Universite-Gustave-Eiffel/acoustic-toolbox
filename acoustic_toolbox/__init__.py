@@ -5,6 +5,7 @@ Acoustic Toolbox
 The acoustic_toolbox module.
 
 """
+
 import acoustic_toolbox.ambisonics
 import acoustic_toolbox.atmosphere
 import acoustic_toolbox.bands
@@ -23,7 +24,8 @@ import acoustic_toolbox.quantity
 import acoustic_toolbox.reflection
 import acoustic_toolbox.room
 import acoustic_toolbox.signal
-#import acoustic_toolbox.utils
+
+# import acoustic_toolbox.utils
 import acoustic_toolbox.weighting
 
 from acoustic_toolbox._signal import Signal

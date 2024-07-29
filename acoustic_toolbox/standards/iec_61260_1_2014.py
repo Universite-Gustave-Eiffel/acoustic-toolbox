@@ -25,17 +25,50 @@ Nominal center frequencies
 .. autoattribute:: acoustic_toolbox.standards.iec_61260_1_2014.OCTAVE_FREQUENCY_RATIO
 
 """
+
 import acoustic_toolbox
 import numpy as np
 
-NOMINAL_OCTAVE_CENTER_FREQUENCIES = np.array([31.5, 63.0, 125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0, 16000.0])
+NOMINAL_OCTAVE_CENTER_FREQUENCIES = np.array(
+    [31.5, 63.0, 125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0, 16000.0]
+)
 """Nominal octave center frequencies.
 """
 
-NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES = np.array([
-    25.0, 31.5, 40.0, 50.0, 63.0, 80.0, 100.0, 125.0, 160.0, 200.0, 250.0, 315.0, 400.0, 500.0, 630.0, 800.0, 1000.0,
-    1250.0, 1600.0, 2000.0, 2500.0, 3150.0, 4000.0, 5000.0, 6300.0, 8000.0, 10000.0, 12500.0, 16000.0, 20000.0
-])
+NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES = np.array(
+    [
+        25.0,
+        31.5,
+        40.0,
+        50.0,
+        63.0,
+        80.0,
+        100.0,
+        125.0,
+        160.0,
+        200.0,
+        250.0,
+        315.0,
+        400.0,
+        500.0,
+        630.0,
+        800.0,
+        1000.0,
+        1250.0,
+        1600.0,
+        2000.0,
+        2500.0,
+        3150.0,
+        4000.0,
+        5000.0,
+        6300.0,
+        8000.0,
+        10000.0,
+        12500.0,
+        16000.0,
+        20000.0,
+    ]
+)
 """Nominal third-octave center frequencies in the audio range.
 """
 
@@ -43,14 +76,16 @@ REFERENCE_FREQUENCY = 1000.0
 """Reference frequency.
 """
 
-OCTAVE_FREQUENCY_RATIO = 10.0**(3.0 / 10.0)
+OCTAVE_FREQUENCY_RATIO = 10.0 ** (3.0 / 10.0)
 """Octave frequency ratio :math:`G`.
 
 See equation 1.
 """
 
 
-def exact_center_frequency(x, fraction=1, ref=REFERENCE_FREQUENCY, G=OCTAVE_FREQUENCY_RATIO):
+def exact_center_frequency(
+    x, fraction=1, ref=REFERENCE_FREQUENCY, G=OCTAVE_FREQUENCY_RATIO
+):
     """
     Center frequencies :math:`f_m` for band indices :math:`x`. See equation 2 and 3.
 
@@ -70,8 +105,10 @@ def exact_center_frequency(x, fraction=1, ref=REFERENCE_FREQUENCY, G=OCTAVE_FREQ
     See equation 2 and 3 of the standard.
     """
     fraction = np.asarray(fraction)
-    uneven = (fraction % 2).astype('bool')
-    return ref * G**((2.0 * x + 1.0) / (2.0 * fraction)) * np.logical_not(uneven) + uneven * ref * G**(x / fraction)
+    uneven = (fraction % 2).astype("bool")
+    return ref * G ** ((2.0 * x + 1.0) / (2.0 * fraction)) * np.logical_not(
+        uneven
+    ) + uneven * ref * G ** (x / fraction)
 
 
 def lower_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO):
@@ -89,7 +126,7 @@ def lower_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO):
     See equation 4 of the standard.
 
     """
-    return center * G**(-1.0 / (2.0 * fraction))
+    return center * G ** (-1.0 / (2.0 * fraction))
 
 
 def upper_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO):
@@ -107,10 +144,12 @@ def upper_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO):
     See equation 5 of the standard.
 
     """
-    return center * G**(+1.0 / (2.0 * fraction))
+    return center * G ** (+1.0 / (2.0 * fraction))
 
 
-def index_of_frequency(frequency, fraction=1, ref=REFERENCE_FREQUENCY, G=OCTAVE_FREQUENCY_RATIO):
+def index_of_frequency(
+    frequency, fraction=1, ref=REFERENCE_FREQUENCY, G=OCTAVE_FREQUENCY_RATIO
+):
     """Determine the band index `x` from a given frequency.
 
     :param frequency: Frequencies :math:`f`.
@@ -126,9 +165,14 @@ def index_of_frequency(frequency, fraction=1, ref=REFERENCE_FREQUENCY, G=OCTAVE_
 
     """
     fraction = np.asarray(fraction)
-    uneven = (fraction % 2).astype('bool')
-    return (np.round((2.0 * fraction * np.log(frequency / ref) / np.log(G) - 1.0)) / 2.0 * np.logical_not(uneven) +
-            uneven * np.round(fraction * np.log(frequency / ref) / np.log(G)).astype('int16')).astype('int16')
+    uneven = (fraction % 2).astype("bool")
+    return (
+        np.round((2.0 * fraction * np.log(frequency / ref) / np.log(G) - 1.0))
+        / 2.0
+        * np.logical_not(uneven)
+        + uneven
+        * np.round(fraction * np.log(frequency / ref) / np.log(G)).astype("int16")
+    ).astype("int16")
 
 
 def _nominal_center_frequency(center, fraction):
@@ -148,12 +192,19 @@ def _nominal_center_frequency(center, fraction):
     if b == 1:
         n = index_of_frequency(x, b)
         if -6 <= n < 5:  # Correspond to indices when n=0 corresponds to 1000 Hz
-            return acoustic_toolbox.standards.iec_61672_1_2013.NOMINAL_OCTAVE_CENTER_FREQUENCIES[n + 6]
+            return acoustic_toolbox.standards.iec_61672_1_2013.NOMINAL_OCTAVE_CENTER_FREQUENCIES[
+                n + 6
+            ]
         elif n >= 5:
-            return 2.0 * _nominal_center_frequency(exact_center_frequency(n - 1, b), b)  # WARNING: Unclear in standard!
+            return 2.0 * _nominal_center_frequency(
+                exact_center_frequency(n - 1, b), b
+            )  # WARNING: Unclear in standard!
         else:
-            return 1. / 2.0 * _nominal_center_frequency(exact_center_frequency(n + 1, b),
-                                                        b)  # WARNING: Unclear in standard!
+            return (
+                1.0
+                / 2.0
+                * _nominal_center_frequency(exact_center_frequency(n + 1, b), b)
+            )  # WARNING: Unclear in standard!
 
     # Section E.2: 1/2-octaves
     elif b == 2:
@@ -164,17 +215,23 @@ def _nominal_center_frequency(center, fraction):
         n = index_of_frequency(x, b)
 
         if -20 <= n < 14:  # Correspond to indices when n=0 corresponds to 1000 Hz
-            return acoustic_toolbox.standards.iec_61672_1_2013.NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES[n + 20]
+            return acoustic_toolbox.standards.iec_61672_1_2013.NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES[
+                n + 20
+            ]
         elif n >= 14:
-            return 10. * _nominal_center_frequency(exact_center_frequency(n - 10, b),
-                                                   b)  # WARNING: Unclear in standard!
+            return 10.0 * _nominal_center_frequency(
+                exact_center_frequency(n - 10, b), b
+            )  # WARNING: Unclear in standard!
         else:
-            return 1. / 10. * _nominal_center_frequency(exact_center_frequency(n + 10, b),
-                                                        b)  # WARNING: Unclear in standard!
+            return (
+                1.0
+                / 10.0
+                * _nominal_center_frequency(exact_center_frequency(n + 10, b), b)
+            )  # WARNING: Unclear in standard!
 
     # Section E3.3: 1/4 to 1/24-octaves, inclusive
     elif 4 <= b <= 24:
-        msd = x // 10.0**np.floor(np.log10(x))
+        msd = x // 10.0 ** np.floor(np.log10(x))
         if msd < 5:
             return _roundn(x, 2)  # E3.2
         else:

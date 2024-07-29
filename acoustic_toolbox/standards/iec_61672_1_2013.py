@@ -29,6 +29,7 @@ Weighting systems
 
 
 """
+
 import io
 import os
 import pkgutil
@@ -40,7 +41,14 @@ from .iso_tr_25417_2007 import REFERENCE_PRESSURE
 
 
 WEIGHTING_DATA = pd.read_csv(
-    io.BytesIO(pkgutil.get_data('acoustic_toolbox', os.path.join('data', 'iec_61672_1_2013.csv'))), sep=',', index_col=0)
+    io.BytesIO(
+        pkgutil.get_data(
+            "acoustic_toolbox", os.path.join("data", "iec_61672_1_2013.csv")
+        )
+    ),
+    sep=",",
+    index_col=0,
+)
 """DataFrame with indices, nominal frequencies and weighting values.
 """
 
@@ -56,7 +64,9 @@ REFERENCE_FREQUENCY = 1000.0
 """Reference frequency. See table 3.
 """
 
-EXACT_THIRD_OCTAVE_CENTER_FREQUENCIES = REFERENCE_FREQUENCY * 10.0**(0.01 * (np.arange(10, 44) - 30))
+EXACT_THIRD_OCTAVE_CENTER_FREQUENCIES = REFERENCE_FREQUENCY * 10.0 ** (
+    0.01 * (np.arange(10, 44) - 30)
+)
 """Exact third-octave center frequencies. See table 3.
 """
 
@@ -72,7 +82,7 @@ WEIGHTING_Z = np.array(WEIGHTING_DATA.Z)
 """Frequency weighting Z. See table 3.
 """
 
-WEIGHTING_VALUES = {'A': WEIGHTING_A, 'C': WEIGHTING_C, 'Z': WEIGHTING_Z}
+WEIGHTING_VALUES = {"A": WEIGHTING_A, "C": WEIGHTING_C, "Z": WEIGHTING_Z}
 """Dictionary with weighting values 'A', 'C' and 'Z' weighting.
 """
 
@@ -85,7 +95,9 @@ SLOW = 1.000
 """
 
 
-def time_averaged_sound_level(pressure, sample_frequency, averaging_time, reference_pressure=REFERENCE_PRESSURE):
+def time_averaged_sound_level(
+    pressure, sample_frequency, averaging_time, reference_pressure=REFERENCE_PRESSURE
+):
     """Time-averaged sound pressure level.
 
     :param pressure: Dynamic pressure.
@@ -94,7 +106,10 @@ def time_averaged_sound_level(pressure, sample_frequency, averaging_time, refere
     :param reference_pressure: Reference pressure.
 
     """
-    levels = 10.0 * np.log10(average(pressure**2.0, sample_frequency, averaging_time) / reference_pressure**2.0)
+    levels = 10.0 * np.log10(
+        average(pressure**2.0, sample_frequency, averaging_time)
+        / reference_pressure**2.0
+    )
     times = np.arange(levels.shape[-1]) * averaging_time
     return times, levels
 
@@ -119,15 +134,17 @@ def average(data, sample_frequency, averaging_time):
     sample_frequency = np.asarray(sample_frequency)
     samples = data.shape[-1]
     n = np.floor(averaging_time * sample_frequency).astype(int)
-    data = data[..., 0:n * (samples // n)]  # Drop the tail of the signal.
+    data = data[..., 0 : n * (samples // n)]  # Drop the tail of the signal.
     newshape = list(data.shape[0:-1])
     newshape.extend([-1, n])
     data = data.reshape(newshape)
-    #data = data.reshape((-1, n))
+    # data = data.reshape((-1, n))
     return data.mean(axis=-1)
 
 
-def time_weighted_sound_level(pressure, sample_frequency, integration_time, reference_pressure=REFERENCE_PRESSURE):
+def time_weighted_sound_level(
+    pressure, sample_frequency, integration_time, reference_pressure=REFERENCE_PRESSURE
+):
     """Time-weighted sound pressure level.
 
     :param pressure: Dynamic pressure.
@@ -135,7 +152,10 @@ def time_weighted_sound_level(pressure, sample_frequency, integration_time, refe
     :param integration_time: Integration time.
     :param reference_pressure: Reference pressure.
     """
-    levels = 10.0 * np.log10(integrate(pressure**2.0, sample_frequency, integration_time) / reference_pressure**2.0)
+    levels = 10.0 * np.log10(
+        integrate(pressure**2.0, sample_frequency, integration_time)
+        / reference_pressure**2.0
+    )
     times = np.arange(levels.shape[-1]) * integration_time
     return times, levels
 
@@ -159,16 +179,16 @@ def integrate(data, sample_frequency, integration_time):
     samples = data.shape[-1]
     b, a = zpk2tf([1.0], [1.0, integration_time], [1.0])
     b, a = bilinear(b, a, fs=sample_frequency)
-    #b, a = bilinear([1.0], [1.0, integration_time], fs=sample_frequency) # Bilinear: Analog to Digital filter.
+    # b, a = bilinear([1.0], [1.0, integration_time], fs=sample_frequency) # Bilinear: Analog to Digital filter.
     n = np.floor(integration_time * sample_frequency).astype(int)
-    data = data[..., 0:n * (samples // n)]
+    data = data[..., 0 : n * (samples // n)]
     newshape = list(data.shape[0:-1])
     newshape.extend([-1, n])
     data = data.reshape(newshape)
-    #data = data.reshape((-1, n)) # Divide in chunks over which to perform the integration.
-    return lfilter(
-        b, a,
-        data)[..., n - 1] / integration_time  # Perform the integration. Select the final value of the integration.
+    # data = data.reshape((-1, n)) # Divide in chunks over which to perform the integration.
+    return (
+        lfilter(b, a, data)[..., n - 1] / integration_time
+    )  # Perform the integration. Select the final value of the integration.
 
 
 def fast(data, fs):
@@ -181,7 +201,7 @@ def fast(data, fs):
 
     """
     return integrate(data, fs, FAST)
-    #return time_weighted_sound_level(data, fs, FAST)
+    # return time_weighted_sound_level(data, fs, FAST)
 
 
 def slow(data, fs):
@@ -194,7 +214,7 @@ def slow(data, fs):
 
     """
     return integrate(data, fs, SLOW)
-    #return time_weighted_sound_level(data, fs, SLOW)
+    # return time_weighted_sound_level(data, fs, SLOW)
 
 
 def fast_level(data, fs):
@@ -221,7 +241,7 @@ def slow_level(data, fs):
     return time_weighted_sound_level(data, fs, SLOW)
 
 
-#---- Annex E - Analytical expressions for frequency-weightings C, A, and Z.-#
+# ---- Annex E - Analytical expressions for frequency-weightings C, A, and Z.-#
 
 _POLE_FREQUENCIES = {
     1: 20.60,
@@ -235,8 +255,8 @@ See section E.4.1 of the standard.
 """
 
 _NORMALIZATION_CONSTANTS = {
-    'A': -2.000,
-    'C': -0.062,
+    "A": -2.000,
+    "C": -0.062,
 }
 """Normalization constants :math:`C_{1000}` and :math:`A_{1000}`.
 
@@ -260,10 +280,21 @@ def weighting_function_a(frequencies):
 
     """
     f = np.asarray(frequencies)
-    offset = _NORMALIZATION_CONSTANTS['A']
+    offset = _NORMALIZATION_CONSTANTS["A"]
     f1, f2, f3, f4 = _POLE_FREQUENCIES.values()
-    weighting = 20.0 * np.log10((f4**2.0 * f**4.0) / (
-        (f**2.0 + f1**2.0) * np.sqrt(f**2.0 + f2**2.0) * np.sqrt(f**2.0 + f3**2.0) * (f**2.0 + f4**2.0))) - offset
+    weighting = (
+        20.0
+        * np.log10(
+            (f4**2.0 * f**4.0)
+            / (
+                (f**2.0 + f1**2.0)
+                * np.sqrt(f**2.0 + f2**2.0)
+                * np.sqrt(f**2.0 + f3**2.0)
+                * (f**2.0 + f4**2.0)
+            )
+        )
+        - offset
+    )
     return weighting
 
 
@@ -283,9 +314,12 @@ def weighting_function_c(frequencies):
 
     """
     f = np.asarray(frequencies)
-    offset = _NORMALIZATION_CONSTANTS['C']
+    offset = _NORMALIZATION_CONSTANTS["C"]
     f1, _, _, f4 = _POLE_FREQUENCIES.values()
-    weighting = 20.0 * np.log10((f4**2.0 * f**2.0) / ((f**2.0 + f1**2.0) * (f**2.0 + f4**2.0))) - offset
+    weighting = (
+        20.0 * np.log10((f4**2.0 * f**2.0) / ((f**2.0 + f1**2.0) * (f**2.0 + f4**2.0)))
+        - offset
+    )
     return weighting
 
 
@@ -301,9 +335,9 @@ def weighting_function_z(frequencies):
 
 
 WEIGHTING_FUNCTIONS = {
-    'A': weighting_function_a,
-    'C': weighting_function_c,
-    'Z': weighting_function_z,
+    "A": weighting_function_a,
+    "C": weighting_function_c,
+    "Z": weighting_function_z,
 }
 """Dictionary with available weighting functions 'A', 'C' and 'Z'.
 """
@@ -321,10 +355,12 @@ def weighting_system_a():
     f2 = _POLE_FREQUENCIES[2]
     f3 = _POLE_FREQUENCIES[3]
     f4 = _POLE_FREQUENCIES[4]
-    offset = _NORMALIZATION_CONSTANTS['A']
-    numerator = np.array([(2.0 * np.pi * f4)**2.0 * (10**(-offset / 20.0)), 0.0, 0.0, 0.0, 0.0])
-    part1 = [1.0, 4.0 * np.pi * f4, (2.0 * np.pi * f4)**2.0]
-    part2 = [1.0, 4.0 * np.pi * f1, (2.0 * np.pi * f1)**2.0]
+    offset = _NORMALIZATION_CONSTANTS["A"]
+    numerator = np.array(
+        [(2.0 * np.pi * f4) ** 2.0 * (10 ** (-offset / 20.0)), 0.0, 0.0, 0.0, 0.0]
+    )
+    part1 = [1.0, 4.0 * np.pi * f4, (2.0 * np.pi * f4) ** 2.0]
+    part2 = [1.0, 4.0 * np.pi * f1, (2.0 * np.pi * f1) ** 2.0]
     part3 = [1.0, 2.0 * np.pi * f3]
     part4 = [1.0, 2.0 * np.pi * f2]
     denomenator = np.convolve(np.convolve(np.convolve(part1, part2), part3), part4)
@@ -341,10 +377,12 @@ def weighting_system_c():
     """
     f1 = _POLE_FREQUENCIES[1]
     f4 = _POLE_FREQUENCIES[4]
-    offset = _NORMALIZATION_CONSTANTS['C']
-    numerator = np.array([(2.0 * np.pi * f4)**2.0 * (10**(-offset / 20.0)), 0.0, 0.0])
-    part1 = [1.0, 4.0 * np.pi * f4, (2.0 * np.pi * f4)**2.0]
-    part2 = [1.0, 4.0 * np.pi * f1, (2.0 * np.pi * f1)**2.0]
+    offset = _NORMALIZATION_CONSTANTS["C"]
+    numerator = np.array(
+        [(2.0 * np.pi * f4) ** 2.0 * (10 ** (-offset / 20.0)), 0.0, 0.0]
+    )
+    part1 = [1.0, 4.0 * np.pi * f4, (2.0 * np.pi * f4) ** 2.0]
+    part2 = [1.0, 4.0 * np.pi * f1, (2.0 * np.pi * f1) ** 2.0]
     denomenator = np.convolve(part1, part2)
     return numerator, denomenator
 
@@ -364,9 +402,9 @@ def weighting_system_z():
 
 
 WEIGHTING_SYSTEMS = {
-    'A': weighting_system_a,
-    'C': weighting_system_c,
-    'Z': weighting_system_z,
+    "A": weighting_system_a,
+    "C": weighting_system_c,
+    "Z": weighting_system_z,
 }
 """Weighting systems.
 """

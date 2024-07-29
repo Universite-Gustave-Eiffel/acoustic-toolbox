@@ -3,6 +3,7 @@ Utils
 =====
 
 """
+
 import numpy as np
 from acoustic_toolbox.decibel import dbsum
 
@@ -20,7 +21,7 @@ def mean_tl(tl, surfaces):
         tau_axis = tl.ndim - 1
     except AttributeError:
         tau_axis = 0
-    tau = 1.0 / (10.0**(tl / 10.0))
+    tau = 1.0 / (10.0 ** (tl / 10.0))
     return 10.0 * np.log10(1.0 / np.average(tau, tau_axis, surfaces))
 
 

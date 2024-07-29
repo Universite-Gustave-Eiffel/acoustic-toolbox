@@ -48,7 +48,12 @@ def sn3d(m, n):
     n = np.atleast_1d(n)
 
     d = np.logical_not(m.astype(bool))
-    out = np.sqrt((2.0 - d) / (4.0 * np.pi) * scipy.special.factorial(n - np.abs(m)) / scipy.special.factorial.factorial(n + np.abs(m)))
+    out = np.sqrt(
+        (2.0 - d)
+        / (4.0 * np.pi)
+        * scipy.special.factorial(n - np.abs(m))
+        / scipy.special.factorial.factorial(n + np.abs(m))
+    )
     return out
 
 
@@ -65,4 +70,4 @@ def n3d(m, n):
     return sn3d(m, n) * np.sqrt(2 * n + 1)
 
 
-__all__ = ['acn', 'sn3d', 'n3d']
+__all__ = ["acn", "sn3d", "n3d"]

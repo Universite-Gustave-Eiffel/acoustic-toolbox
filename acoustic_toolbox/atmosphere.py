@@ -32,6 +32,7 @@ Functions
 .. autofunction:: acoustic_toolbox.standards.iso_9613_1_1993.attenuation_coefficient
 
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -54,13 +55,13 @@ class Atmosphere:
     """Triple point isotherm temperature."""
 
     def __init__(
-            self,
-            temperature=REFERENCE_TEMPERATURE,
-            pressure=REFERENCE_PRESSURE,
-            relative_humidity=0.0,
-            reference_temperature=REFERENCE_TEMPERATURE,
-            reference_pressure=REFERENCE_PRESSURE,
-            triple_temperature=TRIPLE_TEMPERATURE,
+        self,
+        temperature=REFERENCE_TEMPERATURE,
+        pressure=REFERENCE_PRESSURE,
+        relative_humidity=0.0,
+        reference_temperature=REFERENCE_TEMPERATURE,
+        reference_pressure=REFERENCE_PRESSURE,
+        triple_temperature=TRIPLE_TEMPERATURE,
     ):
         """
 
@@ -108,7 +109,11 @@ class Atmosphere:
             "reference_pressure",
             "triple_temperature",
         ]
-        return "({})".format(", ".join(map(lambda attr: "{}={}".format(attr, getattr(self, attr)), attributes)))
+        return "({})".format(
+            ", ".join(
+                map(lambda attr: "{}={}".format(attr, getattr(self, attr)), attributes)
+            )
+        )
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__ and self.__class__ == other.__class__
@@ -249,10 +254,10 @@ class Atmosphere:
         fig = plt.figure()
         ax0 = fig.add_subplot(111)
         ax0.plot(frequency, self.attenuation_coefficient(frequency) * 1000.0)
-        ax0.set_xscale('log')
-        ax0.set_yscale('log')
-        ax0.set_xlabel(r'$f$ in Hz')
-        ax0.set_ylabel(r'$\alpha$ in dB/km')
+        ax0.set_xscale("log")
+        ax0.set_yscale("log")
+        ax0.set_xlabel(r"$f$ in Hz")
+        ax0.set_ylabel(r"$\alpha$ in dB/km")
         ax0.legend()
 
         return fig
@@ -267,7 +272,9 @@ def frequency_response(atmosphere, distance, frequencies, inverse=False):
     :param inverse: Whether the attenuation should be undone.
     """
     sign = +1 if inverse else -1
-    tf = 10.0**(float(sign) * distance * atmosphere.attenuation_coefficient(frequencies) / 20.0)
+    tf = 10.0 ** (
+        float(sign) * distance * atmosphere.attenuation_coefficient(frequencies) / 20.0
+    )
     return tf
 
 
@@ -292,18 +299,28 @@ def impulse_response(atmosphere, distance, fs, ntaps, inverse=False):
     real, even frequency response.
     """
     # Frequencies vector with positive frequencies only.
-    frequencies = np.fft.rfftfreq(ntaps, 1. / fs)
+    frequencies = np.fft.rfftfreq(ntaps, 1.0 / fs)
     # Single-sided spectrum. Negative frequencies have the same values.
     tf = frequency_response(atmosphere, distance, frequencies, inverse)
     # Impulse response. We design a zero-phase filter (linear-phase with zero slope).
     # We need to shift the IR to make it even. Taking the real part should not be necessary, see above.
-    #ir = np.fft.ifftshift(np.fft.irfft(tf, n=ntaps)).real
+    # ir = np.fft.ifftshift(np.fft.irfft(tf, n=ntaps)).real
     ir = acoustic_toolbox.signal.impulse_response_real_even(tf, ntaps=ntaps)
     return ir
 
 
 __all__ = [
-    'Atmosphere', 'SOUNDSPEED', 'REFERENCE_TEMPERATURE', 'REFERENCE_TEMPERATURE', 'TRIPLE_TEMPERATURE', 'soundspeed',
-    'saturation_pressure', 'molar_concentration_water_vapour', 'relaxation_frequency_oxygen',
-    'relaxation_frequency_nitrogen', 'attenuation_coefficient', 'impulse_response', 'frequency_response'
+    "Atmosphere",
+    "SOUNDSPEED",
+    "REFERENCE_TEMPERATURE",
+    "REFERENCE_TEMPERATURE",
+    "TRIPLE_TEMPERATURE",
+    "soundspeed",
+    "saturation_pressure",
+    "molar_concentration_water_vapour",
+    "relaxation_frequency_oxygen",
+    "relaxation_frequency_nitrogen",
+    "attenuation_coefficient",
+    "impulse_response",
+    "frequency_response",
 ]

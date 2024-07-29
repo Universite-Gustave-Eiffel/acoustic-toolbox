@@ -12,6 +12,7 @@ is limited to areas where people reside and to related long-term land uses.
 
 
 """
+
 import numpy as np
 
 
@@ -34,4 +35,6 @@ def composite_rating_level(levels, hours, adjustment):
     hours = np.asarray(hours)
     adjustment = np.asarray(adjustment)
 
-    return 10.0 * np.log10((hours / 24.0 * 10.0**((levels + adjustment) / 10.0)).sum(axis=-1))
+    return 10.0 * np.log10(
+        (hours / 24.0 * 10.0 ** ((levels + adjustment) / 10.0)).sum(axis=-1)
+    )

@@ -7,7 +7,7 @@ The standards module provides implementations of standards.
 .. toctree::
     :maxdepth: 2
 
-    
+
 .. automodule:: acoustic_toolbox.standards.iso_tr_25417_2007
 
 .. automodule:: acoustic_toolbox.standards.iso_9613_1_1993
@@ -21,6 +21,7 @@ The standards module provides implementations of standards.
 .. automodule:: acoustic_toolbox.standards.iec_61260_1_2014
 
 """
+
 from acoustic_toolbox.standards import (
     iso_tr_25417_2007,
     iec_61672_1_2013,

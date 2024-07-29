@@ -55,18 +55,21 @@ For related functions, check :mod:`scipy.signal`.
 
 
 """
+
 import itertools
 import numpy as np
 
 try:
-    from pyfftw.interfaces.numpy_fft import irfft  # Performs much better than numpy's fftpack
+    from pyfftw.interfaces.numpy_fft import (
+        irfft,
+    )  # Performs much better than numpy's fftpack
 except ImportError:  # Use monkey-patching np.fft perhaps instead?
     from numpy.fft import irfft  # pylint: disable=ungrouped-imports
 
 from .signal import normalize
 
 
-def noise(N, color='white', state=None):
+def noise(N, color="white", state=None):
     """Noise generator.
 
     :param N: Amount of samples.
@@ -110,16 +113,16 @@ def pink(N, state=None):
 
     """
     # This method uses the filter with the following coefficients.
-    #b = np.array([0.049922035, -0.095993537, 0.050612699, -0.004408786])
-    #a = np.array([1, -2.494956002, 2.017265875, -0.522189400])
-    #return lfilter(B, A, np.random.randn(N))
+    # b = np.array([0.049922035, -0.095993537, 0.050612699, -0.004408786])
+    # a = np.array([1, -2.494956002, 2.017265875, -0.522189400])
+    # return lfilter(B, A, np.random.randn(N))
     # Another way would be using the FFT
-    #x = np.random.randn(N)
-    #X = rfft(x) / N
+    # x = np.random.randn(N)
+    # X = rfft(x) / N
     state = np.random.RandomState() if state is None else state
     uneven = N % 2
     X = state.randn(N // 2 + 1 + uneven) + 1j * state.randn(N // 2 + 1 + uneven)
-    S = np.sqrt(np.arange(len(X)) + 1.)  # +1 to avoid divide by zero
+    S = np.sqrt(np.arange(len(X)) + 1.0)  # +1 to avoid divide by zero
     y = (irfft(X / S)).real
     if uneven:
         y = y[:-1]
@@ -163,7 +166,7 @@ def brown(N, state=None):
     state = np.random.RandomState() if state is None else state
     uneven = N % 2
     X = state.randn(N // 2 + 1 + uneven) + 1j * state.randn(N // 2 + 1 + uneven)
-    S = (np.arange(len(X)) + 1)  # Filter
+    S = np.arange(len(X)) + 1  # Filter
     y = (irfft(X / S)).real
     if uneven:
         y = y[:-1]
@@ -185,7 +188,7 @@ def violet(N, state=None):
     state = np.random.RandomState() if state is None else state
     uneven = N % 2
     X = state.randn(N // 2 + 1 + uneven) + 1j * state.randn(N // 2 + 1 + uneven)
-    S = (np.arange(len(X)))  # Filter
+    S = np.arange(len(X))  # Filter
     y = (irfft(X * S)).real
     if uneven:
         y = y[:-1]
@@ -193,15 +196,15 @@ def violet(N, state=None):
 
 
 _noise_generators = {
-    'white': white,
-    'pink': pink,
-    'blue': blue,
-    'brown': brown,
-    'violet': violet,
+    "white": white,
+    "pink": pink,
+    "blue": blue,
+    "brown": brown,
+    "violet": violet,
 }
 
 
-def noise_generator(N=44100, color='white', state=None):
+def noise_generator(N=44100, color="white", state=None):
     """Noise generator.
 
     :param N: Amount of unique samples to generate.
@@ -210,7 +213,7 @@ def noise_generator(N=44100, color='white', state=None):
     Generate `N` amount of unique samples and cycle over these samples.
 
     """
-    #yield from itertools.cycle(noise(N, color)) # Python 3.3
+    # yield from itertools.cycle(noise(N, color)) # Python 3.3
     for sample in itertools.cycle(noise(N, color, state)):
         yield sample
 
@@ -223,4 +226,13 @@ def heaviside(N):
     return 0.5 * (np.sign(N) + 1)
 
 
-__all__ = ['noise', 'white', 'pink', 'blue', 'brown', 'violet', 'noise_generator', 'heaviside']
+__all__ = [
+    "noise",
+    "white",
+    "pink",
+    "blue",
+    "brown",
+    "violet",
+    "noise_generator",
+    "heaviside",
+]
