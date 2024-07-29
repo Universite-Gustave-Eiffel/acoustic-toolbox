@@ -5,6 +5,7 @@ Building
 The building module contains functions related to building acoustic_toolbox.
 
 """
+
 import numpy as np
 
 
@@ -43,8 +44,10 @@ def rw_c(tl):
 
     :param tl: Transmission Loss
     """
-    k = np.array([-29, -26, -23, -21, -19, -17, -15, -13, -12, -11, -10, -9, -9, -9, -9, -9])
-    a = -10 * np.log10(np.sum(10**((k - tl) / 10)))
+    k = np.array(
+        [-29, -26, -23, -21, -19, -17, -15, -13, -12, -11, -10, -9, -9, -9, -9, -9]
+    )
+    a = -10 * np.log10(np.sum(10 ** ((k - tl) / 10)))
     return a
 
 
@@ -55,8 +58,10 @@ def rw_ctr(tl):
 
     :param tl: Transmission Loss
     """
-    k_tr = np.array([-20, -20, -18, -16, -15, -14, -13, -12, -11, -9, -8, -9, -10, -11, -13, -15])
-    a_tr = -10 * np.log10(np.sum(10**((k_tr - tl) / 10)))
+    k_tr = np.array(
+        [-20, -20, -18, -16, -15, -14, -13, -12, -11, -9, -8, -9, -10, -11, -13, -15]
+    )
+    a_tr = -10 * np.log10(np.sum(10 ** ((k_tr - tl) / 10)))
     return a_tr
 
 
@@ -93,7 +98,7 @@ def stc(tl):
 
 
 def mass_law(freq, vol_density, thickness, theta=0, c=343, rho0=1.225):
-    """ Calculate transmission loss according to mass law.
+    """Calculate transmission loss according to mass law.
 
     :param freq: Frequency of interest in Hz.
     :type freq: `float` or `NumPy array`
@@ -116,4 +121,4 @@ def mass_law(freq, vol_density, thickness, theta=0, c=343, rho0=1.225):
     return tl_theta
 
 
-__all__ = ['rw_curve', 'rw', 'rw_c', 'rw_ctr', 'stc_curve', 'stc', 'mass_law']
+__all__ = ["rw_curve", "rw", "rw_c", "rw_ctr", "stc_curve", "stc", "mass_law"]

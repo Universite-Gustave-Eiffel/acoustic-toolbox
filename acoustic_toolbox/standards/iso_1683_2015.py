@@ -2,10 +2,11 @@
 ISO 1683:2015
 =============
 """
+
 REFERENCE_VALUES = {
     "gas": {
         "pressure": 2e-5,  # Pa
-        "exposure": (2e-5)**2,  # Pa^2 s
+        "exposure": (2e-5) ** 2,  # Pa^2 s
         "power": 1e-12,  # W
         "energy": 1e-12,  # J
         "intensity": 1e-12,  # W/m^2
@@ -26,5 +27,5 @@ REFERENCE_VALUES = {
         "velocity": 1e-9,  # m/s
         "acceleration": 1e-6,  # m/s^2
         "force": 1e-6,  # N}
-    }
+    },
 }

@@ -4,6 +4,7 @@ Doppler
 
 Doppler shift module.
 """
+
 SOUNDSPEED = 343.0
 """Speed of sound
 """
@@ -24,7 +25,9 @@ def velocity_from_doppler_shift(f1, f2, c=SOUNDSPEED):
     return c * (f2 - f1) / (f2 + f1)
 
 
-def frequency_shift(frequency, velocity_source, velocity_receiver, soundspeed=SOUNDSPEED):
+def frequency_shift(
+    frequency, velocity_source, velocity_receiver, soundspeed=SOUNDSPEED
+):
     r"""Frequency shift due to Doppler effect.
 
     :param frequency: Emitted frequency :math:`f`.

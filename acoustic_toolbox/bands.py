@@ -3,11 +3,15 @@ Bands
 =====
 
 """
+
 import numpy as np
-#from acoustic_toolbox.decibel import dbsum
+
+# from acoustic_toolbox.decibel import dbsum
 import acoustic_toolbox
-from acoustic_toolbox.standards.iec_61672_1_2013 import (NOMINAL_OCTAVE_CENTER_FREQUENCIES,
-                                                  NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES)
+from acoustic_toolbox.standards.iec_61672_1_2013 import (
+    NOMINAL_OCTAVE_CENTER_FREQUENCIES,
+    NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES,
+)
 
 OCTAVE_CENTER_FREQUENCIES = NOMINAL_OCTAVE_CENTER_FREQUENCIES
 THIRD_OCTAVE_CENTER_FREQUENCIES = NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES
@@ -33,23 +37,25 @@ def octave(first, last):
     octave_bands : array
         An array of centerfrequency octave bands.
     """
-    #octave_bands = OCTAVE_CENTER_FREQUENCIES
-    #low = np.where(octave_bands == first)[0]
-    #high = np.where(octave_bands == last)[0]
-    #return octave_bands[low: high+1]
-    return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=1).nominal
+    # octave_bands = OCTAVE_CENTER_FREQUENCIES
+    # low = np.where(octave_bands == first)[0]
+    # high = np.where(octave_bands == last)[0]
+    # return octave_bands[low: high+1]
+    return acoustic_toolbox.signal.OctaveBand(
+        fstart=first, fstop=last, fraction=1
+    ).nominal
 
 
 def octave_low(first, last):
     """Lower cornerfrequencies of octaves."""
     return octave(first, last) / np.sqrt(2.0)
-    #return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=1).lower
+    # return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=1).lower
 
 
 def octave_high(first, last):
     """Upper cornerfrequencies of octaves."""
     return octave(first, last) * np.sqrt(2.0)
-    #return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=1).upper
+    # return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=1).upper
 
 
 def third(first, last):
@@ -69,23 +75,25 @@ def third(first, last):
     octave_bands : array
         An array of centerfrequency third octave bands.
     """
-    #third_oct_bands = THIRD_OCTAVE_CENTER_FREQUENCIES
-    #low = np.where(third_oct_bands == first)[0]
-    #high = np.where(third_oct_bands == last)[0]
-    #return third_oct_bands[low: high+1]
-    return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=3).nominal
+    # third_oct_bands = THIRD_OCTAVE_CENTER_FREQUENCIES
+    # low = np.where(third_oct_bands == first)[0]
+    # high = np.where(third_oct_bands == last)[0]
+    # return third_oct_bands[low: high+1]
+    return acoustic_toolbox.signal.OctaveBand(
+        fstart=first, fstop=last, fraction=3
+    ).nominal
 
 
 def third_low(first, last):
     """Lower cornerfrequencies of third-octaves."""
-    return third(first, last) / 2.0**(1.0 / 6.0)
-    #return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=3).lower
+    return third(first, last) / 2.0 ** (1.0 / 6.0)
+    # return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=3).lower
 
 
 def third_high(first, last):
     """Higher cornerfrequencies of third-octaves."""
-    return third(first, last) * 2.0**(1.0 / 6.0)
-    #return Octaveband(fstart=first, fstop=last, fraction=3).upper
+    return third(first, last) * 2.0 ** (1.0 / 6.0)
+    # return Octaveband(fstart=first, fstop=last, fraction=3).upper
 
 
 def third2oct(levels, axis=None):

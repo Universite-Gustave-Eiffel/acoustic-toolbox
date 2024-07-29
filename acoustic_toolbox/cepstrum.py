@@ -6,7 +6,12 @@ Cepstrum
 
 import numpy as np
 
-__all__ = ['complex_cepstrum', 'real_cepstrum', 'inverse_complex_cepstrum', 'minimum_phase']
+__all__ = [
+    "complex_cepstrum",
+    "real_cepstrum",
+    "inverse_complex_cepstrum",
+    "minimum_phase",
+]
 
 
 def complex_cepstrum(x, n=None):
@@ -242,7 +247,14 @@ def minimum_phase(x, n=None):
         n = len(x)
     ceps = real_cepstrum(x, n=n)
     odd = n % 2
-    window = np.concatenate(([1.0], 2.0 * np.ones((n + odd) // 2 - 1), np.ones(1 - odd), np.zeros((n + odd) // 2 - 1)))
+    window = np.concatenate(
+        (
+            [1.0],
+            2.0 * np.ones((n + odd) // 2 - 1),
+            np.ones(1 - odd),
+            np.zeros((n + odd) // 2 - 1),
+        )
+    )
 
     m = np.fft.ifft(np.exp(np.fft.fft(window * ceps))).real
 

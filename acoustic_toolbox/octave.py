@@ -9,13 +9,14 @@ The following is an example on how to use :class:`acoustic_toolbox.octave.Octave
 .. literalinclude:: ../../examples/example_octave.py
 
 """
+
 import numpy as np
 import acoustic_toolbox
 
-#REFERENCE = 1000.0
-#"""
-#Reference frequency.
-#"""
+# REFERENCE = 1000.0
+# """
+# Reference frequency.
+# """
 
 from acoustic_toolbox.standards.iec_61260_1_2014 import index_of_frequency
 from acoustic_toolbox.standards.iec_61260_1_2014 import REFERENCE_FREQUENCY as REFERENCE
@@ -35,8 +36,12 @@ def exact_center_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
 
     """
     if frequency is not None:
-        n = acoustic_toolbox.standards.iec_61260_1_2014.index_of_frequency(frequency, fraction=fraction, ref=ref)
-    return acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency(n, fraction=fraction, ref=ref)
+        n = acoustic_toolbox.standards.iec_61260_1_2014.index_of_frequency(
+            frequency, fraction=fraction, ref=ref
+        )
+    return acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency(
+        n, fraction=fraction, ref=ref
+    )
 
 
 def nominal_center_frequency(frequency=None, fraction=1, n=None):
@@ -54,7 +59,9 @@ def nominal_center_frequency(frequency=None, fraction=1, n=None):
 
     """
     center = exact_center_frequency(frequency, fraction, n)
-    return acoustic_toolbox.standards.iec_61260_1_2014.nominal_center_frequency(center, fraction)
+    return acoustic_toolbox.standards.iec_61260_1_2014.nominal_center_frequency(
+        center, fraction
+    )
 
 
 def lower_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
@@ -91,7 +98,7 @@ def upper_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
     return acoustic_toolbox.standards.iec_61260_1_2014.upper_frequency(center, fraction)
 
 
-#-- things below will be deprecated?---#
+# -- things below will be deprecated?---#
 
 frequency_of_band = acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency
 band_of_frequency = index_of_frequency
@@ -102,8 +109,15 @@ class Octave:
     Class to calculate octave center frequencies.
     """
 
-    def __init__(self, fraction=1, interval=None, fmin=None, fmax=None, unique=False, reference=REFERENCE):
-
+    def __init__(
+        self,
+        fraction=1,
+        interval=None,
+        fmin=None,
+        fmax=None,
+        unique=False,
+        reference=REFERENCE,
+    ):
         self.reference = reference
         """
         Reference center frequency :math:`f_{c,0}`.
@@ -250,12 +264,12 @@ class Octave:
 
 
 __all__ = [
-    'exact_center_frequency',
-    'nominal_center_frequency',
-    'lower_frequency',
-    'upper_frequency',
-    'index_of_frequency',
-    'Octave',
-    'frequency_of_band',
-    'band_of_frequency',  # These three will be deprecated?
+    "exact_center_frequency",
+    "nominal_center_frequency",
+    "lower_frequency",
+    "upper_frequency",
+    "index_of_frequency",
+    "Octave",
+    "frequency_of_band",
+    "band_of_frequency",  # These three will be deprecated?
 ]

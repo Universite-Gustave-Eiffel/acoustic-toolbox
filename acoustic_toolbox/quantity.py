@@ -12,15 +12,15 @@ The Quantity module provides two classes to work with quantities and units.
 from acoustic_toolbox.standards.iso_tr_25417_2007 import REFERENCE_PRESSURE
 
 quantities = {
-    'pressure': ('Pressure', 'pascal', True, 'p', '$p$', REFERENCE_PRESSURE),
+    "pressure": ("Pressure", "pascal", True, "p", "$p$", REFERENCE_PRESSURE),
 }
 """
 Dictionary with quantities. Each quantity is stored as a tuple.
 """
 
 units = {
-    'meter': ('meter', 'm', '$m$'),
-    'pascal': ('pascal', 'Pa', '$Pa$'),
+    "meter": ("meter", "m", "$m$"),
+    "pascal": ("pascal", "Pa", "$Pa$"),
 }
 """
 Dictionary with units. Each unit is stored as a tuple.
@@ -36,7 +36,6 @@ class Unit:
     """
 
     def __init__(self, name, symbol, symbol_latex):
-
         self.name = name
         """
         Name of the unit.
@@ -63,8 +62,9 @@ class Quantity:
     Quantity.
     """
 
-    def __init__(self, name, unit, dynamic, symbol=None, symbol_latex=None, reference=1.0):
-
+    def __init__(
+        self, name, unit, dynamic, symbol=None, symbol_latex=None, reference=1.0
+    ):
         self.name = name
         """
         Name of the quantity.
@@ -123,7 +123,9 @@ def get_quantity(name):
     try:
         u = units[name]
     except KeyError:
-        raise RuntimeError("Unknown unit. Quantity has been specified but unit has not.")
+        raise RuntimeError(
+            "Unknown unit. Quantity has been specified but unit has not."
+        )
 
     q[1] = Unit(*units[name])
 
