@@ -26,6 +26,8 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
     "sphinx.ext.inheritance_diagram",
+    "nbsphinx",
+    "nbsphinx_link"
 ]
 
 intersphinx_mapping = {
