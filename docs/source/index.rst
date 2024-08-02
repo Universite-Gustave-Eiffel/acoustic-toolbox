@@ -5,6 +5,15 @@ Acoustic Toolbox
 
 Welcome to the documentation of the acoustic-toolbox module!
 
+Examples
+########
+
+.. toctree::
+   :maxdepth: 1
+
+   signal_class
+   directivity
+
 API Reference
 #############
 

@@ -2,7 +2,7 @@
 Signal
 ======
 
-The signal module constains all kinds of signal processing related functions.
+The signal module contains all kinds of signal processing related functions.
 
 .. inheritance-diagram:: acoustic_toolbox.signal
 
