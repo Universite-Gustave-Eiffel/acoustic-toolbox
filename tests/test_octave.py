@@ -6,7 +6,11 @@ from acoustic_toolbox.octave import Octave
 import numpy as np
 
 
-class TestOctave():
+class TestOctave:
+    """
+    Test :class:`acoustic_toolbox.Octave.Octave`.
+    """
+    
     def test_interval(self):
         emin = 1.0
         emax = 4.0

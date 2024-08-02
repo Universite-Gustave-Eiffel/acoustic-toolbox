@@ -3,14 +3,8 @@ from acoustic_toolbox import Signal
 import pytest
 import tempfile
 
-import itertools as it
 from acoustic_toolbox.signal import EqualBand
 import matplotlib.pyplot as plt
-
-#def test_operator():
-
-    #n = 10000
-    #fs = 5000
 
 
 def test_wav():
