@@ -59,3 +59,7 @@ _build
 
 temp
 /.idea
+.venv
+
+.pytest*
+.ruff*

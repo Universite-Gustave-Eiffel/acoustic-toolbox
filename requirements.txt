@@ -1,7 +1,0 @@
-numpy
-scipy
-matplotlib
-six
-pandas
-tabulate
-pysoundfile
