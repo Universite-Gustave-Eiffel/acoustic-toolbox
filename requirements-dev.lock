@@ -16,6 +16,7 @@ colorama==0.4.6
     # via pytest
 contourpy==1.2.1
     # via matplotlib
+coverage==7.6.0
 cycler==0.12.1
     # via matplotlib
 exceptiongroup==1.2.2

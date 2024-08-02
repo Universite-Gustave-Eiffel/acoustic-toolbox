@@ -51,4 +51,5 @@ include = ["tests/"]
 dev-dependencies = [
     "ruff>=0.5.5",
     "pytest>=8.3.2",
+    "coverage>=7.6.0",
 ]
