@@ -22,11 +22,11 @@ from acoustic_toolbox.standards.iec_61672_1_2013 import (
 
 
 class Signal(np.ndarray):
-    """A signal consisting of samples (array) and a sample frequency (float)."""
+    """A signal consisting of samples (array) and a sample rate (float)."""
 
-    def __new__(cls, data, fs):
+    def __new__(cls, data, sr):
         obj = np.asarray(data).view(cls)
-        obj.fs = fs
+        obj.sr = sr
         return obj
 
     def __array_prepare__(self, array, context=None):
@@ -36,8 +36,8 @@ class Signal(np.ndarray):
         except IndexError:
             return array
 
-        if hasattr(a, "fs") and hasattr(b, "fs"):
-            if a.fs == b.fs:
+        if hasattr(a, "sr") and hasattr(b, "sr"):
+            if a.sr == b.sr:
                 return array
             else:
                 raise ValueError("Sample frequencies do not match.")
@@ -52,18 +52,18 @@ class Signal(np.ndarray):
         if obj is None:
             return
 
-        self.fs = getattr(obj, "fs", None)
+        self.sr = getattr(obj, "sr", None)
 
     def __reduce__(self):
         # Get the parent's __reduce__ tuple
         pickled_state = super(Signal, self).__reduce__()
         # Create our own tuple to pass to __setstate__
-        new_state = pickled_state[2] + (self.fs,)
+        new_state = pickled_state[2] + (self.sr,)
         # Return a tuple that replaces the parent's __setstate__ tuple with our own
         return (pickled_state[0], pickled_state[1], new_state)
 
     def __setstate__(self, state):
-        self.fs = state[-1]  # Set the info attribute
+        self.sr = state[-1]  # Set the info attribute
         # Call the parent's __setstate__ with the other tuple elements.
         super(Signal, self).__setstate__(state[0:-1])
 
@@ -72,7 +72,7 @@ class Signal(np.ndarray):
 
     def _construct(self, x):
         """Construct signal like x."""
-        return Signal(x, self.fs)
+        return Signal(x, self.sr)
 
     @property
     def samples(self):
@@ -90,7 +90,7 @@ class Signal(np.ndarray):
     @property
     def duration(self):
         """Duration of signal in seconds."""
-        return float(self.samples / self.fs)
+        return float(self.samples / self.sr)
 
     @property
     def values(self):
@@ -121,7 +121,7 @@ class Signal(np.ndarray):
         :rtype: :class:`Signal`
         """
         if not isinstance(other, Signal):
-            other = Signal(other, self.fs)
+            other = Signal(other, self.sr)
         gain = decibel - other.leq()
         return self.gain(gain, inplace=inplace)
 
@@ -143,7 +143,7 @@ class Signal(np.ndarray):
             acoustic_toolbox.signal.decimate(
                 x=self, q=factor, n=order, ftype=ftype, zero_phase=zero_phase
             ),
-            self.fs / factor,
+            self.sr / factor,
         )
 
     def resample(self, nsamples, times=None, axis=-1, window=None):
@@ -162,7 +162,7 @@ class Signal(np.ndarray):
         """
         return Signal(
             resample(self, nsamples, times, axis, window),
-            nsamples / self.samples * self.fs,
+            nsamples / self.samples * self.sr,
         )
 
     def upsample(self, factor, axis=-1):
@@ -202,9 +202,9 @@ class Signal(np.ndarray):
 
         """
         if start is not None:
-            start = int(np.floor(start * self.fs))
+            start = int(np.floor(start * self.sr))
         if stop is not None:
-            stop = int(np.floor(stop * self.fs))
+            stop = int(np.floor(stop * self.sr))
         return self[..., start:stop]
 
     def times(self):
@@ -214,7 +214,7 @@ class Signal(np.ndarray):
         :rtype: :class:`np.ndarray`
 
         """
-        return np.arange(0, self.samples) / self.fs
+        return np.arange(0, self.samples) / self.sr
 
     def energy(self):
         """Signal energy.
@@ -266,7 +266,7 @@ class Signal(np.ndarray):
 
         """
         num, den = WEIGHTING_SYSTEMS[weighting]()
-        b, a = bilinear(num, den, self.fs)
+        b, a = bilinear(num, den, self.sr)
         func = filtfilt if zero_phase else lfilter
         return self._construct(func(b, a, self))
 
@@ -282,7 +282,7 @@ class Signal(np.ndarray):
         """
         if other is None:
             other = self
-        if self.fs != other.fs:
+        if self.sr != other.sr:
             raise ValueError("Cannot correlate. Sample frequencies are not the same.")
         if self.channels > 1 or other.channels > 1:
             raise ValueError(
@@ -300,7 +300,7 @@ class Signal(np.ndarray):
 
         """
         return self._construct(
-            acoustic_toolbox.signal.amplitude_envelope(self, self.fs)
+            acoustic_toolbox.signal.amplitude_envelope(self, self.sr)
         )
 
     def instantaneous_frequency(self):
@@ -313,7 +313,7 @@ class Signal(np.ndarray):
 
         """
         return self._construct(
-            acoustic_toolbox.signal.instantaneous_frequency(self, self.fs)
+            acoustic_toolbox.signal.instantaneous_frequency(self, self.sr)
         )
 
     def instantaneous_phase(self):
@@ -326,7 +326,7 @@ class Signal(np.ndarray):
 
         """
         return self._construct(
-            acoustic_toolbox.signal.instantaneous_phase(self, self.fs)
+            acoustic_toolbox.signal.instantaneous_phase(self, self.sr)
         )
 
     def detrend(self, **kwargs):
@@ -390,7 +390,7 @@ class Signal(np.ndarray):
         .. seealso:: :func:`acoustic_toolbox.signal.power_spectrum`
 
         """
-        return acoustic_toolbox.signal.power_spectrum(self, self.fs, N=N)
+        return acoustic_toolbox.signal.power_spectrum(self, self.sr, N=N)
 
     def angle_spectrum(self, N=None):
         """Phase angle spectrum. Wrapped.
@@ -403,7 +403,7 @@ class Signal(np.ndarray):
             and :meth:`phase_spectrum`.
 
         """
-        return acoustic_toolbox.signal.angle_spectrum(self, self.fs, N=N)
+        return acoustic_toolbox.signal.angle_spectrum(self, self.sr, N=N)
 
     def phase_spectrum(self, N=None):
         """Phase spectrum. Unwrapped.
@@ -416,7 +416,7 @@ class Signal(np.ndarray):
             and :meth:`angle_spectrum`.
 
         """
-        return acoustic_toolbox.signal.phase_spectrum(self, self.fs, N=N)
+        return acoustic_toolbox.signal.phase_spectrum(self, self.sr, N=N)
 
     def peak(self, axis=-1):
         """Peak sound pressure.
@@ -481,7 +481,7 @@ class Signal(np.ndarray):
 
         """
         return acoustic_toolbox.standards.iso_tr_25417_2007.sound_exposure(
-            self, self.fs, axis=axis
+            self, self.sr, axis=axis
         )
 
     def sound_exposure_level(self, axis=-1):
@@ -493,7 +493,7 @@ class Signal(np.ndarray):
 
         """
         return acoustic_toolbox.standards.iso_tr_25417_2007.sound_exposure_level(
-            self, self.fs, axis=axis
+            self, self.sr, axis=axis
         )
 
     def plot_complex_cepstrum(self, N=None, **kwargs):
@@ -649,7 +649,7 @@ class Signal(np.ndarray):
         }
         params.update(kwargs)
 
-        t, s, P = spectrogram(self, fs=self.fs, **params)
+        t, s, P = spectrogram(self, fs=self.sr, **params)
 
         return t, s, P
 
@@ -693,7 +693,7 @@ class Signal(np.ndarray):
         try:
             _, _, _, im = ax0.specgram(
                 data,
-                Fs=self.fs,
+                Fs=self.sr,
                 noverlap=params["noverlap"],
                 NFFT=params["NFFT"],
                 mode="magnitude",
@@ -731,13 +731,13 @@ class Signal(np.ndarray):
         if method == "average":
             return (
                 acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_sound_level(
-                    self.values, self.fs, time
+                    self.values, self.sr, time
                 )
             )
         elif method == "weighting":
             return (
                 acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_sound_level(
-                    self.values, self.fs, time
+                    self.values, self.sr, time
                 )
             )
         else:
@@ -780,7 +780,7 @@ class Signal(np.ndarray):
     # .. seealso:: :func:`acoustic_toolbox.signal.fractional_octaves`
 
     # """
-    # return acoustic_toolbox.signal.fractional_octaves(self, self.fs, frequency,
+    # return acoustic_toolbox.signal.fractional_octaves(self, self.sr, frequency,
     # frequency, fraction, False)[1]
 
     def bandpass(self, lowcut, highcut, order=8, zero_phase=False):
@@ -798,9 +798,9 @@ class Signal(np.ndarray):
         """
         return type(self)(
             acoustic_toolbox.signal.bandpass(
-                self, lowcut, highcut, self.fs, order=order, zero_phase=zero_phase
+                self, lowcut, highcut, self.sr, order=order, zero_phase=zero_phase
             ),
-            self.fs,
+            self.sr,
         )
 
     def bandstop(self, lowcut, highcut, order=8, zero_phase=False):
@@ -818,9 +818,9 @@ class Signal(np.ndarray):
         """
         return type(self)(
             acoustic_toolbox.signal.bandstop(
-                self, lowcut, highcut, self.fs, order=order, zero_phase=zero_phase
+                self, lowcut, highcut, self.sr, order=order, zero_phase=zero_phase
             ),
-            self.fs,
+            self.sr,
         )
 
     def highpass(self, cutoff, order=4, zero_phase=False):
@@ -836,9 +836,9 @@ class Signal(np.ndarray):
         """
         return type(self)(
             acoustic_toolbox.signal.highpass(
-                self, cutoff, self.fs, order=order, zero_phase=zero_phase
+                self, cutoff, self.sr, order=order, zero_phase=zero_phase
             ),
-            self.fs,
+            self.sr,
         )
 
     def lowpass(self, cutoff, order=4, zero_phase=False):
@@ -854,9 +854,9 @@ class Signal(np.ndarray):
         """
         return type(self)(
             acoustic_toolbox.signal.lowpass(
-                self, cutoff, self.fs, order=order, zero_phase=zero_phase
+                self, cutoff, self.sr, order=order, zero_phase=zero_phase
             ),
-            self.fs,
+            self.sr,
         )
 
     def octavepass(self, center, fraction, order=8, zero_phase=False):
@@ -875,12 +875,12 @@ class Signal(np.ndarray):
             acoustic_toolbox.signal.octavepass(
                 self,
                 center,
-                self.fs,
+                self.sr,
                 fraction=fraction,
                 order=order,
                 zero_phase=zero_phase,
             ),
-            self.fs,
+            self.sr,
         )
 
     def bandpass_frequencies(self, frequencies, order=8, purge=True, zero_phase=False):
@@ -896,9 +896,9 @@ class Signal(np.ndarray):
         .. seealso:: :func:`acoustic_toolbox.signal.bandpass_frequencies`
         """
         frequencies, filtered = acoustic_toolbox.signal.bandpass_frequencies(
-            self, self.fs, frequencies, order, purge, zero_phase=zero_phase
+            self, self.sr, frequencies, order, purge, zero_phase=zero_phase
         )
-        return frequencies, type(self)(filtered, self.fs)
+        return frequencies, type(self)(filtered, self.sr)
 
     def octaves(
         self,
@@ -919,9 +919,9 @@ class Signal(np.ndarray):
         .. seealso:: :func:`acoustic_toolbox.signal.bandpass_octaves`
         """
         frequencies, octaves = acoustic_toolbox.signal.bandpass_octaves(
-            self, self.fs, frequencies, order, purge, zero_phase=zero_phase
+            self, self.sr, frequencies, order, purge, zero_phase=zero_phase
         )
-        return frequencies, type(self)(octaves, self.fs)
+        return frequencies, type(self)(octaves, self.sr)
 
     def third_octaves(
         self,
@@ -942,9 +942,9 @@ class Signal(np.ndarray):
         .. seealso:: :func:`acoustic_toolbox.signal.bandpass_third_octaves`
         """
         frequencies, octaves = acoustic_toolbox.signal.bandpass_third_octaves(
-            self, self.fs, frequencies, order, purge, zero_phase=zero_phase
+            self, self.sr, frequencies, order, purge, zero_phase=zero_phase
         )
-        return frequencies, type(self)(octaves, self.fs)
+        return frequencies, type(self)(octaves, self.sr)
 
     def fractional_octaves(
         self, frequencies=None, fraction=1, order=8, purge=True, zero_phase=False
@@ -964,13 +964,13 @@ class Signal(np.ndarray):
         if frequencies is None:
             frequencies = acoustic_toolbox.signal.OctaveBand(
                 fstart=NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES[0],
-                fstop=self.fs / 2.0,
+                fstop=self.sr / 2.0,
                 fraction=fraction,
             )
         frequencies, octaves = acoustic_toolbox.signal.bandpass_fractional_octaves(
-            self, self.fs, frequencies, fraction, order, purge, zero_phase=zero_phase
+            self, self.sr, frequencies, fraction, order, purge, zero_phase=zero_phase
         )
-        return frequencies, type(self)(octaves, self.fs)
+        return frequencies, type(self)(octaves, self.sr)
 
     def plot_octaves(self, **kwargs):
         """Plot octaves.
@@ -1074,11 +1074,11 @@ class Signal(np.ndarray):
     # fig = plt.figure()
     # ax = fig.add_subplot(111)
     # ax.set_title('Scaleogram')
-    ##ax.set_xticks(np.arange(0, x.shape[1])*self.fs)
+    ##ax.set_xticks(np.arange(0, x.shape[1])*self.sr)
     ##ax.xaxis.set_major_locator(majorLocator)
 
     ##ax.imshow(10.0 * np.log10(x**2.0), interpolation=interpolation, aspect='auto', origin='lower')#, extent=[0, 1, 0, len(x)])
-    # ax.pcolormesh(np.arange(0.0, x.shape[1])/self.fs, widths, 10.0*np.log(x**2.0))
+    # ax.pcolormesh(np.arange(0.0, x.shape[1])/self.sr, widths, 10.0*np.log(x**2.0))
     # if filename:
     # fig.savefig(filename)
     # else:
@@ -1141,24 +1141,24 @@ class Signal(np.ndarray):
         dtype = data.dtype if not depth else "int" + str(depth)
         if depth:
             data = (data * 2 ** (depth - 1) - 1).astype(dtype)
-        wavfile.write(filename, int(self.fs), data.T)
-        # wavfile.write(filename, int(self.fs), self._data/np.abs(self._data).max() *  0.5)
-        # wavfile.write(filename, int(self.fs), np.int16(self._data/(np.abs(self._data).max()) * 32767) )
+        wavfile.write(filename, int(self.sr), data.T)
+        # wavfile.write(filename, int(self.sr), self._data/np.abs(self._data).max() *  0.5)
+        # wavfile.write(filename, int(self.sr), np.int16(self._data/(np.abs(self._data).max()) * 32767) )
 
     @classmethod
-    def from_wav(cls, filename, normalize=True):
+    def from_wav(cls, filename, normalize=False):
         """
         Create an instance of `Signal` from a WAV file.
 
         :param filename: Filename
-        :param normalize: Whether to normalize the signal.
+        :param normalize: Whether to normalize the signal, default is False
 
         """
-        fs, data = wavfile.read(filename)
+        sample_rate, data = wavfile.read(filename)
         data = data.astype(np.float32, copy=False).T
         if normalize:
             data /= np.max(np.abs(data))
-        return cls(data, fs=fs)
+        return cls(data, sr=sample_rate)
 
 
 _PLOTTING_PARAMS = {

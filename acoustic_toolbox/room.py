@@ -171,7 +171,7 @@ def t60_impulse(file_name, bands, rt="t30"):  # pylint: disable=too-many-locals
     :returns: Reverberation time :math:`T_{60}`
 
     """
-    fs, raw_signal = wavfile.read(file_name)
+    sr, raw_signal = wavfile.read(file_name)
     band_type = _check_band_type(bands)
 
     if band_type == "octave":
@@ -203,7 +203,7 @@ def t60_impulse(file_name, bands, rt="t30"):  # pylint: disable=too-many-locals
 
     for band in range(bands.size):
         # Filtering signal
-        filtered_signal = bandpass(raw_signal, low[band], high[band], fs, order=8)
+        filtered_signal = bandpass(raw_signal, low[band], high[band], sr, order=8)
         abs_signal = np.abs(filtered_signal) / np.max(np.abs(filtered_signal))
 
         # Schroeder integration
@@ -215,7 +215,7 @@ def t60_impulse(file_name, bands, rt="t30"):  # pylint: disable=too-many-locals
         sch_end = sch_db[np.abs(sch_db - end).argmin()]
         init_sample = np.where(sch_db == sch_init)[0][0]
         end_sample = np.where(sch_db == sch_end)[0][0]
-        x = np.arange(init_sample, end_sample + 1) / fs
+        x = np.arange(init_sample, end_sample + 1) / sr
         y = sch_db[init_sample : end_sample + 1]
         slope, intercept = stats.linregress(x, y)[0:2]
 
@@ -226,14 +226,14 @@ def t60_impulse(file_name, bands, rt="t30"):  # pylint: disable=too-many-locals
     return t60
 
 
-def clarity(time, signal, fs, bands=None):
+def clarity(time, signal, sr, bands=None):
     """
     Clarity :math:`C_i` determined from an impulse response.
 
     :param time: Time in miliseconds (e.g.: 50, 80).
     :param signal: Impulse response.
     :type signal: :class:`np.ndarray`
-    :param fs: Sample frequency.
+    :param sr: Sample rate, in hertz.
     :param bands: Bands of calculation (optional). Only support standard octave and third-octave bands.
     :type bands: :class:`np.ndarray`
 
@@ -249,9 +249,9 @@ def clarity(time, signal, fs, bands=None):
 
     c = np.zeros(bands.size)
     for band in range(bands.size):
-        filtered_signal = bandpass(signal, low[band], high[band], fs, order=8)
+        filtered_signal = bandpass(signal, low[band], high[band], sr, order=8)
         h2 = filtered_signal**2.0
-        t = int((time / 1000.0) * fs + 1)
+        t = int((time / 1000.0) * sr + 1)
         c[band] = 10.0 * np.log10((np.sum(h2[:t]) / np.sum(h2[t:])))
     return c
 
@@ -266,8 +266,8 @@ def c50_from_file(file_name, bands=None):
     :type bands: :class:`np.ndarray`
 
     """
-    fs, signal = wavfile.read(file_name)
-    return clarity(50.0, signal, fs, bands)
+    sr, signal = wavfile.read(file_name)
+    return clarity(50.0, signal, sr, bands)
 
 
 def c80_from_file(file_name, bands=None):
@@ -280,5 +280,5 @@ def c80_from_file(file_name, bands=None):
     :type bands: :class:`np.ndarray`
 
     """
-    fs, signal = wavfile.read(file_name)
-    return clarity(80.0, signal, fs, bands)
+    sr, signal = wavfile.read(file_name)
+    return clarity(80.0, signal, sr, bands)
