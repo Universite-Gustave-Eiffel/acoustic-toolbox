@@ -6,7 +6,8 @@ build-backend = "flit_core.buildapi"
 name = "acoustic-toolbox"
 version = "0.1.1"
 authors = [
-    { name = "Valentin LE BESCOND", email = "valentin.lebescond@univ-eiffel.fr" }
+    { name = "Valentin LE BESCOND", email = "valentin.lebescond@univ-eiffel.fr" },
+    { name = "Andrew Mitchell", email = "a.j.mitchell@ucl.ac.uk"}
 ]
 description = "Acoustic Toolbox module for Python."
 readme = "README.md"
@@ -16,7 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "numpy>=1.8",
+    "numpy>=1.23.5",
     "scipy>=1.14.0",
     "matplotlib>=3.9.1",
     "six>=1.16.0",

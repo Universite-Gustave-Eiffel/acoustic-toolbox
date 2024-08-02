@@ -196,7 +196,7 @@ notebook==7.2.1
 notebook-shim==0.2.4
     # via jupyterlab
     # via notebook
-numpy==1.26.4
+numpy==2.0.1
     # via acoustic-toolbox
     # via contourpy
     # via matplotlib
