@@ -99,12 +99,12 @@ except ImportError:
     from numpy.fft import rfft
 
 
-def bandpass_filter(lowcut, highcut, fs, order=8, output="sos"):
+def bandpass_filter(lowcut, highcut, sr, order=8, output="sos"):
     """Band-pass filter.
 
     :param lowcut: Lower cut-off frequency
     :param highcut: Upper cut-off frequency
-    :param fs: Sample frequency
+    :param sr: Sample rate (Hz)
     :param order: Filter order
     :param output: Output type. {'ba', 'zpk', 'sos'}. Default is 'sos'. See also :func:`scipy.signal.butter`.
     :returns: Returned value depends on `output`.
@@ -114,20 +114,20 @@ def bandpass_filter(lowcut, highcut, fs, order=8, output="sos"):
     .. seealso:: :func:`scipy.signal.butter`.
 
     """
-    nyq = 0.5 * fs
+    nyq = 0.5 * sr
     low = lowcut / nyq
     high = highcut / nyq
     output = butter(order / 2, [low, high], btype="band", output=output)
     return output
 
 
-def bandpass(signal, lowcut, highcut, fs, order=8, zero_phase=False):
+def bandpass(signal, lowcut, highcut, sr, order=8, zero_phase=False):
     """Filter signal with band-pass filter.
 
     :param signal: Signal
     :param lowcut: Lower cut-off frequency
     :param highcut: Upper cut-off frequency
-    :param fs: Sample frequency
+    :param sr: Sample rate (Hz)
     :param order: Filter order
     :param zero_phase: Prevent phase error by filtering in both directions (filtfilt)
 
@@ -136,34 +136,34 @@ def bandpass(signal, lowcut, highcut, fs, order=8, zero_phase=False):
     .. seealso:: :func:`bandpass_filter` for the filter that is used.
 
     """
-    sos = bandpass_filter(lowcut, highcut, fs, order, output="sos")
+    sos = bandpass_filter(lowcut, highcut, sr, order, output="sos")
     if zero_phase:
         return _sosfiltfilt(sos, signal)
     else:
         return sosfilt(sos, signal)
 
 
-def bandstop(signal, lowcut, highcut, fs, order=8, zero_phase=False):
+def bandstop(signal, lowcut, highcut, sr, order=8, zero_phase=False):
     """Filter signal with band-stop filter.
 
     :param signal: Signal
     :param lowcut: Lower cut-off frequency
     :param highcut: Upper cut-off frequency
-    :param fs: Sample frequency
+    :param sr: Sample rate (Hz)
     :param order: Filter order
     :param zero_phase: Prevent phase error by filtering in both directions (filtfilt)
 
     """
     return lowpass(
-        signal, lowcut, fs, order=(order // 2), zero_phase=zero_phase
-    ) + highpass(signal, highcut, fs, order=(order // 2), zero_phase=zero_phase)
+        signal, lowcut, sr, order=(order // 2), zero_phase=zero_phase
+    ) + highpass(signal, highcut, sr, order=(order // 2), zero_phase=zero_phase)
 
 
-def lowpass(signal, cutoff, fs, order=4, zero_phase=False):
+def lowpass(signal, cutoff, sr, order=4, zero_phase=False):
     """Filter signal with low-pass filter.
 
     :param signal: Signal
-    :param fs: Sample frequency
+    :param sr: Sample rate (Hz)
     :param cutoff: Cut-off frequency
     :param order: Filter order
     :param zero_phase: Prevent phase error by filtering in both directions (filtfilt)
@@ -173,18 +173,18 @@ def lowpass(signal, cutoff, fs, order=4, zero_phase=False):
     .. seealso:: :func:`scipy.signal.butter`.
 
     """
-    sos = butter(order, cutoff / (fs / 2.0), btype="low", output="sos")
+    sos = butter(order, cutoff / (sr / 2.0), btype="low", output="sos")
     if zero_phase:
         return _sosfiltfilt(sos, signal)
     else:
         return sosfilt(sos, signal)
 
 
-def highpass(signal, cutoff, fs, order=4, zero_phase=False):
+def highpass(signal, cutoff, sr, order=4, zero_phase=False):
     """Filter signal with low-pass filter.
 
     :param signal: Signal
-    :param fs: Sample frequency
+    :param sr: Sample rate (Hz)
     :param cutoff: Cut-off frequency
     :param order: Filter order
     :param zero_phase: Prevent phase error by filtering in both directions (filtfilt)
@@ -194,18 +194,18 @@ def highpass(signal, cutoff, fs, order=4, zero_phase=False):
     .. seealso:: :func:`scipy.signal.butter`.
 
     """
-    sos = butter(order, cutoff / (fs / 2.0), btype="high", output="sos")
+    sos = butter(order, cutoff / (sr / 2.0), btype="high", output="sos")
     if zero_phase:
         return _sosfiltfilt(sos, signal)
     else:
         return sosfilt(sos, signal)
 
 
-def octave_filter(center, fs, fraction, order=8, output="sos"):
+def octave_filter(center, sr, fraction, order=8, output="sos"):
     """Fractional-octave band-pass filter.
 
     :param center: Centerfrequency of fractional-octave band.
-    :param fs: Sample frequency
+    :param sr: Sample rate (Hz)
     :param fraction: Fraction of fractional-octave band.
     :param order: Filter order
     :param output: Output type. {'ba', 'zpk', 'sos'}. Default is 'sos'. See also :func:`scipy.signal.butter`.
@@ -216,15 +216,15 @@ def octave_filter(center, fs, fraction, order=8, output="sos"):
 
     """
     ob = OctaveBand(center=center, fraction=fraction)
-    return bandpass_filter(ob.lower[0], ob.upper[0], fs, order, output=output)
+    return bandpass_filter(ob.lower[0], ob.upper[0], sr, order, output=output)
 
 
-def octavepass(signal, center, fs, fraction, order=8, zero_phase=True):
+def octavepass(signal, center, sr, fraction, order=8, zero_phase=True):
     """Filter signal with fractional-octave bandpass filter.
 
     :param signal: Signal
     :param center: Centerfrequency of fractional-octave band.
-    :param fs: Sample frequency
+    :param sr: Sample rate (Hz)
     :param fraction: Fraction of fractional-octave band.
     :param order: Filter order
     :param zero_phase: Prevent phase error by filtering in both directions (filtfilt)
@@ -234,7 +234,7 @@ def octavepass(signal, center, fs, fraction, order=8, zero_phase=True):
     .. seealso:: :func:`octave_filter`
 
     """
-    sos = octave_filter(center, fs, fraction, order)
+    sos = octave_filter(center, sr, fraction, order)
     if zero_phase:
         return _sosfiltfilt(sos, signal)
     else:
@@ -288,12 +288,12 @@ def convolve(signal, ltv, mode="full"):
         return out[start:stop]
 
 
-def ir2fr(ir, fs, N=None):
+def ir2fr(ir, sr, N=None):
     """
     Convert impulse response into frequency response. Returns single-sided RMS spectrum.
 
-    :param ir: Impulser response
-    :param fs: Sample frequency
+    :param ir: Impulse response
+    :param sr: Sample rate (Hz)
     :param N: Blocks
 
     Calculates the positive frequencies using :func:`np.fft.rfft`.
@@ -306,14 +306,14 @@ def ir2fr(ir, fs, N=None):
 
     N = N if N else ir.shape[-1]
     fr = rfft(ir, n=N) / N
-    f = np.fft.rfftfreq(N, 1.0 / fs)  # / 2.0
+    f = np.fft.rfftfreq(N, 1.0 / sr)  # / 2.0
 
     fr *= 2.0
     fr[..., 0] /= 2.0  # DC component should not be doubled.
     if not N % 2:  # if not uneven
-        fr[..., -1] /= 2.0  # And neither should fs/2 be.
+        fr[..., -1] /= 2.0  # And neither should sr/2 be.
 
-    # f = np.arange(0, N/2+1)*(fs/N)
+    # f = np.arange(0, N/2+1)*(sr/N)
 
     return f, fr
 
@@ -615,12 +615,12 @@ def apply_window(x, window):
     return x * y / s
 
 
-def amplitude_spectrum(x, fs, N=None):
+def amplitude_spectrum(x, sr, N=None):
     """
     Amplitude spectrum of instantaneous signal :math:`x(t)`.
 
     :param x: Instantaneous signal :math:`x(t)`.
-    :param fs: Sample frequency :math:`f_s`.
+    :param sr: Sample rate (Hz) :math:`sr`.
     :param N: Amount of FFT bins.
 
     The amplitude spectrum gives the amplitudes of the sinusoidal the signal is built
@@ -632,16 +632,16 @@ def amplitude_spectrum(x, fs, N=None):
     """
     N = N if N else x.shape[-1]
     fr = np.fft.fft(x, n=N) / N
-    f = np.fft.fftfreq(N, 1.0 / fs)
+    f = np.fft.fftfreq(N, 1.0 / sr)
     return np.fft.fftshift(f), np.fft.fftshift(fr, axes=[-1])
 
 
-def auto_spectrum(x, fs, N=None):
+def auto_spectrum(x, sr, N=None):
     """
     Auto-spectrum of instantaneous signal :math:`x(t)`.
 
     :param x: Instantaneous signal :math:`x(t)`.
-    :param fs: Sample frequency :math:`f_s`.
+    :param sr: Sample rate (Hz) :math:`sr`.
     :param N: Amount of FFT bins.
 
     The auto-spectrum contains the squared amplitudes of the signal. Squared amplitudes
@@ -652,16 +652,16 @@ def auto_spectrum(x, fs, N=None):
     The auto-spectrum is double-sided.
 
     """
-    f, a = amplitude_spectrum(x, fs, N=N)
+    f, a = amplitude_spectrum(x, sr, N=N)
     return f, (a * a.conj()).real
 
 
-def power_spectrum(x, fs, N=None):
+def power_spectrum(x, sr, N=None):
     """
     Power spectrum of instantaneous signal :math:`x(t)`.
 
     :param x: Instantaneous signal :math:`x(t)`.
-    :param fs: Sample frequency :math:`f_s`.
+    :param sr: Sample rate (Hz) :math:`sr`.
     :param N: Amount of FFT bins.
 
     The power spectrum, or single-sided autospectrum, contains the squared RMS amplitudes of the signal.
@@ -675,22 +675,22 @@ def power_spectrum(x, fs, N=None):
 
     """
     N = N if N else x.shape[-1]
-    f, a = auto_spectrum(x, fs, N=N)
+    f, a = auto_spectrum(x, sr, N=N)
     a = a[..., N // 2 :]
     f = f[..., N // 2 :]
     a *= 2.0
     a[..., 0] /= 2.0  # DC component should not be doubled.
     if not N % 2:  # if not uneven
-        a[..., -1] /= 2.0  # And neither should fs/2 be.
+        a[..., -1] /= 2.0  # And neither should sr/2 be.
     return f, a
 
 
-def angle_spectrum(x, fs, N=None):
+def angle_spectrum(x, sr, N=None):
     """
     Phase angle spectrum of instantaneous signal :math:`x(t)`.
 
     :param x: Instantaneous signal :math:`x(t)`.
-    :param fs: Sample frequency :math:`f_s`.
+    :param sr: Sample rate (Hz) :math:`sr`.
     :param N: Amount of FFT bins.
 
     This function returns a single-sided wrapped phase angle spectrum.
@@ -699,19 +699,19 @@ def angle_spectrum(x, fs, N=None):
 
     """
     N = N if N else x.shape[-1]
-    f, a = amplitude_spectrum(x, fs, N)
+    f, a = amplitude_spectrum(x, sr, N)
     a = np.angle(a)
     a = a[..., N // 2 :]
     f = f[..., N // 2 :]
     return f, a
 
 
-def phase_spectrum(x, fs, N=None):
+def phase_spectrum(x, sr, N=None):
     """
     Phase spectrum of instantaneous signal :math:`x(t)`.
 
     :param x: Instantaneous signal :math:`x(t)`.
-    :param fs: Sample frequency :math:`f_s`.
+    :param sr: Sample rate (Hz) :math:`sr`.
     :param N: Amount of FFT bins.
 
     This function returns a single-sided unwrapped phase spectrum.
@@ -719,16 +719,16 @@ def phase_spectrum(x, fs, N=None):
     .. seealso:: :func:`angle_spectrum` for wrapped phase angle.
 
     """
-    f, a = angle_spectrum(x, fs, N=None)
+    f, a = angle_spectrum(x, sr, N=None)
     return f, np.unwrap(a)
 
 
-def density_spectrum(x, fs, N=None):
+def density_spectrum(x, sr, N=None):
     """
     Density spectrum of instantaneous signal :math:`x(t)`.
 
     :param x: Instantaneous signal :math:`x(t)`.
-    :param fs: Sample frequency :math:`f_s`.
+    :param sr: Sample rate (Hz) :math:`sr`.
     :param N: Amount of FFT bins.
 
     A density spectrum considers the amplitudes per unit frequency.
@@ -738,8 +738,8 @@ def density_spectrum(x, fs, N=None):
 
     """
     N = N if N else x.shape[-1]
-    fr = np.fft.fft(x, n=N) / fs
-    f = np.fft.fftfreq(N, 1.0 / fs)
+    fr = np.fft.fft(x, n=N) / sr
+    f = np.fft.fftfreq(N, 1.0 / sr)
     return np.fft.fftshift(f), np.fft.fftshift(fr)
 
 
@@ -770,11 +770,11 @@ def integrate_bands(data, a, b):
     return ((lower < center) * (center <= upper) * data[..., None]).sum(axis=-2)
 
 
-def bandpass_frequencies(x, fs, frequencies, order=8, purge=False, zero_phase=False):
+def bandpass_frequencies(x, sr, frequencies, order=8, purge=False, zero_phase=False):
     """ "Apply bandpass filters for frequencies
 
     :param x: Instantaneous signal :math:`x(t)`.
-    :param fs: Sample frequency.
+    :param sr: Sample rate (Hz) :math:`sr`.
     :param frequencies: Frequencies. Instance of :class:`Frequencies`.
     :param order: Filter order.
     :param purge: Discard bands of which the upper corner frequency is above the Nyquist frequency.
@@ -782,10 +782,10 @@ def bandpass_frequencies(x, fs, frequencies, order=8, purge=False, zero_phase=Fa
     :returns: Tuple. First element is an instance of :class:`OctaveBand`. The second element an array.
     """
     if purge:
-        frequencies = frequencies[frequencies.upper < fs / 2.0]
+        frequencies = frequencies[frequencies.upper < sr / 2.0]
     return frequencies, np.array(
         [
-            bandpass(x, band.lower, band.upper, fs, order, zero_phase=zero_phase)
+            bandpass(x, band.lower, band.upper, sr, order, zero_phase=zero_phase)
             for band in frequencies
         ]
     )
@@ -793,7 +793,7 @@ def bandpass_frequencies(x, fs, frequencies, order=8, purge=False, zero_phase=Fa
 
 def bandpass_octaves(
     x,
-    fs,
+    sr,
     frequencies=NOMINAL_OCTAVE_CENTER_FREQUENCIES,
     order=8,
     purge=False,
@@ -802,7 +802,7 @@ def bandpass_octaves(
     """Apply 1/1-octave bandpass filters.
 
     :param x: Instantaneous signal :math:`x(t)`.
-    :param fs: Sample frequency.
+    :param sr: Sample rate (Hz) :math:`sr`.
     :param frequencies: Frequencies.
     :param order: Filter order.
     :param purge: Discard bands of which the upper corner frequency is above the Nyquist frequency.
@@ -812,13 +812,13 @@ def bandpass_octaves(
     .. seealso:: :func:`octavepass`
     """
     return bandpass_fractional_octaves(
-        x, fs, frequencies, fraction=1, order=order, purge=purge, zero_phase=zero_phase
+        x, sr, frequencies, fraction=1, order=order, purge=purge, zero_phase=zero_phase
     )
 
 
 def bandpass_third_octaves(
     x,
-    fs,
+    sr,
     frequencies=NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES,
     order=8,
     purge=False,
@@ -827,7 +827,7 @@ def bandpass_third_octaves(
     """Apply 1/3-octave bandpass filters.
 
     :param x: Instantaneous signal :math:`x(t)`.
-    :param fs: Sample frequency.
+    :param sr: Sample rate (Hz) :math:`sr`.
     :param frequencies: Frequencies.
     :param order: Filter order.
     :param purge: Discard bands of which the upper corner frequency is above the Nyquist frequency.
@@ -837,18 +837,18 @@ def bandpass_third_octaves(
     .. seealso:: :func:`octavepass`
     """
     return bandpass_fractional_octaves(
-        x, fs, frequencies, fraction=3, order=order, purge=purge, zero_phase=zero_phase
+        x, sr, frequencies, fraction=3, order=order, purge=purge, zero_phase=zero_phase
     )
 
 
 def bandpass_fractional_octaves(
-    x, fs, frequencies, fraction=None, order=8, purge=False, zero_phase=False
+    x, sr, frequencies, fraction=None, order=8, purge=False, zero_phase=False
 ):
     """Apply 1/N-octave bandpass filters.
 
     :param x: Instantaneous signal :math:`x(t)`.
-    :param fs: Sample frequency.
-    :param frequencies: Frequencies. Either instance of :class:`OctaveBand`, or array along with fs.
+    :param sr: Sample rate (Hz) :math:`sr`.
+    :param frequencies: Frequencies. Either instance of :class:`OctaveBand`, or array along with sr.
     :param order: Filter order.
     :param purge: Discard bands of which the upper corner frequency is above the Nyquist frequency.
     :param zero_phase: Prevent phase error by filtering in both directions (filtfilt)
@@ -859,13 +859,13 @@ def bandpass_fractional_octaves(
     if not isinstance(frequencies, Frequencies):
         frequencies = OctaveBand(center=frequencies, fraction=fraction)
     return bandpass_frequencies(
-        x, fs, frequencies, order=order, purge=purge, zero_phase=zero_phase
+        x, sr, frequencies, order=order, purge=purge, zero_phase=zero_phase
     )
 
 
 def third_octaves(
     p,
-    fs,
+    sr,
     density=False,
     frequencies=NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES,
     ref=REFERENCE_PRESSURE,
@@ -873,7 +873,7 @@ def third_octaves(
     """Calculate level per 1/3-octave in frequency domain using the FFT.
 
     :param x: Instantaneous signal :math:`x(t)`.
-    :param fs: Sample frequency.
+    :param sr: Sample rate (Hz) :math:`sr`.
     :param density: Power density instead of power.
     :returns: Tuple. First element is an instance of :class:`OctaveBand`. The second element an array.
 
@@ -885,7 +885,7 @@ def third_octaves(
 
     """
     fob = OctaveBand(center=frequencies, fraction=3)
-    f, p = power_spectrum(p, fs)
+    f, p = power_spectrum(p, sr)
     fnb = EqualBand(f)
     power = integrate_bands(p, fnb, fob)
     if density:
@@ -896,7 +896,7 @@ def third_octaves(
 
 def octaves(
     p,
-    fs,
+    sr,
     density=False,
     frequencies=NOMINAL_OCTAVE_CENTER_FREQUENCIES,
     ref=REFERENCE_PRESSURE,
@@ -904,7 +904,7 @@ def octaves(
     """Calculate level per 1/1-octave in frequency domain using the FFT.
 
     :param x: Instantaneous signal :math:`x(t)`.
-    :param fs: Sample frequency.
+    :param sr: Sample rate (Hz) :math:`sr`.
     :param density: Power density instead of power.
     :param frequencies: Frequencies.
     :param ref: Reference value.
@@ -918,7 +918,7 @@ def octaves(
 
     """
     fob = OctaveBand(center=frequencies, fraction=1)
-    f, p = power_spectrum(p, fs)
+    f, p = power_spectrum(p, sr)
     fnb = EqualBand(f)
     power = integrate_bands(p, fnb, fob)
     if density:
@@ -928,12 +928,12 @@ def octaves(
 
 
 def fractional_octaves(
-    p, fs, start=5.0, stop=16000.0, fraction=3, density=False, ref=REFERENCE_PRESSURE
+    p, sr, start=5.0, stop=16000.0, fraction=3, density=False, ref=REFERENCE_PRESSURE
 ):
     """Calculate level per 1/N-octave in frequency domain using the FFT. N is `fraction`.
 
     :param x: Instantaneous signal :math:`x(t)`.
-    :param fs: Sample frequency.
+    :param sr: Sample rate (Hz) :math:`sr`.
     :param density: Power density instead of power.
     :returns: Tuple. First element is an instance of :class:`OctaveBand`. The second element an array.
 
@@ -944,7 +944,7 @@ def fractional_octaves(
     .. note:: Exact center frequencies are always calculated.
     """
     fob = OctaveBand(fstart=start, fstop=stop, fraction=fraction)
-    f, p = power_spectrum(p, fs)
+    f, p = power_spectrum(p, sr)
     fnb = EqualBand(f)
     power = integrate_bands(p, fnb, fob)
     if density:
@@ -952,7 +952,7 @@ def fractional_octaves(
     level = 10.0 * np.log10(power / ref**2.0)
     return fob, level
 
-
+# FIXME : rename sample_frequency to sample_rate
 class Filterbank:
     """
     Fractional-Octave filter bank.
@@ -1001,9 +1001,9 @@ class Filterbank:
         """
         Filters this filterbank consists of.
         """
-        fs = self.sample_frequency
+        sr = self.sample_frequency
         return (
-            bandpass_filter(lower, upper, fs, order=self.order, output="sos")
+            bandpass_filter(lower, upper, sr, order=self.order, output="sos")
             for lower, upper in zip(self.frequencies.lower, self.frequencies.upper)
         )
 
@@ -1048,16 +1048,16 @@ class Filterbank:
         .. note:: The follow phase response is obtained in case :meth:`lfilter` is used. The method :meth:`filtfilt` results in a zero-phase response.
         """
 
-        fs = self.sample_frequency
+        sr = self.sample_frequency
         fig = plt.figure()
         ax1 = fig.add_subplot(211)
         ax2 = fig.add_subplot(212)
         for f, fc in zip(self.filters, self.frequencies.center):
-            w, h = freqz(f[0], f[1], int(fs / 2))  # np.arange(fs/2.0))
+            w, h = freqz(f[0], f[1], int(sr / 2))  # np.arange(sr/2.0))
             ax1.semilogx(
-                w / (2.0 * np.pi) * fs, 20.0 * np.log10(np.abs(h)), label=str(int(fc))
+                w / (2.0 * np.pi) * sr, 20.0 * np.log10(np.abs(h)), label=str(int(fc))
             )
-            ax2.semilogx(w / (2.0 * np.pi) * fs, np.angle(h), label=str(int(fc)))
+            ax2.semilogx(w / (2.0 * np.pi) * sr, np.angle(h), label=str(int(fc)))
         ax1.set_xlabel(r"$f$ in Hz")
         ax1.set_ylabel(r"$|H|$ in dB re. 1")
         ax2.set_xlabel(r"$f$ in Hz")
@@ -1115,13 +1115,13 @@ def zero_crossings(data):
     return ((pos[:-1] & npos[1:]) | (npos[:-1] & pos[1:])).nonzero()[0]
 
 
-def amplitude_envelope(signal, fs, axis=-1):
+def amplitude_envelope(signal, sr, axis=-1):
     """Instantaneous amplitude of tone.
 
     The instantaneous amplitude is the magnitude of the analytic signal.
 
     :param signal: Signal.
-    :param fs: Sample frequency.
+    :param sr: Sample rate (Hz).
     :param axis: Axis.
     :returns: Amplitude envelope of `signal`.
 
@@ -1131,11 +1131,11 @@ def amplitude_envelope(signal, fs, axis=-1):
     return np.abs(hilbert(signal, axis=axis))
 
 
-def instantaneous_phase(signal, fs, axis=-1):
+def instantaneous_phase(signal, sr, axis=-1):
     """Instantaneous phase of tone.
 
     :param signal: Signal.
-    :param fs: Sample frequency.
+    :param sr: Sample rate (Hz).
     :param axis: Axis.
     :returns: Instantaneous phase of `signal`.
 
@@ -1148,11 +1148,11 @@ def instantaneous_phase(signal, fs, axis=-1):
     return np.angle(hilbert(signal, axis=axis))
 
 
-def instantaneous_frequency(signal, fs, axis=-1):
+def instantaneous_frequency(signal, sr, axis=-1):
     """Determine instantaneous frequency of tone.
 
     :param signal: Signal.
-    :param fs: Sample frequency.
+    :param sr: Sample rate (Hz).
     :param axis: Axis.
     :returns: Instantaneous frequency of `signal`.
 
@@ -1163,18 +1163,18 @@ def instantaneous_frequency(signal, fs, axis=-1):
     """
     return (
         np.diff(
-            np.unwrap(instantaneous_phase(signal, fs, axis=axis), axis=axis), axis=axis
+            np.unwrap(instantaneous_phase(signal, sr, axis=axis), axis=axis), axis=axis
         )
         / (2.0 * np.pi)
-        * fs
+        * sr
     )
 
 
-def wvd(signal, fs, analytic=True):
+def wvd(signal, sr, analytic=True):
     """Wigner-Ville Distribution
 
     :param signal: Signal
-    :param fs: Sample frequency
+    :param sr: Sample rate (Hz).
     :param analytic: Use the analytic signal, calculated using Hilbert transform.
 
     .. math:: W_z(n, \\omega) = 2 \\sum_k z^*[n-k]z[n+k] e^{-j\\omega 2kT}
@@ -1202,12 +1202,12 @@ def wvd(signal, fs, analytic=True):
 
     i = length_time
     for t in range(length_time):
-        R[t, tau1] = s[i + tau] * s[i - tau].conj()  # In one direction
+        R[t, tau] = s[i + tau] * s[i - tau].conj()  # In one direction
         R[t, N - (tau + 1)] = R[t, tau + 1].conj()  # And the other direction
         i += 1
     W = np.fft.fft(R, length_FFT) / (2 * length_FFT)
 
-    f = np.fft.fftfreq(N, 1.0 / fs)
+    f = np.fft.fftfreq(N, 1.0 / sr)
     return f, W.T
 
 
@@ -1216,7 +1216,7 @@ def _sosfiltfilt(sos, x, axis=-1, padtype="odd", padlen=None, method="pad", irle
     Note that broadcasting does not work.
     """
     from scipy.signal import sosfilt_zi
-    from scipy.signal._arraytools import odd_ext, axis_slice, axis_reverse
+    from scipy.signal._arraytools import odd_ext, even_ext, const_ext, axis_slice, axis_reverse
 
     x = np.asarray(x)
 

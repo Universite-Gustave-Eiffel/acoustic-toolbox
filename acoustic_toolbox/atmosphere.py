@@ -222,12 +222,12 @@ class Atmosphere:
             inverse,
         )
 
-    def impulse_response(self, distance, fs, ntaps=None, inverse=False):
-        """Impulse response of sound travelling through `atmosphere` for a given `distance` sampled at `fs`.
+    def impulse_response(self, distance, sr, ntaps=None, inverse=False):
+        """Impulse response of sound travelling through `atmosphere` for a given `distance` sampled at `sr`.
 
         :param atmosphere: Atmosphere.
         :param distance: Distance between source and receiver.
-        :param fs: Sample frequency
+        :param sr: Sample rate (Hz)
         :param ntaps: Amount of taps.
         :param inverse: Whether the attenuation should be undone.
 
@@ -236,7 +236,7 @@ class Atmosphere:
         return impulse_response(
             self,
             distance,
-            fs,
+            sr,
             ntaps,
             inverse,
         )
@@ -278,12 +278,12 @@ def frequency_response(atmosphere, distance, frequencies, inverse=False):
     return tf
 
 
-def impulse_response(atmosphere, distance, fs, ntaps, inverse=False):
-    """Impulse response of sound travelling through `atmosphere` for a given `distance` sampled at `fs`.
+def impulse_response(atmosphere, distance, sr, ntaps, inverse=False):
+    """Impulse response of sound travelling through `atmosphere` for a given `distance` sampled at `sr`.
 
     :param atmosphere: Atmosphere.
     :param distance: Distance between source and receiver.
-    :param fs: Sample frequency
+    :param sr: Sample rate (Hz)
     :param ntaps: Amount of taps.
     :param inverse: Whether the attenuation should be undone.
 
@@ -299,7 +299,7 @@ def impulse_response(atmosphere, distance, fs, ntaps, inverse=False):
     real, even frequency response.
     """
     # Frequencies vector with positive frequencies only.
-    frequencies = np.fft.rfftfreq(ntaps, 1.0 / fs)
+    frequencies = np.fft.rfftfreq(ntaps, 1.0 / sr)
     # Single-sided spectrum. Negative frequencies have the same values.
     tf = frequency_response(atmosphere, distance, frequencies, inverse)
     # Impulse response. We design a zero-phase filter (linear-phase with zero slope).
