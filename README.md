@@ -8,6 +8,7 @@
     <a href="https://pypi.org/project/acoustic-toolbox/"><img src="https://badgen.net/pypi/v/acoustic-toolbox" /></a>
     <a href="LICENSE"><img src="https://badgen.net/github/license/Universite-Gustave-Eiffel/acoustic-toolbox" /></a>
     <img src="https://badgen.net/github/checks/Universite-Gustave-Eiffel/acoustic-toolbox" />
+    <img src="https://readthedocs.org/projects/acoustic-toolbox/badge/?version=latest&style=flat">
 </p>
 
 The `acoustic-toolbox` module is a Python module with useful tools for acousticians.

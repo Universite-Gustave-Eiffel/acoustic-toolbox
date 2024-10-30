@@ -12,7 +12,7 @@ Examples
    :maxdepth: 1
 
    signal_class
-   directivity
+   directivity_example
 
 API Reference
 #############
