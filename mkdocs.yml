@@ -40,6 +40,7 @@ theme:
         icon: material/weather-sunny
         name: Switch to light mode
   features:
+    # From setup template I used - can remove if not needed
     - content.action.view
     - content.action.edit
     - content.code.copy
@@ -68,6 +69,12 @@ plugins:
           options: 
             docstring_style: google # Need to update sphinx docstrings to google style
             docstring_section_style: list
+            show_root_members_full_path: true
+            separate_signature: true
+            signature_crossrefs: true
+            show_root_toc_entry: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
             docstring_options:
               ignore_init_summary: true
               trim_doctest_flags: true
@@ -115,18 +122,13 @@ extra_javascript:
 markdown_extensions:
   - pymdownx.arithmatex: # enable KaTeX support https://squidfunk.github.io/mkdocs-material/reference/math/#katex
       generic: true
+  - tables
 
   # From setup template I used - can remove if not needed
   - admonition
   - attr_list
   - def_list
   - pymdownx.details
-  - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
-      options:
-        custom_icons:
-          - overrides/.icons
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -137,7 +139,6 @@ markdown_extensions:
   - pymdownx.superfences:
   - pymdownx.tabbed:
       alternate_style: true
-  - tables
   - md_in_html
 
 # Validation
@@ -158,3 +159,6 @@ not_in_nav: |
 nav:
 - Home: index.md
 - Ambisonics: ambisonics.md
+- Standards: 
+  - Standards: standards.md
+  - IEC 61260-1:2014: standards/iec_61260_1_2014.md
