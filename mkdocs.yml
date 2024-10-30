@@ -54,6 +54,25 @@ theme:
 
 # Plugins - install using: pip3 install -r requirements.txt
 plugins:
+  - search
+  - mkdocstrings: # For building API ref from docstrings https://mkdocstrings.github.io/usage/#docsmy_pagemd
+      enable_inventory: true
+      handlers:
+        python:
+          import:
+            - https://docs.python.org/3/objects.inv
+            - https://docs.scipy.org/doc/scipy/objects.inv
+            - https://numpy.org/doc/stable/objects.inv
+            - https://pandas.pydata.org/docs/objects.inv
+            - https://matplotlib.org/stable/objects.inv
+          options: 
+            docstring_style: google # Need to update sphinx docstrings to google style
+            docstring_section_style: list
+            docstring_options:
+              ignore_init_summary: true
+              trim_doctest_flags: true
+
+  # From setup template I used - can remove if not needed
   - exclude:
       glob:
         - '**/download/download.txt'
@@ -67,7 +86,7 @@ plugins:
       on_undefined: strict
       j2_block_start_string: '[[%'
       j2_block_end_string: '%]]'
-  - search
+
 # Customizations
 extra:
   homepage: https://github.com/Universite-Gustave-Eiffel/acoustic-toolbox
@@ -138,3 +157,4 @@ not_in_nav: |
 # Page tree
 nav:
 - Home: index.md
+- Ambisonics: ambisonics.md

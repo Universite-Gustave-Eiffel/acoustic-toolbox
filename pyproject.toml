@@ -45,6 +45,7 @@ docs = [
     "mkdocs-include-markdown-plugin>=6.0.4",
     "mkdocs-exclude>=1.0.2",
     "mkdocs-macros-plugin>=1.0.4",
+    "mkdocstrings[python]>=0.26.2",
 ]
 
 [tool.flit.sdist]
