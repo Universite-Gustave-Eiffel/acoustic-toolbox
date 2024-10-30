@@ -14,9 +14,8 @@ build:
     - uv sync --extra docs --frozen
     - uv run -m sphinx -T -b html -d docs/_build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
 
-sphinx:
-  configuration: docs/source/conf.py
-  fail_on_warning: true
+mkdocs:
+  configuration: mkdocs.yml
   
 formats:
   - pdf
