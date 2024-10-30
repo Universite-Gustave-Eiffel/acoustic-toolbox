@@ -81,14 +81,23 @@ extra:
 # Include extra CSS to make some style adjustments
 extra_css:
   - stylesheets/readthedocs.css
+  - https://unpkg.com/katex@0/dist/katex.min.css # enable KaTeX support
+
 
 # Include extra JS to setup Read the Docs addons integrations
 extra_javascript:
   - javascripts/readthedocs.js
+  - javascripts/katex.js # enable KaTeX support
+  - https://unpkg.com/katex@0/dist/katex.min.js # enable KaTeX support
+  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js # enable KaTeX support
 
 # Extensions
 # - These are carefully chosen to work with pandoc markdown support for whole document translation
 markdown_extensions:
+  - pymdownx.arithmatex: # enable KaTeX support https://squidfunk.github.io/mkdocs-material/reference/math/#katex
+      generic: true
+
+  # From setup template I used - can remove if not needed
   - admonition
   - attr_list
   - def_list
