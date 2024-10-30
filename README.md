@@ -26,7 +26,7 @@ Several examples can be found in the `examples` folder.
 
 The test suite can be run with
 
-`pytest`
+`uv run pytest`
 
 ## Documentation
 
@@ -40,6 +40,11 @@ Documentation can be found [online](http://acoustic-toolbox.readthedocs.io/).
 
 Contributors are always welcome.
 
+Setting up the development environment and dependency management is done with `uv`. `uv` can be installed [from source](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer) or with `pip install uv`.
+
+To install the development environment, run `uv sync --all-extras` in the root of the repository. This will setup a `.venv` and install all dependencies including dev and docs dependencies.
+
+Documentation is built with `uv run make html` from the `docs` folder and can be viewed in the `docs/build/html` folder.
 
 ## Origin project 
 
