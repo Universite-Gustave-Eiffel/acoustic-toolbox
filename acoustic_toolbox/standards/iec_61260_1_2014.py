@@ -86,23 +86,26 @@ See equation 1.
 def exact_center_frequency(
     x, fraction=1, ref=REFERENCE_FREQUENCY, G=OCTAVE_FREQUENCY_RATIO
 ):
-    """
-    Center frequencies :math:`f_m` for band indices :math:`x`. See equation 2 and 3.
+    """Center frequencies :math:`f_m` for band indices :math:`x`. See equation 2 and 3.
 
-    :param x: Band index :math:`x`.
-    :param ref: Reference center frequency :math:`f_r`.
-    :param fraction: Bandwidth designator :math`b`. For example, for 1/3-octave filter b=3.
-    :param G: Octave frequency ratio :math:`G`.
-
+    Args:
+      x: Band index :math:`x`.
+      ref: Reference center frequency :math:`f_r`. (Default value = REFERENCE_FREQUENCY)
+      fraction: Bandwidth designator :math`b`. For example, for 1/3-octave filter b=3. (Default value = 1)
+      G: Octave frequency ratio :math:`G`.
+    
     The center frequencies are given by
-
+    
     .. math:: f_m = f_r G^{x/b}
-
+    
     In case the bandwidth designator :math:`b` is an even number, the center frequencies are given by
-
+    
     .. math:: f_m = f_r G^{(2x+1)/2b}
+    
+    See equation 2 and 3 of the standard. (Default value = OCTAVE_FREQUENCY_RATIO)
 
-    See equation 2 and 3 of the standard.
+    Returns:
+
     """
     fraction = np.asarray(fraction)
     uneven = (fraction % 2).astype("bool")
@@ -112,36 +115,40 @@ def exact_center_frequency(
 
 
 def lower_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO):
-    """
-    Lower band-edge frequencies. See equation 4.
+    """Lower band-edge frequencies. See equation 4.
 
-    :param center: Center frequencies :math:`f_m`.
-    :param fraction: Bandwidth designator :math:`b`.
-    :param G: Octave frequency ratio :math:`G`.
-
+    Args:
+      center: Center frequencies :math:`f_m`.
+      fraction: Bandwidth designator :math:`b`. (Default value = 1)
+      G: Octave frequency ratio :math:`G`.
+    
     The lower band-edge frequencies are given by
-
+    
     .. math:: f_1 = f_m G^{-1/2b}
+    
+    See equation 4 of the standard. (Default value = OCTAVE_FREQUENCY_RATIO)
 
-    See equation 4 of the standard.
+    Returns:
 
     """
     return center * G ** (-1.0 / (2.0 * fraction))
 
 
 def upper_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO):
-    """
-    Upper band-edge frequencies. See equation 5.
+    """Upper band-edge frequencies. See equation 5.
 
-    :param center: Center frequencies :math:`f_m`.
-    :param fraction: Bandwidth designator :math:`b`.
-    :param G: Octave frequency ratio :math:`G`.
-
+    Args:
+      center: Center frequencies :math:`f_m`.
+      fraction: Bandwidth designator :math:`b`. (Default value = 1)
+      G: Octave frequency ratio :math:`G`.
+    
     The upper band-edge frequencies are given by
-
+    
     .. math:: f_2 = f_m G^{+1/2b}
+    
+    See equation 5 of the standard. (Default value = OCTAVE_FREQUENCY_RATIO)
 
-    See equation 5 of the standard.
+    Returns:
 
     """
     return center * G ** (+1.0 / (2.0 * fraction))
@@ -150,18 +157,25 @@ def upper_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO):
 def index_of_frequency(
     frequency, fraction=1, ref=REFERENCE_FREQUENCY, G=OCTAVE_FREQUENCY_RATIO
 ):
-    """Determine the band index `x` from a given frequency.
+    """Determine the band index $x$ from a given frequency.
 
-    :param frequency: Frequencies :math:`f`.
-    :param fraction: Bandwidth designator :math:`b`.
-    :param ref: Reference frequency.
-    :param G: Octave frequency ratio :math:`G`.
-
+    Args:
+      frequency: Frequencies $f$.
+      fraction: Bandwidth designator $b$. (Default value = 1)
+      ref: Reference frequency. (Default value = REFERENCE_FREQUENCY)
+      G: Octave frequency ratio $G$.
+    
     The index of the center frequency is given by
 
-    .. math:: x = round{b \\frac{\log{f/f_{ref} }}{\log{G} }}
+    $$
+    x = round{b \\frac{\\log{f/f_{ref} }}{\\log{G} }}
+    $$
+    
+    Note:
+        This equation is not part of the standard. 
+        However, it follows from [`exact_center_frequency`](acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency).
 
-    .. note:: This equation is not part of the standard. However, it follows from :func:`exact_center_frequency`.
+    Returns:
 
     """
     fraction = np.asarray(fraction)
@@ -178,11 +192,24 @@ def index_of_frequency(
 def _nominal_center_frequency(center, fraction):
     """Nominal frequency according to standard.
 
-    :param center: Exact mid-frequency to be rounded.
-    :param fraction: Bandwidth designator or fraction.
+    Args:
+      center: Exact mid-frequency to be rounded.
+      fraction: Bandwidth designator or fraction.
+
+    Returns:
+
     """
 
     def _roundn(x, n):
+        """
+
+        Args:
+          x: 
+          n: 
+
+        Returns:
+
+        """
         return round(x, -int(np.floor(np.sign(x) * np.log10(abs(x)))) + n)
 
     b = fraction

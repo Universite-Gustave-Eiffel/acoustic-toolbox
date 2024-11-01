@@ -1,0 +1,164 @@
+# Project information
+site_name: Acoustic-Toolbox
+site_description: Documentation for the acoustic-toolbox project
+
+site_dir: build/html
+# Set the site URL by using a Read the Docs environment variable:
+# https://docs.readthedocs.io/en/stable/reference/environment-variables.html
+site_url: !ENV READTHEDOCS_CANONICAL_URL
+
+# Repository
+repo_name: acoustic-toolbox
+repo_url: https://github.com/Universite-Gustave-Eiffel/acoustic-toolbox
+edit_uri: edit/main/example/docs
+
+# Copyright
+copyright: Copyright &copy; 2024, Valentin LE BESCOND
+
+# Configuration
+theme:
+  name: material
+  language: en
+  logo: images/logo_txt.png
+  # favicon: assets/images/geoserver_mark.png
+  
+  # https://squidfunk.github.io/mkdocs-material/customization/
+  custom_dir: docs/overrides
+  
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    # From setup template I used - can remove if not needed
+    - content.action.view
+    - content.action.edit
+    - content.code.copy
+    - content.tabs.link
+    - navigation.tracking
+    - navigation.prune
+    - navigation.indexes
+    - toc.follow
+    - navigation.top
+    - navigation.footer
+    - announce.dismiss
+
+# Plugins - install using: pip3 install -r requirements.txt
+plugins:
+  - search
+  - mkdocstrings: # For building API ref from docstrings https://mkdocstrings.github.io/usage/#docsmy_pagemd
+      enable_inventory: true
+      handlers:
+        python:
+          import:
+            - https://docs.python.org/3/objects.inv
+            - https://docs.scipy.org/doc/scipy/objects.inv
+            - https://numpy.org/doc/stable/objects.inv
+            - https://pandas.pydata.org/docs/objects.inv
+            - https://matplotlib.org/stable/objects.inv
+          options: 
+            docstring_style: google # Need to update sphinx docstrings to google style
+            docstring_section_style: list
+            show_root_members_full_path: true
+            separate_signature: true
+            signature_crossrefs: true
+            show_root_toc_entry: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            docstring_options:
+              ignore_init_summary: true
+              trim_doctest_flags: true
+
+  # From setup template I used - can remove if not needed
+  - exclude:
+      glob:
+        - '**/download/download.txt'
+  - include-markdown:
+      preserve_includer_indent: true
+      dedent: true
+      comments: false
+  - macros:
+      render_by_default: false
+      on_error_fail: true
+      on_undefined: strict
+      j2_block_start_string: '[[%'
+      j2_block_end_string: '%]]'
+
+# Customizations
+extra:
+  homepage: https://github.com/Universite-Gustave-Eiffel/acoustic-toolbox
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Universite-Gustave-Eiffel/acoustic-toolbox
+  version: 
+    provider: mike # https://squidfunk.github.io/mkdocs-material/setup/setting-up-versioning/#versioning
+  release: '0.9.5'
+
+# Include extra CSS to make some style adjustments
+extra_css:
+  - stylesheets/readthedocs.css
+  - https://unpkg.com/katex@0/dist/katex.min.css # enable KaTeX support
+
+
+# Include extra JS to setup Read the Docs addons integrations
+extra_javascript:
+  - javascripts/readthedocs.js
+  - javascripts/katex.js # enable KaTeX support
+  - https://unpkg.com/katex@0/dist/katex.min.js # enable KaTeX support
+  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js # enable KaTeX support
+
+# Extensions
+# - These are carefully chosen to work with pandoc markdown support for whole document translation
+markdown_extensions:
+  - pymdownx.arithmatex: # enable KaTeX support https://squidfunk.github.io/mkdocs-material/reference/math/#katex
+      generic: true
+  - tables
+
+  # From setup template I used - can remove if not needed
+  - admonition
+  - attr_list
+  - def_list
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+  - pymdownx.tabbed:
+      alternate_style: true
+  - md_in_html
+
+# Validation
+validation:
+  nav:
+    omitted_files: info
+    not_found: warn
+    absolute_links: info
+  links:
+    not_found: warn
+    absolute_links: info
+    unrecognized_links: info
+
+not_in_nav: |
+  **/download/*.md
+
+# Page tree
+nav:
+- Home: index.md
+- Ambisonics: ambisonics.md
+- Standards: 
+  - Standards: standards.md
+  - IEC 61260-1:2014: standards/iec_61260_1_2014.md

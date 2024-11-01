@@ -63,3 +63,5 @@ temp
 
 .pytest*
 .ruff*
+
+sphinx-docs

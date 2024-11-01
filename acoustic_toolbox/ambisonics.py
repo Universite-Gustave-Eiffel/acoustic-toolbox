@@ -6,29 +6,26 @@ Ambisonics
 
 import numpy as np
 import scipy.special
+from typing import Generator, Tuple
 
 
-def acn(order=1):
+def acn(order: int = 1) -> Generator[Tuple[int, int], None, None]:
     """Spherical harmonic degree `n` and order `m` for ambisonics order `order`.
-
-    :param order: Ambisonics order.
-
-    Yields tuples `(n, m)` where `n` is the degree and `m` the order.
 
     Follows ACN.
 
-    === == == ======
-    ACN n  m  letter
-    === == == ======
-    0   0  0  W
-    --- -- -- ------
-    1   1  -1 Y
-    --- -- -- ------
-    2   1  0  Z
-    --- -- -- ------
-    3   1  +1 X
-    === == == ======
+    | ACN | n | m  | letter |
+    |-----|---|----|--------|
+    | 0   | 0 | 0  | W      |
+    | 1   | 1 | -1 | Y      |
+    | 2   | 1 | 0  | Z      |
+    | 3   | 1 | +1 | X      |
 
+    Args:
+      order: Ambisonics order.
+
+    Yields:
+        Degree `n` and order `m`.
     """
     for n in range(order + 1):
         for m in range(-n, n + 1):
@@ -38,10 +35,13 @@ def acn(order=1):
 def sn3d(m, n):
     """SN3D or Schmidt semi-normalisation
 
-    :param m: order `n`
-    :param n: degree `m`
+    - [http://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#SN3D](http://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#SN3D)
 
-    http://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#SN3D
+    Args:
+      m: order `n`
+      n: degree `m`
+
+    Returns:
 
     """
     m = np.atleast_1d(m)
@@ -60,10 +60,13 @@ def sn3d(m, n):
 def n3d(m, n):
     """N3D or full three-D normalisation
 
-    :param m: order `n`
-    :param n: degree `m`
+    - [http://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#N3D](http://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#N3D)
 
-    http://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#N3D
+    Args:
+      m: order `n`
+      n: degree `m`
+
+    Returns:
 
     """
     n = np.atleast_1d(n)
