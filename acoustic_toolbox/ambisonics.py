@@ -1,12 +1,9 @@
-"""
-Ambisonics
-==========
-
-"""
+# Ambisonics
 
 import numpy as np
 import scipy.special
 from typing import Generator, Tuple
+from numpy.typing import NDArray
 
 
 def acn(order: int = 1) -> Generator[Tuple[int, int], None, None]:
@@ -22,27 +19,27 @@ def acn(order: int = 1) -> Generator[Tuple[int, int], None, None]:
     | 3   | 1 | +1 | X      |
 
     Args:
-      order: Ambisonics order.
+        order: Ambisonics order.
 
     Yields:
-        Degree `n` and order `m`.
+        Tuple[int, int]: Degree `n` and order `m`.
     """
     for n in range(order + 1):
         for m in range(-n, n + 1):
             yield (n, m)
 
 
-def sn3d(m, n):
-    """SN3D or Schmidt semi-normalisation
+def sn3d(m: int | NDArray[np.int_], n: int | NDArray[np.int_]) -> NDArray[np.float64]:
+    """SN3D or Schmidt semi-normalisation.
 
-    - [http://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#SN3D](http://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#SN3D)
+    See [http://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#SN3D](http://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#SN3D)
 
     Args:
-      m: order `n`
-      n: degree `m`
+        m: Order `n`
+        n: Degree `m`
 
     Returns:
-
+        NDArray[np.float64]: The SN3D normalization coefficients.
     """
     m = np.atleast_1d(m)
     n = np.atleast_1d(n)
@@ -57,17 +54,17 @@ def sn3d(m, n):
     return out
 
 
-def n3d(m, n):
-    """N3D or full three-D normalisation
+def n3d(m: int | NDArray[np.int_], n: int | NDArray[np.int_]) -> NDArray[np.float64]:
+    """N3D or full three-D normalisation.
 
-    - [http://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#N3D](http://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#N3D)
+    See [http://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#N3D](http://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#N3D)
 
     Args:
-      m: order `n`
-      n: degree `m`
+        m: Order `n`
+        n: Degree `m`
 
     Returns:
-
+        NDArray[np.float64]: The N3D normalization coefficients.
     """
     n = np.atleast_1d(n)
     return sn3d(m, n) * np.sqrt(2 * n + 1)
