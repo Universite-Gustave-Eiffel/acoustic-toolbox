@@ -21,10 +21,10 @@ theme:
   language: en
   logo: images/logo_txt.png
   # favicon: assets/images/geoserver_mark.png
-  
+
   # https://squidfunk.github.io/mkdocs-material/customization/
   custom_dir: docs/overrides
-  
+
   palette:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
@@ -56,6 +56,7 @@ theme:
 # Plugins - install using: pip3 install -r requirements.txt
 plugins:
   - search
+  - autorefs
   - mkdocstrings: # For building API ref from docstrings https://mkdocstrings.github.io/usage/#docsmy_pagemd
       enable_inventory: true
       handlers:
@@ -66,15 +67,27 @@ plugins:
             - https://numpy.org/doc/stable/objects.inv
             - https://pandas.pydata.org/docs/objects.inv
             - https://matplotlib.org/stable/objects.inv
-          options: 
+          options:
+            # Docstring styling
+            # https://mkdocstrings.github.io/python/usage/configuration/general/
             docstring_style: google # Need to update sphinx docstrings to google style
-            docstring_section_style: list
-            show_root_members_full_path: true
+            docstring_section_style: spacy
+            show_root_members_full_path: false
+            members_order: source
+            merge_init_into_class: true
+            # Signature styling
             separate_signature: true
+            show_signature_annotations: true
             signature_crossrefs: true
+            modernize_annotations: true
+            line_length: 60
+
+            # Toc styling
             show_root_toc_entry: false
             show_symbol_type_heading: true
             show_symbol_type_toc: true
+            group_by_category: true
+            show_category_heading: true
             docstring_options:
               ignore_init_summary: true
               trim_doctest_flags: true
@@ -82,7 +95,7 @@ plugins:
   # From setup template I used - can remove if not needed
   - exclude:
       glob:
-        - '**/download/download.txt'
+        - "**/download/download.txt"
   - include-markdown:
       preserve_includer_indent: true
       dedent: true
@@ -91,8 +104,8 @@ plugins:
       render_by_default: false
       on_error_fail: true
       on_undefined: strict
-      j2_block_start_string: '[[%'
-      j2_block_end_string: '%]]'
+      j2_block_start_string: "[[%"
+      j2_block_end_string: "%]]"
 
 # Customizations
 extra:
@@ -100,15 +113,14 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/Universite-Gustave-Eiffel/acoustic-toolbox
-  version: 
+  version:
     provider: mike # https://squidfunk.github.io/mkdocs-material/setup/setting-up-versioning/#versioning
-  release: '0.9.5'
+  release: "0.9.5"
 
 # Include extra CSS to make some style adjustments
 extra_css:
   - stylesheets/readthedocs.css
   - https://unpkg.com/katex@0/dist/katex.min.css # enable KaTeX support
-
 
 # Include extra JS to setup Read the Docs addons integrations
 extra_javascript:
@@ -157,8 +169,34 @@ not_in_nav: |
 
 # Page tree
 nav:
-- Home: index.md
-- Ambisonics: ambisonics.md
-- Standards: 
-  - Standards: standards.md
-  - IEC 61260-1:2014: standards/iec_61260_1_2014.md
+  - Home: index.md
+  - Standards:
+      - Overview: standards.md
+      - IEC 61260-1:2014: standards/iec_61260_1_2014.md
+      - IEC 61672-1:2013: standards/iec_61672_1_2013.md
+      - ISO 1683:2015: standards/iso_1683_2015.md
+      - ISO 1996-1:2003: standards/iso_1996_1_2003.md
+      - ISO 1996-2:2007: standards/iso_1996_2_2007.md
+      - ISO 9613-1:1993: standards/iso_9613_1_1993.md
+      - ISO/TR 25417:2007: standards/iso_tr_25417_2007.md
+  - Modules:
+      - Ambisonics: ambisonics.md
+      - Signal Processing: signal.md
+      - Room Acoustics: room.md
+      - Utilities: utils.md
+      - Weighting: weighting.md
+      - Reflection: reflection.md
+      - Doppler: doppler.md
+      - Generator: generator.md
+      - Imaging: imaging.md
+      - Octave: octave.md
+      - Power: power.md
+      - Quantity: quantity.md
+      - Cepstrum: cepstrum.md
+      - Criterion: criterion.md
+      - Decibel: decibel.md
+      - Descriptors: descriptors.md
+      - Directivity: directivity.md
+      - Atmosphere: atmosphere.md
+      - Bands: bands.md
+      - Building: building.md
