@@ -1,33 +1,19 @@
-"""
-IEC 61672-1:2013
-================
+"""IEC 61672-1:2013
 
-IEC 61672-1:2013 gives electroacoustical performance specifications for three
-kinds of sound measuring instruments [IEC61672]_:
+This module implements IEC 61672-1:2013 which provides electroacoustical performance specifications
+for three kinds of sound measuring instruments:
 
-- time-weighting sound level meters that measure exponential-time-weighted, frequency-weighted sound levels;
-- integrating-averaging sound level meters that measure time-averaged, frequency-weighted sound levels; and
-- integrating sound level meters that measure frequency-weighted sound exposure levels.
+1. Time-weighting sound level meters that measure exponential-time-weighted, frequency-weighted sound levels
+2. Integrating-averaging sound level meters that measure time-averaged, frequency-weighted sound levels
+3. Integrating sound level meters that measure frequency-weighted sound exposure levels
 
-.. [IEC61672] http://webstore.iec.ch/webstore/webstore.nsf/artnum/048669!opendocument
+The module provides functions for:
+- Frequency weighting (A, C, Z)
+- Time weighting (Fast, Slow)
+- Sound level calculations
 
-Weighting functions
-*******************
-
-.. autofunction:: weighting_function_a
-.. autofunction:: weighting_function_c
-.. autofunction:: weighting_function_z
-
-
-Weighting systems
-*****************
-
-.. autofunction:: weighting_system_a
-.. autofunction:: weighting_system_c
-.. autofunction:: weighting_system_z
-
-
-
+Reference:
+    IEC 61672-1:2013: http://webstore.iec.ch/webstore/webstore.nsf/artnum/048669
 """
 
 import io
@@ -35,6 +21,8 @@ import os
 import pkgutil
 import numpy as np
 import pandas as pd
+from typing import Tuple, Dict
+from numpy.typing import NDArray
 from scipy.signal import zpk2tf
 from scipy.signal import lfilter, bilinear
 from .iso_tr_25417_2007 import REFERENCE_PRESSURE
@@ -49,62 +37,67 @@ WEIGHTING_DATA = pd.read_csv(
     sep=",",
     index_col=0,
 )
-"""DataFrame with indices, nominal frequencies and weighting values.
-"""
+"""DataFrame with indices, nominal frequencies and weighting values."""
 
-NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES = np.array(WEIGHTING_DATA.nominal)
-"""Nominal 1/3-octave frequencies. See table 3.
-"""
-
-NOMINAL_OCTAVE_CENTER_FREQUENCIES = np.array(WEIGHTING_DATA.nominal)[2::3]
-"""Nominal 1/1-octave frequencies. Based on table 3.
-"""
-
-REFERENCE_FREQUENCY = 1000.0
-"""Reference frequency. See table 3.
-"""
-
-EXACT_THIRD_OCTAVE_CENTER_FREQUENCIES = REFERENCE_FREQUENCY * 10.0 ** (
-    0.01 * (np.arange(10, 44) - 30)
+NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES: NDArray[np.float64] = np.array(
+    WEIGHTING_DATA.nominal
 )
-"""Exact third-octave center frequencies. See table 3.
-"""
+"""Nominal 1/3-octave frequencies. See table 3."""
 
-WEIGHTING_A = np.array(WEIGHTING_DATA.A)
-"""Frequency weighting A. See table 3.
-"""
+NOMINAL_OCTAVE_CENTER_FREQUENCIES: NDArray[np.float64] = np.array(
+    WEIGHTING_DATA.nominal
+)[2::3]
+"""Nominal 1/1-octave frequencies. Based on table 3."""
 
-WEIGHTING_C = np.array(WEIGHTING_DATA.C)
-"""Frequency weighting C. See table 3.
-"""
+REFERENCE_FREQUENCY: float = 1000.0
+"""Reference frequency. See table 3."""
 
-WEIGHTING_Z = np.array(WEIGHTING_DATA.Z)
-"""Frequency weighting Z. See table 3.
-"""
+EXACT_THIRD_OCTAVE_CENTER_FREQUENCIES: NDArray[np.float64] = (
+    REFERENCE_FREQUENCY * 10.0 ** (0.01 * (np.arange(10, 44) - 30))
+)
+"""Exact third-octave center frequencies. See table 3."""
 
-WEIGHTING_VALUES = {"A": WEIGHTING_A, "C": WEIGHTING_C, "Z": WEIGHTING_Z}
-"""Dictionary with weighting values 'A', 'C' and 'Z' weighting.
-"""
+WEIGHTING_A: NDArray[np.float64] = np.array(WEIGHTING_DATA.A)
+"""Frequency weighting A. See table 3."""
 
-FAST = 0.125
-"""FAST time-constant.
-"""
+WEIGHTING_C: NDArray[np.float64] = np.array(WEIGHTING_DATA.C)
+"""Frequency weighting C. See table 3."""
 
-SLOW = 1.000
-"""SLOW time-constant.
-"""
+WEIGHTING_Z: NDArray[np.float64] = np.array(WEIGHTING_DATA.Z)
+"""Frequency weighting Z. See table 3."""
+
+WEIGHTING_VALUES: Dict[str, NDArray[np.float64]] = {
+    "A": WEIGHTING_A,
+    "C": WEIGHTING_C,
+    "Z": WEIGHTING_Z,
+}
+"""Dictionary with weighting values 'A', 'C' and 'Z' weighting."""
+
+FAST: float = 0.125
+"""FAST time-constant."""
+
+SLOW: float = 1.000
+"""SLOW time-constant."""
 
 
 def time_averaged_sound_level(
-    pressure, sample_frequency, averaging_time, reference_pressure=REFERENCE_PRESSURE
-):
-    """Time-averaged sound pressure level.
+    pressure: NDArray[np.float64],
+    sample_frequency: float,
+    averaging_time: float,
+    reference_pressure: float = REFERENCE_PRESSURE,
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    """Calculate time-averaged sound pressure level.
 
-    :param pressure: Dynamic pressure.
-    :param sample_frequency: Sample frequency.
-    :param averaging_time: Averaging time.
-    :param reference_pressure: Reference pressure.
+    Args:
+        pressure: Dynamic pressure.
+        sample_frequency: Sample frequency in Hz.
+        averaging_time: Averaging time in seconds.
+        reference_pressure: Reference pressure. Defaults to REFERENCE_PRESSURE.
 
+    Returns:
+        Tuple containing:
+            - Time points in seconds
+            - Time-averaged sound pressure levels in dB
     """
     levels = 10.0 * np.log10(
         average(pressure**2.0, sample_frequency, averaging_time)
@@ -114,21 +107,23 @@ def time_averaged_sound_level(
     return times, levels
 
 
-def average(data, sample_frequency, averaging_time):
+def average(
+    data: NDArray[np.float64], sample_frequency: float, averaging_time: float
+) -> NDArray[np.float64]:
     """Average the sound pressure squared.
 
-    :param data: Energetic quantity, e.g. :math:`p^2`.
-    :param sample_frequency: Sample frequency.
-    :param averaging_time: Averaging time.
-    :returns:
+    Args:
+        data: Energetic quantity, e.g. p².
+        sample_frequency: Sample frequency in Hz.
+        averaging_time: Averaging time in seconds.
 
-    Time weighting is applied by applying a low-pass filter with one real pole at :math:`-1/\\tau`.
+    Returns:
+        Averaged data with time weighting applied using a low-pass filter
+        with one real pole at -1/τ.
 
-    .. note::
-
-        Because :math:`f_s \\cdot t_i` is generally not an integer, samples are discarded.
+    Note:
+        Because fs·ti is generally not an integer, samples are discarded.
         This results in a drift of samples for longer signals (e.g. 60 minutes at 44.1 kHz).
-
     """
     averaging_time = np.asarray(averaging_time)
     sample_frequency = np.asarray(sample_frequency)
@@ -143,14 +138,23 @@ def average(data, sample_frequency, averaging_time):
 
 
 def time_weighted_sound_level(
-    pressure, sample_frequency, integration_time, reference_pressure=REFERENCE_PRESSURE
-):
-    """Time-weighted sound pressure level.
+    pressure: NDArray[np.float64],
+    sample_frequency: float,
+    integration_time: float,
+    reference_pressure: float = REFERENCE_PRESSURE,
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    """Calculate time-weighted sound pressure level.
 
-    :param pressure: Dynamic pressure.
-    :param sample_frequency: Sample frequency.
-    :param integration_time: Integration time.
-    :param reference_pressure: Reference pressure.
+    Args:
+        pressure: Dynamic pressure.
+        sample_frequency: Sample frequency in Hz.
+        integration_time: Integration time in seconds.
+        reference_pressure: Reference pressure. Defaults to REFERENCE_PRESSURE.
+
+    Returns:
+        Tuple containing:
+            - Time points in seconds
+            - Time-weighted sound pressure levels in dB
     """
     levels = 10.0 * np.log10(
         integrate(pressure**2.0, sample_frequency, integration_time)
@@ -160,21 +164,23 @@ def time_weighted_sound_level(
     return times, levels
 
 
-def integrate(data, sample_frequency, integration_time):
+def integrate(
+    data: NDArray[np.float64], sample_frequency: float, integration_time: float
+) -> NDArray[np.float64]:
     """Integrate the sound pressure squared using exponential integration.
 
-    :param data: Energetic quantity, e.g. :math:`p^2`.
-    :param sample_frequency: Sample frequency.
-    :param integration_time: Integration time.
-    :returns:
+    Args:
+        data: Energetic quantity, e.g. p².
+        sample_frequency: Sample frequency in Hz.
+        integration_time: Integration time in seconds.
 
-    Time weighting is applied by applying a low-pass filter with one real pole at :math:`-1/\\tau`.
+    Returns:
+        Integrated data with time weighting applied using a low-pass filter
+        with one real pole at -1/τ.
 
-    .. note::
-
-        Because :math:`f_s \\cdot t_i` is generally not an integer, samples are discarded.
+    Note:
+        Because fs·ti is generally not an integer, samples are discarded.
         This results in a drift of samples for longer signals (e.g. 60 minutes at 44.1 kHz).
-
     """
     samples = data.shape[-1]
     b, a = zpk2tf([1.0], [1.0, integration_time], [1.0])
@@ -191,59 +197,83 @@ def integrate(data, sample_frequency, integration_time):
     )  # Perform the integration. Select the final value of the integration.
 
 
-def fast(data, fs):
+def fast(data: NDArray[np.float64], fs: float) -> NDArray[np.float64]:
     """Apply fast (F) time-weighting.
 
-    :param data: Energetic quantity, e.g. :math:`p^2`.
-    :param fs: Sample frequency.
+    Args:
+        data: Energetic quantity, e.g. p².
+        fs: Sample frequency in Hz.
 
-    .. seealso:: :func:`integrate`
+    Returns:
+        Data with FAST time-weighting applied.
 
+    See Also:
+        integrate: Base integration function used for time-weighting.
     """
     return integrate(data, fs, FAST)
     # return time_weighted_sound_level(data, fs, FAST)
 
 
-def slow(data, fs):
+def slow(data: NDArray[np.float64], fs: float) -> NDArray[np.float64]:
     """Apply slow (S) time-weighting.
 
-    :param data: Energetic quantity, e.g. :math:`p^2`.
-    :param fs: Sample frequency.
+    Args:
+        data: Energetic quantity, e.g. p².
+        fs: Sample frequency in Hz.
 
-    .. seealso:: :func:`integrate`
+    Returns:
+        Data with SLOW time-weighting applied.
 
+    See Also:
+        integrate: Base integration function used for time-weighting.
     """
     return integrate(data, fs, SLOW)
     # return time_weighted_sound_level(data, fs, SLOW)
 
 
-def fast_level(data, fs):
-    """Time-weighted (FAST) sound pressure level.
+def fast_level(
+    data: NDArray[np.float64], fs: float
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    """Calculate time-weighted (FAST) sound pressure level.
 
-    :param data: Dynamic pressure.
-    :param fs: Sample frequency.
+    Args:
+        data: Dynamic pressure.
+        fs: Sample frequency in Hz.
 
-    .. seealso:: :func:`time_weighted_sound_level`
+    Returns:
+        Tuple containing:
+            - Time points in seconds
+            - FAST time-weighted sound pressure levels in dB
 
+    See Also:
+        time_weighted_sound_level: Base function for calculating time-weighted levels.
     """
     return time_weighted_sound_level(data, fs, FAST)
 
 
-def slow_level(data, fs):
-    """Time-weighted (SLOW) sound pressure level.
+def slow_level(
+    data: NDArray[np.float64], fs: float
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    """Calculate time-weighted (SLOW) sound pressure level.
 
-    :param data: Dynamic pressure.
-    :param fs: Sample frequency.
+    Args:
+        data: Dynamic pressure.
+        fs: Sample frequency in Hz.
 
-    .. seealso:: :func:`time_weighted_sound_level`
+    Returns:
+        Tuple containing:
+            - Time points in seconds
+            - SLOW time-weighted sound pressure levels in dB
 
+    See Also:
+        time_weighted_sound_level: Base function for calculating time-weighted levels.
     """
     return time_weighted_sound_level(data, fs, SLOW)
 
 
 # ---- Annex E - Analytical expressions for frequency-weightings C, A, and Z.-#
 
-_POLE_FREQUENCIES = {
+_POLE_FREQUENCIES: Dict[int, float] = {
     1: 20.60,
     2: 107.7,
     3: 737.9,
@@ -254,30 +284,30 @@ _POLE_FREQUENCIES = {
 See section E.4.1 of the standard.
 """
 
-_NORMALIZATION_CONSTANTS = {
+_NORMALIZATION_CONSTANTS: Dict[str, float] = {
     "A": -2.000,
     "C": -0.062,
 }
-"""Normalization constants :math:`C_{1000}` and :math:`A_{1000}`.
+"""Normalization constants $C_{1000}$ and $A_{1000}$.
 
 See section E.4.2 of the standard.
 """
 
 
-def weighting_function_a(frequencies):
-    r"""A-weighting function in decibel.
+def weighting_function_a(
+    frequencies: NDArray[np.float64] | float,
+) -> NDArray[np.float64]:
+    """Calculate A-weighting function in decibels.
 
-    :param frequencies: Vector of frequencies at which to evaluate the weighting.
-    :returns: Vector with scaling factors.
+    Args:
+        frequencies: Vector of frequencies at which to evaluate the weighting.
 
-    The weighting curve is
+    Returns:
+        Vector with A-weighting scaling factors in dB, calculated using
+        equation E.6 from the standard with A₁₀₀₀ = -2 dB.
 
-    .. math:: 20 \log_{10}{\frac{(f_4^2 * f^4)}{(f^2 + f_1^2) \sqrt{(f^2 + f_2^2)(f^2 + f_3^2)}(f^2 + f_4^2)}} - A_{1000}
-
-    with :math:`A_{1000} = -2` dB.
-
-    See equation E.6 of the standard.
-
+    Note:
+        Implementation of equation E.6 from the standard.
     """
     f = np.asarray(frequencies)
     offset = _NORMALIZATION_CONSTANTS["A"]
@@ -298,20 +328,20 @@ def weighting_function_a(frequencies):
     return weighting
 
 
-def weighting_function_c(frequencies):
-    r"""C-weighting function in decibel.
+def weighting_function_c(
+    frequencies: NDArray[np.float64] | float,
+) -> NDArray[np.float64]:
+    """Calculate C-weighting function in decibels.
 
-    :param frequencies: Vector of frequencies at which to evaluate the weighting.
-    :returns: Vector with scaling factors.
+    Args:
+        frequencies: Vector of frequencies at which to evaluate the weighting.
 
-    The weighting curve is
+    Returns:
+        Vector with C-weighting scaling factors in dB, calculated using
+        equation E.1 from the standard with C₁₀₀₀ = -0.062 dB.
 
-    .. math:: 20 \log_{10}{\frac{(f_4^2 f^2)}{(f^2+f_1^2)(f^2+f_4^2)}} - C_{1000}
-
-    with :math:`C_{1000} = -0.062` dB
-
-    See equation E.1 of the standard.
-
+    Note:
+        Implementation of equation E.1 from the standard.
     """
     f = np.asarray(frequencies)
     offset = _NORMALIZATION_CONSTANTS["C"]
@@ -323,33 +353,39 @@ def weighting_function_c(frequencies):
     return weighting
 
 
-def weighting_function_z(frequencies):
-    """Z-weighting function in decibel.
+def weighting_function_z(
+    frequencies: NDArray[np.float64] | float,
+) -> NDArray[np.float64]:
+    """Calculate Z-weighting function in decibels.
 
-    :param frequencies: Vector of frequencies at which to evaluate the weighting.
-    :returns: Vector with scaling factors.
+    Args:
+        frequencies: Vector of frequencies at which to evaluate the weighting.
 
+    Returns:
+        Vector of zeros (Z-weighting applies no frequency weighting).
     """
     frequencies = np.asarray(frequencies)
     return np.zeros_like(frequencies)
 
 
-WEIGHTING_FUNCTIONS = {
+WEIGHTING_FUNCTIONS: Dict[str, callable] = {
     "A": weighting_function_a,
     "C": weighting_function_c,
     "Z": weighting_function_z,
 }
-"""Dictionary with available weighting functions 'A', 'C' and 'Z'.
-"""
+"""Dictionary with available weighting functions 'A', 'C' and 'Z'."""
 
 
-def weighting_system_a():
-    """A-weighting filter represented as polynomial transfer function.
+def weighting_system_a() -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    """Get A-weighting filter as polynomial transfer function.
 
-    :returns: Tuple of `num` and `den`.
+    Returns:
+        Tuple containing:
+            - Numerator coefficients of the transfer function
+            - Denominator coefficients of the transfer function
 
-    See equation E.6 of the standard.
-
+    Note:
+        Implementation of equation E.6 from the standard.
     """
     f1 = _POLE_FREQUENCIES[1]
     f2 = _POLE_FREQUENCIES[2]
@@ -367,13 +403,16 @@ def weighting_system_a():
     return numerator, denomenator
 
 
-def weighting_system_c():
-    """C-weighting filter represented as polynomial transfer function.
+def weighting_system_c() -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    """Get C-weighting filter as polynomial transfer function.
 
-    :returns: Tuple of `num` and `den`.
+    Returns:
+        Tuple containing:
+            - Numerator coefficients of the transfer function
+            - Denominator coefficients of the transfer function
 
-    See equation E.1 of the standard.
-
+    Note:
+        Implementation of equation E.1 from the standard.
     """
     f1 = _POLE_FREQUENCIES[1]
     f4 = _POLE_FREQUENCIES[4]
@@ -387,24 +426,26 @@ def weighting_system_c():
     return numerator, denomenator
 
 
-def weighting_system_z():
-    """Z-weighting filter represented as polynomial transfer function.
+def weighting_system_z() -> Tuple[list[float], list[float]]:
+    """Get Z-weighting filter as polynomial transfer function.
 
-    :returns: Tuple of `num` and `den`.
+    Returns:
+        Tuple containing:
+            - [1] (numerator for unity gain)
+            - [1] (denominator for unity gain)
 
-    Z-weighting is 0.0 dB for all frequencies and therefore corresponds to a
-    multiplication of 1.
-
+    Note:
+        Z-weighting applies no frequency weighting (0.0 dB at all frequencies),
+        therefore corresponds to multiplication by 1.
     """
     numerator = [1]
     denomenator = [1]
     return numerator, denomenator
 
 
-WEIGHTING_SYSTEMS = {
+WEIGHTING_SYSTEMS: Dict[str, callable] = {
     "A": weighting_system_a,
     "C": weighting_system_c,
     "Z": weighting_system_z,
 }
-"""Weighting systems.
-"""
+"""Dictionary with available weighting systems 'A', 'C' and 'Z'."""
