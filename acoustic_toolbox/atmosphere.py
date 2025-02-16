@@ -14,8 +14,10 @@ Functions:
     attenuation_coefficient: Calculate the attenuation coefficient.
 """
 
+from typing import Any
 import numpy as np
 import matplotlib.pyplot as plt
+from numpy.typing import NDArray
 
 import acoustic_toolbox
 from acoustic_toolbox.standards.iso_9613_1_1993 import (
@@ -46,15 +48,14 @@ class Atmosphere:
 
     def __init__(
         self,
-        temperature=REFERENCE_TEMPERATURE,
-        pressure=REFERENCE_PRESSURE,
-        relative_humidity=0.0,
-        reference_temperature=REFERENCE_TEMPERATURE,
-        reference_pressure=REFERENCE_PRESSURE,
-        triple_temperature=TRIPLE_TEMPERATURE,
-    ):
-        """
-        Initialize the atmosphere.
+        temperature: float = REFERENCE_TEMPERATURE,
+        pressure: float = REFERENCE_PRESSURE,
+        relative_humidity: float = 0.0,
+        reference_temperature: float = REFERENCE_TEMPERATURE,
+        reference_pressure: float = REFERENCE_PRESSURE,
+        triple_temperature: float = TRIPLE_TEMPERATURE,
+    ) -> "Atmosphere":
+        """Initialize the atmosphere.
 
         Args:
             temperature: Temperature in kelvin.
@@ -63,6 +64,9 @@ class Atmosphere:
             reference_temperature: Reference temperature.
             reference_pressure: Reference pressure.
             triple_temperature: Triple temperature.
+
+        Returns:
+            An instance of the Atmosphere class.
         """
 
         self.temperature = temperature
@@ -83,10 +87,10 @@ class Atmosphere:
         self.triple_temperature = triple_temperature
         """Triple temperature."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Atmosphere{}".format(self.__str__())
 
-    def __str__(self):
+    def __str__(self) -> str:
         attributes = [
             "temperature",
             "pressure",
@@ -101,11 +105,11 @@ class Atmosphere:
             )
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return self.__dict__ == other.__dict__ and self.__class__ == other.__class__
 
     @property
-    def soundspeed(self):
+    def soundspeed(self) -> float:
         """Speed of sound $c$.
 
         The speed of sound is calculated using [soundspeed][acoustic_toolbox.standards.iso_9613_1_1993.soundspeed].
@@ -119,7 +123,7 @@ class Atmosphere:
         )
 
     @property
-    def saturation_pressure(self):
+    def saturation_pressure(self) -> float:
         """Saturation pressure $p_{sat}$.
 
         The saturation pressure is calculated using [saturation_pressure][acoustic_toolbox.standards.iso_9613_1_1993.saturation_pressure].
@@ -134,7 +138,7 @@ class Atmosphere:
         )
 
     @property
-    def molar_concentration_water_vapour(self):
+    def molar_concentration_water_vapour(self) -> float:
         """Molar concentration of water vapour $h$.
 
         The molar concentration of water vapour is calculated using
@@ -150,7 +154,7 @@ class Atmosphere:
         )
 
     @property
-    def relaxation_frequency_nitrogen(self):
+    def relaxation_frequency_nitrogen(self) -> float:
         """Resonance frequency of nitrogen $f_{r,N}$.
 
         The resonance frequency is calculated using
@@ -168,7 +172,7 @@ class Atmosphere:
         )
 
     @property
-    def relaxation_frequency_oxygen(self):
+    def relaxation_frequency_oxygen(self) -> float:
         """Resonance frequency of oxygen $f_{r,O}$.
 
         The resonance frequency is calculated using
@@ -183,7 +187,9 @@ class Atmosphere:
             self.reference_pressure,
         )
 
-    def attenuation_coefficient(self, frequency):
+    def attenuation_coefficient(
+        self, frequency: float | NDArray[np.float64]
+    ) -> float | NDArray[np.float64]:
         """Attenuation coefficient $\\alpha$ describing atmospheric absorption in dB/m.
 
         The attenuation coefficient is calculated using
@@ -205,13 +211,18 @@ class Atmosphere:
             frequency,
         )
 
-    def frequency_response(self, distance, frequencies, inverse=False):
+    def frequency_response(
+        self,
+        distance: float,
+        frequencies: float | NDArray[np.float64],
+        inverse: bool = False,
+    ) -> NDArray[np.float64]:
         """Calculate the frequency response.
 
         Args:
             distance: Distance between source and receiver.
             frequencies: Frequencies for which to compute the response.
-            inverse: Whether the attenuation should be undone. Defaults to False.
+            inverse: Whether the attenuation should be undone.
 
         Returns:
             array: The frequency response.
@@ -223,14 +234,20 @@ class Atmosphere:
             inverse,
         )
 
-    def impulse_response(self, distance, fs, ntaps=None, inverse=False):
+    def impulse_response(
+        self,
+        distance: float,
+        fs: float,
+        ntaps: int | None = None,
+        inverse: bool = False,
+    ) -> NDArray[np.float64]:
         """Calculate the impulse response of sound travelling through atmosphere.
 
         Args:
             distance: Distance between source and receiver.
             fs: Sample frequency.
-            ntaps: Amount of taps. Defaults to None.
-            inverse: Whether the attenuation should be undone. Defaults to False.
+            ntaps: Amount of taps.
+            inverse: Whether the attenuation should be undone.
 
         Returns:
             array: The impulse response.
@@ -246,7 +263,9 @@ class Atmosphere:
             inverse,
         )
 
-    def plot_attenuation_coefficient(self, frequency):
+    def plot_attenuation_coefficient(
+        self, frequency: float | NDArray[np.float64]
+    ) -> plt.Figure:
         """Plot the attenuation coefficient $\\alpha$ as function of frequency.
 
         Args:
@@ -270,14 +289,19 @@ class Atmosphere:
         return fig
 
 
-def frequency_response(atmosphere, distance, frequencies, inverse=False):
+def frequency_response(
+    atmosphere: Atmosphere,
+    distance: float,
+    frequencies: float | NDArray[np.float64],
+    inverse: bool = False,
+) -> NDArray[np.float64]:
     """Calculate the single-sided frequency response.
 
     Args:
         atmosphere: Atmosphere instance.
         distance: Distance between source and receiver.
         frequencies: Frequencies for which to compute the response.
-        inverse: Whether the attenuation should be undone. Defaults to False.
+        inverse: Whether the attenuation should be undone.
 
     Returns:
         array: The frequency response.
@@ -289,8 +313,14 @@ def frequency_response(atmosphere, distance, frequencies, inverse=False):
     return tf
 
 
-def impulse_response(atmosphere, distance, fs, ntaps, inverse=False):
-    """Calculate the impulse response of sound travelling through atmosphere.
+def impulse_response(
+    atmosphere: Atmosphere,
+    distance: float,
+    fs: float,
+    ntaps: int | None,
+    inverse: bool = False,
+) -> NDArray[np.float64]:
+    """Calculate the impulse response of sound travelling through `atmosphere` for a given `distance` sampled at `fs`.
 
     The attenuation is calculated for a set of positive frequencies. Because the
     attenuation is the same for the negative frequencies, we have Hermitian
@@ -308,7 +338,7 @@ def impulse_response(atmosphere, distance, fs, ntaps, inverse=False):
         distance: Distance between source and receiver.
         fs: Sample frequency.
         ntaps: Amount of taps.
-        inverse: Whether the attenuation should be undone. Defaults to False.
+        inverse: Whether the attenuation should be undone.
 
     Returns:
         array: The impulse response.

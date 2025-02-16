@@ -25,21 +25,24 @@ Reference:
 """
 
 import numpy as np
+from numpy.typing import NDArray
 
 SOUNDSPEED = 343.2
-"""Reference speed of sound in air at $20\\degree\\mathrm{C}$ ($293.15$ K)."""
+"""Speed of sound."""
 
 REFERENCE_TEMPERATURE = 293.15
-"""Reference temperature in Kelvin ($20\\degree\\mathrm{C}$)."""
+"""Reference temperature."""
 
 REFERENCE_PRESSURE = 101.325
 """International Standard Atmosphere pressure in kilopascal."""
 
 TRIPLE_TEMPERATURE = 273.16
-"""Triple point isotherm temperature of water in Kelvin ($0.01\\degree\\mathrm{C}$)."""
+"""Triple point isotherm temperature."""
 
 
-def soundspeed(temperature, reference_temperature=REFERENCE_TEMPERATURE):
+def soundspeed(
+    temperature: float, reference_temperature: float = REFERENCE_TEMPERATURE
+) -> float:
     """Calculate speed of sound $c$ in air.
 
     Notes:
@@ -49,8 +52,8 @@ def soundspeed(temperature, reference_temperature=REFERENCE_TEMPERATURE):
         $$
 
     Args:
-        temperature: Ambient temperature $T_0$ in Kelvin.
-        reference_temperature: Reference temperature $T$ in Kelvin.
+        temperature: Ambient temperature $T_0$.
+        reference_temperature: Reference temperature $T$.
 
     Returns:
         float: Speed of sound in m/s.
@@ -59,10 +62,10 @@ def soundspeed(temperature, reference_temperature=REFERENCE_TEMPERATURE):
 
 
 def saturation_pressure(
-    temperature,
-    reference_pressure=REFERENCE_PRESSURE,
-    triple_temperature=TRIPLE_TEMPERATURE,
-):
+    temperature: float,
+    reference_pressure: float = REFERENCE_PRESSURE,
+    triple_temperature: float = TRIPLE_TEMPERATURE,
+) -> float:
     """Calculate saturation vapor pressure $p_{sat}$.
 
     Notes:
@@ -77,20 +80,21 @@ def saturation_pressure(
         $$
 
     Args:
-        temperature: Ambient temperature $T$ in Kelvin.
-        reference_pressure: Reference pressure $p_r$ in kPa.
-        triple_temperature: Triple point temperature $T_{01}$ in Kelvin.
+        temperature: Ambient temperature $T$.
+        reference_pressure: Reference pressure $p_r$.
+        triple_temperature: Triple point temperature $T_{01}$.
 
     Returns:
-        float: Saturation vapor pressure in kPa
-
+        float: Saturation vapor pressure
     """
     return reference_pressure * 10.0 ** (
         -6.8346 * (triple_temperature / temperature) ** (1.261) + 4.6151
     )
 
 
-def molar_concentration_water_vapour(relative_humidity, saturation_pressure, pressure):
+def molar_concentration_water_vapour(
+    relative_humidity: float, saturation_pressure: float, pressure: float
+) -> float:
     """Calculate molar concentration of water vapour $h$.
 
     Notes:
@@ -106,14 +110,13 @@ def molar_concentration_water_vapour(relative_humidity, saturation_pressure, pre
 
     Returns:
         float: Molar concentration of water vapour
-
-    See Also:
-        [saturation_pressure][acoustic_toolbox.standards.iso_9613_1_1993.saturation_pressure]: Function to calculate saturation pressure
     """
     return relative_humidity * saturation_pressure / pressure
 
 
-def relaxation_frequency_oxygen(pressure, h, reference_pressure=REFERENCE_PRESSURE):
+def relaxation_frequency_oxygen(
+    pressure: float, h: float, reference_pressure: float = REFERENCE_PRESSURE
+) -> float:
     """Calculate relaxation frequency of oxygen $f_{r,O}$.
 
     Notes:
@@ -125,7 +128,7 @@ def relaxation_frequency_oxygen(pressure, h, reference_pressure=REFERENCE_PRESSU
     Args:
         pressure: Ambient pressure $p_a$
         h: Molar concentration of water vapour $h$
-        reference_pressure: Reference pressure $p_r$. Defaults to REFERENCE_PRESSURE.
+        reference_pressure: Reference pressure $p_r$.
 
     Returns:
         float: Relaxation frequency of oxygen in Hz
@@ -141,16 +144,16 @@ def relaxation_frequency_oxygen(pressure, h, reference_pressure=REFERENCE_PRESSU
 
 
 def relaxation_frequency_nitrogen(
-    pressure,
-    temperature,
-    h,
-    reference_pressure=REFERENCE_PRESSURE,
-    reference_temperature=REFERENCE_TEMPERATURE,
-):
+    pressure: float,
+    temperature: float,
+    h: float,
+    reference_pressure: float = REFERENCE_PRESSURE,
+    reference_temperature: float = REFERENCE_TEMPERATURE,
+) -> float:
     """Calculate relaxation frequency of nitrogen $f_{r,N}$.
 
     Notes:
-        The relaxation frequency of nitrogen is calculated using the formula:
+        The relaxation frequency of nitrogen is calculated by:
         $$
         f_{r,N} = \\frac{p_a}{p_r} \\left( \\frac{T}{T_0} \\right)^{-1/2} \\cdot \\left( 9 + 280 \\cdot h \\cdot \\exp \\left( -4.170 \\left[ \\left(\\frac{T}{T_0} \\right)^{-1/3} -1 \\right] \\right) \\right)
         $$
@@ -159,14 +162,11 @@ def relaxation_frequency_nitrogen(
         pressure: Ambient pressure $p_a$
         temperature: Ambient temperature $T$
         h: Molar concentration of water vapour $h$
-        reference_pressure: Reference pressure $p_{ref}$. Defaults to REFERENCE_PRESSURE.
-        reference_temperature: Reference temperature $T_{ref}$. Defaults to REFERENCE_TEMPERATURE.
+        reference_pressure: Reference pressure $p_{ref}$.
+        reference_temperature: Reference temperature $T_{ref}$.
 
     Returns:
         float: Relaxation frequency of nitrogen in Hz
-
-    See Also:
-        [molar_concentration_water_vapour][acoustic_toolbox.standards.iso_9613_1_1993.molar_concentration_water_vapour]: Function to calculate molar concentration of water vapour
     """
     return (
         pressure
@@ -184,15 +184,15 @@ def relaxation_frequency_nitrogen(
 
 
 def attenuation_coefficient(
-    pressure,
-    temperature,
-    reference_pressure,
-    reference_temperature,
-    relaxation_frequency_nitrogen,
-    relaxation_frequency_oxygen,
-    frequency,
-):
-    """Calculate attenuation coefficient $\\alpha$ describing atmospheric absorption in dB/m.
+    pressure: float,
+    temperature: float,
+    reference_pressure: float,
+    reference_temperature: float,
+    relaxation_frequency_nitrogen: float,
+    relaxation_frequency_oxygen: float,
+    frequency: float | NDArray[np.float64],
+) -> float | NDArray[np.float64]:
+    """Calculate attenuation coefficient $\\alpha$ describing atmospheric absorption in dB/m for the specified ``frequency``.
 
     Args:
         pressure: Ambient pressure $p_a$
@@ -204,11 +204,7 @@ def attenuation_coefficient(
         frequency: Frequencies $f$ to calculate $\\alpha$ for
 
     Returns:
-        float: Attenuation coefficient in dB/m
-
-    See Also:
-        - [relaxation_frequency_nitrogen][acoustic_toolbox.standards.iso_9613_1_1993.relaxation_frequency_nitrogen]: Function to calculate nitrogen relaxation frequency
-        - [relaxation_frequency_oxygen][acoustic_toolbox.standards.iso_9613_1_1993.relaxation_frequency_oxygen]: Function to calculate oxygen relaxation frequency
+        float | NDArray[np.float64]: Attenuation coefficient in dB/m
     """
     return (
         8.686
