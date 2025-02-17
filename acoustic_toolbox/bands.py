@@ -1,6 +1,4 @@
-"""
-The bands module contains functions for working with octave and third-octave frequency bands, based on
-[IEC 61672-1:2013](standards/iec_61672_1_2013.md).
+"""The bands module contains functions for working with octave and third-octave frequency bands, based on [IEC 61672-1:2013](standards/iec_61672_1_2013.md).
 
 Functions:
     octave: Generate center frequencies for octave bands.
@@ -38,7 +36,7 @@ def octave(first: float, last: float) -> NDArray[np.float64]:
         last: Last octave centerfrequency.
 
     Returns:
-        NDArray[np.float64]: Array of octave band center frequencies in Hz.
+        Array of octave band center frequencies in Hz.
     """
     # octave_bands = OCTAVE_CENTER_FREQUENCIES
     # low = np.where(octave_bands == first)[0]
@@ -57,7 +55,7 @@ def octave_low(first: float, last: float) -> NDArray[np.float64]:
         last: Last octave centerfrequency.
 
     Returns:
-        NDArray[np.float64]: Array of lower corner frequencies in Hz.
+        Array of lower corner frequencies in Hz.
     """
     return octave(first, last) / np.sqrt(2.0)
     # return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=1).lower
@@ -71,7 +69,7 @@ def octave_high(first: float, last: float) -> NDArray[np.float64]:
         last: Last octave centerfrequency.
 
     Returns:
-        NDArray[np.float64]: Array of upper corner frequencies in Hz.
+        Array of upper corner frequencies in Hz.
     """
     return octave(first, last) * np.sqrt(2.0)
     # return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=1).upper
@@ -85,7 +83,7 @@ def third(first: float, last: float) -> NDArray[np.float64]:
         last: Last third octave centerfrequency.
 
     Returns:
-        NDArray[np.float64]: Array of third octave band center frequencies in Hz.
+        Array of third octave band center frequencies in Hz.
     """
     # third_oct_bands = THIRD_OCTAVE_CENTER_FREQUENCIES
     # low = np.where(third_oct_bands == first)[0]
@@ -104,7 +102,7 @@ def third_low(first: float, last: float) -> NDArray[np.float64]:
         last: Last third octave centerfrequency.
 
     Returns:
-        NDArray[np.float64]: Array of lower corner frequencies in Hz.
+        Array of lower corner frequencies in Hz.
     """
     return third(first, last) / 2.0 ** (1.0 / 6.0)
     # return acoustic_toolbox.signal.OctaveBand(fstart=first, fstop=last, fraction=3).lower
@@ -118,7 +116,7 @@ def third_high(first: float, last: float) -> NDArray[np.float64]:
         last: Last third octave centerfrequency.
 
     Returns:
-        NDArray[np.float64]: Array of upper corner frequencies in Hz.
+        Array of upper corner frequencies in Hz.
     """
     return third(first, last) * 2.0 ** (1.0 / 6.0)
     # return Octaveband(fstart=first, fstop=last, fraction=3).upper
@@ -134,7 +132,7 @@ def third2oct(
         axis: Axis over which to perform the summation.
 
     Returns:
-        NDArray[np.float64]: Array containing octave band levels.
+        Array containing octave band levels.
 
     Note:
         The number of elements along the summation axis should be a factor of 3. : Third octave levels
@@ -159,8 +157,7 @@ def third2oct(
 def _check_band_type(
     freqs: NDArray[np.float64],
 ) -> Literal["octave", "octave-unsorted", "third", "third-unsorted"] | None:
-    """Check if an array contains octave or third octave bands values sorted
-    or unsorted.
+    """Check if an array contains octave or third octave bands values sorted or unsorted.
 
     Args:
         freqs: Array of frequencies to check.
@@ -181,17 +178,15 @@ def _check_band_type(
         Returns:
             bool: True if frequencies are in sorted order.
         """
-        index = np.where(np.in1d(bands, freqs))[0]
+        index = np.where(np.isin(bands, freqs))[0]
         band_pos = index - index[0]
         return (band_pos == np.arange(band_pos.size)).all()
 
-    if np.in1d(freqs, octave_bands).all():
+    if np.isin(freqs, octave_bands).all():
         is_sorted = _check_sort(freqs, octave_bands)
-        band_type = "octave" if is_sorted else "octave-unsorted"
-    elif np.in1d(freqs, third_oct_bands).all():
+        return "octave" if is_sorted else "octave-unsorted"
+    elif np.isin(freqs, third_oct_bands).all():
         is_sorted = _check_sort(freqs, third_oct_bands)
-        band_type = "third" if is_sorted else "third-unsorted"
+        return "third" if is_sorted else "third-unsorted"
     else:
-        band_type = None
-
-    return band_type
+        return None
