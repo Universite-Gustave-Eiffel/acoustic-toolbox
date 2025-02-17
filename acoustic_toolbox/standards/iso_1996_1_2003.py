@@ -1,5 +1,4 @@
-"""
-ISO 1996-1:2003 defines the basic quantities to be used for the description of
+"""ISO 1996-1:2003 defines the basic quantities to be used for the description of
 noise in community environments and describes basic assessment procedures. It
 also specifies methods to assess environmental noise and gives guidance on
 predicting the potential annoyance response of a community to long-term exposure

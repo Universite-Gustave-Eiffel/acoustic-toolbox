@@ -1,6 +1,4 @@
-"""
-IEC 61260-1:2014 specifies performance requirements for analogue, sampled-data,
-and digital implementations of band-pass filters.
+"""IEC 61260-1:2014 specifies performance requirements for analogue, sampled-data, and digital implementations of band-pass filters.
 
 Functions:
     exact_center_frequency: Calculate exact center frequencies for given band indices

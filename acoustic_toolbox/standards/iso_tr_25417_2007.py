@@ -191,9 +191,7 @@ def sound_energy(power, axis=-1) -> float | np.ndarray:
 
 
 REFERENCE_ENERGY = 1.0e-12
-"""
-Reference value of the sound energy $J_0$ is 1 pJ.
-"""
+"""Reference value of the sound energy $J_0$ is 1 pJ."""
 
 
 def sound_energy_level(energy, reference_energy=REFERENCE_ENERGY) -> np.ndarray:
@@ -229,9 +227,7 @@ def sound_intensity(pressure, velocity) -> np.ndarray:
 
 
 REFERENCE_INTENSITY = 1.0e-12
-"""
-Reference value of the sound intensity $I_0$ is $\mathrm{1 pW/m^2}$.
-"""
+r"""Reference value of the sound intensity $I_0$ is $\mathrm{1 pW/m^2}$."""
 
 
 def time_averaged_sound_intensity(intensity, axis=-1) -> float:

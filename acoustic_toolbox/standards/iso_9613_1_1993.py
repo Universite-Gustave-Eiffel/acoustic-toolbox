@@ -1,5 +1,4 @@
-"""
-# ISO 9613-1:1993
+"""# ISO 9613-1:1993
 
 This module implements ISO 9613-1:1993 which provides analytical methods for calculating
 sound attenuation due to atmospheric absorption under various meteorological conditions.

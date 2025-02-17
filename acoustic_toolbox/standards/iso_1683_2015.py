@@ -1,5 +1,4 @@
-"""
-This module implements ISO 1683:2015 which specifies preferred reference values for
+"""This module implements ISO 1683:2015 which specifies preferred reference values for
 levels used in acoustics and vibration.
 """
 

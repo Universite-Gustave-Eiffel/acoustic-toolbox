@@ -1,5 +1,4 @@
-"""
-ISO 1996-2:2007
+"""ISO 1996-2:2007
 
 ISO 1996-2:2007 describes how sound pressure levels can be determined by direct measurement,
 by extrapolation of measurement results by means of calculation, or exclusively by calculation,
@@ -355,6 +354,7 @@ class Tonality:
         $$
 
         with $\\Delta f$ the `frequency_resolution`.
+
         Returns:
             float: Effective analysis bandwidth in Hz.
 
@@ -481,7 +481,6 @@ class Tonality:
         Returns:
             self: For method chaining.
         """
-
         # Determine tones. Puts noise pause starts/ends in classier as well as tone lines
         # and lines that are neither tone nor noise.
         self._determine_tones()
@@ -712,7 +711,6 @@ class NoisePause:
 
 def create_tone(levels, tone_lines, bandwidth_for_tone_criterion, noise_pause):
     """Create an instance of Tone."""
-
     center = levels.iloc[tone_lines].idxmax()
     tone_level = tones_level(levels.iloc[tone_lines])
     return Tone(
@@ -774,7 +772,6 @@ def create_critical_band(
     tone=None,
 ):
     """Create an instance of CriticalBand."""
-
     center, start, end, bandwidth = critical_band(frequency)
 
     # Masking noise lines
