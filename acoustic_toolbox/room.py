@@ -1,7 +1,7 @@
 """The room acoustics module contains several functions to calculate the reverberation time in spaces."""
 
 import numpy as np
-from typing import Iterable
+from numpy.typing import NDArray
 
 from scipy.io import wavfile
 from scipy import stats
@@ -47,7 +47,10 @@ def nrc(alphas):
 
 
 def t60_sabine(
-    surfaces: np.ndarray, alpha: np.ndarray, volume: float, c: float = SOUNDSPEED
+    surfaces: NDArray[np.float64],
+    alpha: NDArray[np.float64],
+    volume: float,
+    c: float = SOUNDSPEED,
 ):
     r"""Reverberation time according to Sabine.
 
@@ -78,7 +81,10 @@ def t60_sabine(
 
 
 def t60_eyring(
-    surfaces: np.ndarray, alpha: np.ndarray, volume: float, c: float = SOUNDSPEED
+    surfaces: NDArray[np.float64],
+    alpha: NDArray[np.float64],
+    volume: float,
+    c: float = SOUNDSPEED,
 ):
     r"""Reverberation time according to Eyring.
 
@@ -105,7 +111,10 @@ def t60_eyring(
 
 
 def t60_millington(
-    surfaces: np.ndarray, alpha: np.ndarray, volume: float, c: float = SOUNDSPEED
+    surfaces: NDArray[np.float64],
+    alpha: NDArray[np.float64],
+    volume: float,
+    c: float = SOUNDSPEED,
 ):
     r"""Reverberation time according to Millington.
 
@@ -126,7 +135,10 @@ def t60_millington(
 
 
 def t60_fitzroy(
-    surfaces: np.ndarray, alpha: np.ndarray, volume: float, c: float = SOUNDSPEED
+    surfaces: NDArray[np.float64],
+    alpha: NDArray[np.float64],
+    volume: float,
+    c: float = SOUNDSPEED,
 ):
     r"""Reverberation time according to Fitzroy.
 
@@ -189,7 +201,9 @@ def t60_arau(
     return t60
 
 
-def t60_impulse(file_name: str, bands: np.ndarray, rt: str = "t30"):
+def t60_impulse(
+    file_name: str, bands: NDArray[np.float64], rt: str = "t30"
+) -> NDArray[np.float64]:
     """Reverberation time from a WAV impulse response.
 
     Args:
@@ -255,7 +269,9 @@ def t60_impulse(file_name: str, bands: np.ndarray, rt: str = "t30"):
     return t60
 
 
-def clarity(time: float, signal, fs: int, bands: np.ndarray):
+def clarity(
+    time: float, signal, fs: int, bands: NDArray[np.float64]
+) -> NDArray[np.float64]:
     """Clarity $C_i$ determined from an impulse response.
 
     Args:
@@ -286,7 +302,7 @@ def clarity(time: float, signal, fs: int, bands: np.ndarray):
     return c
 
 
-def c50_from_file(file_name: str, bands: np.ndarray):
+def c50_from_file(file_name: str, bands: NDArray[np.float64]) -> NDArray[np.float64]:
     """Clarity for 50 miliseconds $C_{50}$ from a file.
 
     Args:
