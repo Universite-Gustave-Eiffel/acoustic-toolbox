@@ -1,16 +1,10 @@
-"""
-Utils
-=====
-
-"""
+"""Utility functions."""
 
 import numpy as np
 from acoustic_toolbox.decibel import dbsum
 
 SOUNDSPEED = 343.0
-"""
-Speed of sound in air.
-"""
+"""Speed of sound in air."""
 
 esum = dbsum
 
@@ -25,21 +19,18 @@ def mean_tl(tl, surfaces):
     return 10.0 * np.log10(1.0 / np.average(tau, tau_axis, surfaces))
 
 
-def wavelength(freq, c=SOUNDSPEED):
-    """
-    Wavelength for one or more frequencies (as ``NumPy array``).
-    """
+def wavelength(freq: np.ndarray, c: float = SOUNDSPEED) -> np.ndarray:
+    """Wavelength for one or more frequencies."""
     return c / freq
 
 
-def w(freq):
-    """
-    Angular frequency for one o more frequencies (as ``NumPy array``).
-    """
+def w(freq: np.ndarray) -> np.ndarray:
+    """Angular frequency for one o more frequencies."""
     return 2.0 * np.pi * freq
 
 
-def _is_1d(given):
+def _is_1d(given: np.ndarray):
+    """Check if the given object is a 1D array."""
     if isinstance(given, (int, float)):
         return given
     elif given.ndim == 1:
