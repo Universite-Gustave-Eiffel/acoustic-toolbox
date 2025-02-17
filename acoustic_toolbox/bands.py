@@ -22,7 +22,10 @@ from acoustic_toolbox.standards.iec_61672_1_2013 import (
 )
 
 OCTAVE_CENTER_FREQUENCIES = NOMINAL_OCTAVE_CENTER_FREQUENCIES
+"""Preferred nominal octave band center frequencies."""
+
 THIRD_OCTAVE_CENTER_FREQUENCIES = NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES
+"""Preferred nominal third-octave band center frequencies."""
 
 
 def octave(first: float, last: float) -> NDArray[np.float64]:
