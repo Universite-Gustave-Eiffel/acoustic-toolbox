@@ -5,9 +5,7 @@ from tests.get_data_path import data_path
 
 
 class TestAtmosphere:
-    """
-    Test :mod:`acoustic_toolbox.atmosphere`
-    """
+    """Test :mod:`acoustic_toolbox.atmosphere`"""
 
     def test_standard_atmosphere(self):
         a = Atmosphere()

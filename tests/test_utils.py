@@ -1,12 +1,15 @@
 import numpy as np
-from numpy.testing import (assert_almost_equal, assert_array_equal, assert_array_almost_equal)
+from numpy.testing import (
+    assert_almost_equal,
+    assert_array_equal,
+    assert_array_almost_equal,
+)
 
 from acoustic_toolbox.utils import esum, _is_1d, mean_tl, wavelength, w
 
+
 class TestUtils:
-    """
-    Test :mod:`acoustic_toolbox.utils`
-    """
+    """Test :mod:`acoustic_toolbox.utils`"""
 
     def test_mean_tl_1d(self):
         tl = np.array([20, 30, 40, 50])
@@ -15,7 +18,6 @@ class TestUtils:
         calculated = mean_tl(tl, surfaces)
         assert_almost_equal(calculated, tl_real)
 
-
     def test_mean_tl_2d(self):
         tl = np.array([[20, 30, 40, 50], [20, 30, 40, 50]])
         surfaces = np.array([[50, 40, 30, 20], [1, 10, 11, 22]])
@@ -23,31 +25,26 @@ class TestUtils:
         calculated = mean_tl(tl, surfaces)
         assert_array_almost_equal(calculated, tl_real)
 
-
     def test_esum_1d(self):
         calculated = esum(np.array([90, 90, 90]))
         real = 94.77121255
         assert_almost_equal(calculated, real)
 
-
     def test_esum_2d_default_axis(self):
         calculated = esum(np.array([[90, 90, 90], [80, 80, 80]]))
         real = np.array(95.18513939877889)
-        #real = np.array([94.77121255, 84.77121255])
+        # real = np.array([94.77121255, 84.77121255])
         assert_array_almost_equal(calculated, real)
-
 
     def test_esum_2d_axis0(self):
         calculated = esum(np.array([[90, 90, 90], [80, 80, 80]]), axis=0)
         real = np.array([90.41392685, 90.41392685, 90.41392685])
         assert_almost_equal(calculated, real)
 
-
     def test__is_1d_float(self):
         a = 0.9
         is_float = _is_1d(a)
         assert a == is_float
-
 
     def test__is_1d_1darray(self):
         a = np.array([0.1, 0.2, 0.3])
@@ -55,12 +52,10 @@ class TestUtils:
         a_return = np.array([a])
         assert_array_equal(a_return, is_1d_array)
 
-
     def test__is_1d_2darray(self):
         a = np.array([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]])
         is_2d_array = _is_1d(a)
         assert_array_equal(a, is_2d_array)
-
 
     def test__is1d_vector_2darray(self):
         a = np.array([[0.1, 0.2, 0.3]])
@@ -68,18 +63,15 @@ class TestUtils:
         a_return = np.array([0.1, 0.2, 0.3])
         assert_array_equal(a_return, is_vector_2darray)
 
-
     def test_wavelength1(self):
         calculated = wavelength(200)
         quasi = 1.715
         assert_almost_equal(calculated, quasi)
 
-
     def test_wavelength2(self):
         calculated = wavelength(200, 343)
         quasi = 1.715
         assert_almost_equal(calculated, quasi)
-
 
     def test_wavelength3(self):
         freqs = np.array([555, 3333, 11111])
@@ -87,12 +79,10 @@ class TestUtils:
         quasi = np.array([0.618018018, 0.102910291, 0.030870308])
         assert_array_almost_equal(calculated, quasi)
 
-
     def test_w1(self):
         calculated = w(1000)
         quasi = 6283.185307179
         assert_almost_equal(calculated, quasi)
-
 
     def test_w2(self):
         calculated = w(np.array([1000, 2000, 3000]))

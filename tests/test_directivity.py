@@ -4,9 +4,7 @@ import pytest
 
 
 class TestDirectivity:
-    """
-    Test :mod:`acoustic_toolbox.directivity`
-    """
+    """Test :mod:`acoustic_toolbox.directivity`"""
 
     @pytest.mark.parametrize(
         "given, expected, uncertainty",

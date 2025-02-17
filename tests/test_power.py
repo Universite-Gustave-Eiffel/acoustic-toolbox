@@ -7,10 +7,8 @@ from acoustic_toolbox.power import lw_iso3746
 
 
 class TestPower:
-    """
-    Test :mod:`acoustic_toolbox.power`
-    """
-    
+    """Test :mod:`acoustic_toolbox.power`"""
+
     @pytest.mark.parametrize(
         "background_noise, expected",
         [

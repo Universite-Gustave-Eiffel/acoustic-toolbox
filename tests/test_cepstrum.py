@@ -5,9 +5,7 @@ from numpy.testing import assert_array_almost_equal
 
 
 class TestCepstrum:
-    """
-    Test :mod:`acoustic_toolbox.cepstrum`
-    """
+    """Test :mod:`acoustic_toolbox.cepstrum`"""
 
     def test_complex_cepstrum(self):
         """The period of a periodic harmonic will show up as a peak in a
