@@ -27,7 +27,6 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
 from matplotlib.figure import Figure
 import numpy as np
-from numpy.typing import ArrayLike
 from scipy.interpolate import interp2d as interpolate
 from scipy.special import sph_harm  # pylint: disable=no-name-in-module
 
@@ -262,7 +261,7 @@ class Custom(Directivity):
         Interpolate the directivity given longitude and latitude vectors.
         """
         f = interpolate(self.theta, self.phi, self.r)
-        # TODO:
+
         return f(theta, phi)
 
 
