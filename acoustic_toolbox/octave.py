@@ -1,10 +1,7 @@
 """
-Octave
-======
-
 Module for working with octaves.
 
-The following is an example on how to use :class:`acoustic_toolbox.octave.Octave`.
+The following is an example on how to use [acoustic_toolbox.octave.Octave][acoustic_toolbox.octave.Octave].
 
 .. literalinclude:: ../../examples/example_octave.py
 
@@ -25,15 +22,18 @@ from acoustic_toolbox.standards.iec_61260_1_2014 import REFERENCE_FREQUENCY as R
 def exact_center_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
     """Exact center frequency.
 
-    :param frequency: Frequency within the band.
-    :param fraction: Band designator.
-    :param n: Index of band.
-    :param ref: Reference frequency.
-    :return: Exact center frequency for the given frequency or band index.
+    Args:
+      frequency: Frequency within the band.
+      fraction: Band designator.
+      n: Index of band.
+      ref: Reference frequency.
 
-    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency`
-    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.index_of_frequency`
+    Returns:
+      Exact center frequency for the given frequency or band index.
 
+    See also:
+      - [acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency][acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency]
+      - [acoustic_toolbox.standards.iec_61260_1_2014.index_of_frequency][acoustic_toolbox.standards.iec_61260_1_2014.index_of_frequency]
     """
     if frequency is not None:
         n = acoustic_toolbox.standards.iec_61260_1_2014.index_of_frequency(
@@ -47,15 +47,21 @@ def exact_center_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
 def nominal_center_frequency(frequency=None, fraction=1, n=None):
     """Nominal center frequency.
 
-    :param frequency: Frequency within the band.
-    :param fraction: Band designator.
-    :param n: Index of band.
-    :returns: The nominal center frequency for the given frequency or band index.
+    Note:
+      Contrary to the other functions this function silently assumes 1000 Hz reference frequency.
 
-    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency`
-    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.nominal_center_frequency`
+    Args:
+      frequency: Frequency within the band.
+      fraction: Band designator.
+      n: Index of band.
 
-    .. note:: Contrary to the other functions this function silently assumes 1000 Hz reference frequency.
+    Returns:
+      The nominal center frequency for the given frequency or band index.
+
+    See also:
+      - [acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency][acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency]
+      - [acoustic_toolbox.standards.iec_61260_1_2014.nominal_center_frequency][acoustic_toolbox.standards.iec_61260_1_2014.nominal_center_frequency]
+
 
     """
     center = exact_center_frequency(frequency, fraction, n)
@@ -67,15 +73,18 @@ def nominal_center_frequency(frequency=None, fraction=1, n=None):
 def lower_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
     """Lower band-edge frequency.
 
-    :param frequency: Frequency within the band.
-    :param fraction: Band designator.
-    :param n: Index of band.
-    :param ref: Reference frequency.
-    :returns: Lower band-edge frequency for the given frequency or band index.
+    Args:
+      frequency: Frequency within the band.
+      fraction: Band designator.
+      n: Index of band.
+      ref: Reference frequency.
 
-    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency`
-    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.lower_frequency`
+    Returns:
+      Lower band-edge frequency for the given frequency or band index.
 
+    See also:
+      - [acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency][acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency]
+      - [acoustic_toolbox.standards.iec_61260_1_2014.lower_frequency][acoustic_toolbox.standards.iec_61260_1_2014.lower_frequency]
     """
     center = exact_center_frequency(frequency, fraction, n, ref=ref)
     return acoustic_toolbox.standards.iec_61260_1_2014.lower_frequency(center, fraction)
@@ -84,15 +93,18 @@ def lower_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
 def upper_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
     """Upper band-edge frequency.
 
-    :param frequency: Frequency within the band.
-    :param fraction: Band designator.
-    :param n: Index of band.
-    :param ref: Reference frequency.
-    :returns: Upper band-edge frequency for the given frequency or band index.
+    Args:
+      frequency: Frequency within the band.
+      fraction: Band designator.
+      n: Index of band.
+      ref: Reference frequency.
 
-    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency`
-    .. seealso:: :func:`acoustic_toolbox.standards.iec_61260_1_2014.upper_frequency`
+    Returns:
+      Upper band-edge frequency for the given frequency or band index.
 
+    See also:
+      - [acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency][acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency]
+      - [acoustic_toolbox.standards.iec_61260_1_2014.upper_frequency][acoustic_toolbox.standards.iec_61260_1_2014.upper_frequency]
     """
     center = exact_center_frequency(frequency, fraction, n, ref=ref)
     return acoustic_toolbox.standards.iec_61260_1_2014.upper_frequency(center, fraction)
@@ -105,9 +117,7 @@ band_of_frequency = index_of_frequency
 
 
 class Octave:
-    """
-    Class to calculate octave center frequencies.
-    """
+    """Class to calculate octave center frequencies."""
 
     def __init__(
         self,
@@ -119,14 +129,10 @@ class Octave:
         reference=REFERENCE,
     ):
         self.reference = reference
-        """
-        Reference center frequency :math:`f_{c,0}`.
-        """
+        """Reference center frequency $f_{c,0}$."""
 
         self.fraction = fraction
-        """
-        Fraction of octave.
-        """
+        """Fraction of octave."""
 
         if (interval is not None) and (fmin is not None or fmax is not None):
             raise AttributeError
@@ -190,75 +196,82 @@ class Octave:
             self._interval = np.asarray(x)
 
     def _n(self, f):
-        """
-        Calculate the band ``n`` from a given frequency.
+        """Calculate the band ``n`` from a given frequency.
 
-        :param f: Frequency
+        Args:
+          f: Frequency
 
-        See also :func:`band_of_frequency`.
+        See also [band_of_frequency][acoustic_toolbox.octave.band_of_frequency].
         """
         return band_of_frequency(f, fraction=self.fraction, ref=self.reference)
 
     def _fc(self, n):
-        """
-        Calculate center frequency of band ``n``.
+        """Calculate center frequency of band ``n``.
 
-        :param n: band ``n`.
+        Args:
+          n: band ``n`.
 
-        See also :func:`frequency_of_band`.
+        See also [frequency_of_band][acoustic_toolbox.octave.frequency_of_band].
         """
         return frequency_of_band(n, fraction=self.fraction, ref=self.reference)
 
     @property
     def n(self):
-        """
-        Return band ``n`` for a given frequency.
-        """
+        """Return band ``n`` for a given frequency."""
         if self.interval is not None and self.unique:
             return self._n(self.interval)
         else:
             return np.arange(self._n(self.fmin), self._n(self.fmax) + 1)
 
     @property
-    def center(self):
-        r"""
-        Return center frequencies :math:`f_c`.
+    def center(self) -> float:
+        """Return center frequency $f_c$.
 
-        .. math::  f_c = f_{ref} \cdot 2^{n/N} \cdot 10^{\frac{3}{10N}}
-
+        Returns:
+          Center frequency calculated as:
+            $$
+            f_c = f_{ref} \\cdot 2^{n/N} \\cdot 10^{\\frac{3}{10N}}
+            $$
         """
         n = self.n
         return self._fc(n)
 
     @property
     def bandwidth(self):
-        """
-        Bandwidth of bands.
+        """Bandwidth of bands.
 
-        .. math:: B = f_u - f_l
-
+        $$
+        B = f_u - f_l
+        $$
         """
         return self.upper - self.lower
 
     @property
-    def lower(self):
-        r"""
-        Lower frequency limits of bands.
+    def lower(self) -> float:
+        """Lower frequency limits of bands.
 
-        .. math:: f_l = f_c \cdot 2^{\frac{-1}{2N}}
+        Returns:
+          Lower frequency calculated as:
+            $$
+            f_l = f_c \\cdot 2^{\\frac{-1}{2N}}
+            $$
 
-        See also :func:`lower_frequency`.
+        See also [lower_frequency][acoustic_toolbox.octave.lower_frequency].
         """
         return lower_frequency(self.center, self.fraction)
 
     @property
     def upper(self):
-        r"""
-        Upper frequency limits of bands.
+        """Upper frequency limits of bands.
 
-        .. math:: f_u = f_c \cdot 2^{\frac{+1}{2N}}
+        Returns:
+          float: Upper frequency calculated as:
+            $$
+            f_u = f_c \\cdot 2^{\\frac{1}{2N}}
+            $$
 
-        See also :func:`upper_frequency`.
+        See also:
+          [upper_frequency][acoustic_toolbox.octave.upper_frequency].
         """
         return upper_frequency(self.center, self.fraction)
 
