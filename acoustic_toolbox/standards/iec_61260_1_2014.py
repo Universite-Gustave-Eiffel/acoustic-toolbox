@@ -1,29 +1,19 @@
 """
-IEC 61260-1:2014
-================
-
 IEC 61260-1:2014 specifies performance requirements for analogue, sampled-data,
 and digital implementations of band-pass filters.
 
+Functions:
+    exact_center_frequency: Calculate exact center frequencies for given band indices
+    lower_frequency: Calculate lower band-edge frequencies
+    upper_frequency: Calculate upper band-edge frequencies
+    index_of_frequency: Calculate the band index for a given frequency
+    nominal_center_frequency: Calculate nominal center frequencies
 
-Frequency functions
-**************************************
-
-.. autofunction:: acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency
-.. autofunction:: acoustic_toolbox.standards.iec_61260_1_2014.lower_frequency
-.. autofunction:: acoustic_toolbox.standards.iec_61260_1_2014.upper_frequency
-.. autofunction:: acoustic_toolbox.standards.iec_61260_1_2014.index_of_frequency
-
-
-Nominal center frequencies
-**************************
-
-.. autoattribute:: acoustic_toolbox.standards.iec_61260_1_2014.NOMINAL_OCTAVE_CENTER_FREQUENCIES
-.. autoattribute:: acoustic_toolbox.standards.iec_61260_1_2014.NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES
-
-.. autoattribute:: acoustic_toolbox.standards.iec_61260_1_2014.REFERENCE_FREQUENCY
-.. autoattribute:: acoustic_toolbox.standards.iec_61260_1_2014.OCTAVE_FREQUENCY_RATIO
-
+Constants:
+    - [NOMINAL_OCTAVE_CENTER_FREQUENCIES][acoustic_toolbox.standards.iec_61260_1_2014.NOMINAL_OCTAVE_CENTER_FREQUENCIES]: Nominal octave center frequencies
+    - [NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES][acoustic_toolbox.standards.iec_61260_1_2014.NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES]: Nominal third-octave center frequencies
+    - [REFERENCE_FREQUENCY][acoustic_toolbox.standards.iec_61260_1_2014.REFERENCE_FREQUENCY]: Reference frequency
+    - [OCTAVE_FREQUENCY_RATIO][acoustic_toolbox.standards.iec_61260_1_2014.OCTAVE_FREQUENCY_RATIO]: Octave frequency ratio
 """
 
 import acoustic_toolbox
@@ -32,8 +22,7 @@ import numpy as np
 NOMINAL_OCTAVE_CENTER_FREQUENCIES = np.array(
     [31.5, 63.0, 125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0, 16000.0]
 )
-"""Nominal octave center frequencies.
-"""
+"""Nominal octave center frequencies."""
 
 NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES = np.array(
     [
@@ -69,15 +58,13 @@ NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES = np.array(
         20000.0,
     ]
 )
-"""Nominal third-octave center frequencies in the audio range.
-"""
+"""Nominal third-octave center frequencies in the audio range."""
 
 REFERENCE_FREQUENCY = 1000.0
-"""Reference frequency.
-"""
+"""Reference frequency."""
 
 OCTAVE_FREQUENCY_RATIO = 10.0 ** (3.0 / 10.0)
-"""Octave frequency ratio :math:`G`.
+"""Octave frequency ratio $G$.
 
 See equation 1.
 """
@@ -85,27 +72,29 @@ See equation 1.
 
 def exact_center_frequency(
     x, fraction=1, ref=REFERENCE_FREQUENCY, G=OCTAVE_FREQUENCY_RATIO
-):
-    """Center frequencies :math:`f_m` for band indices :math:`x`. See equation 2 and 3.
+) -> float | np.ndarray:
+    """Center frequencies $f_m$ for band indices $x$. See equation 2 and 3.
+
+    The center frequencies are given by
+    $$
+    f_m = f_r G^{x/b}
+    $$
+
+    In case the bandwidth designator $b$ is an even number, the center frequencies are given by
+    $$
+    f_m = f_r G^{(2x+1)/2b}
+    $$
+
+    See equation 2 and 3 of the standard.
 
     Args:
-      x: Band index :math:`x`.
-      ref: Reference center frequency :math:`f_r`. (Default value = REFERENCE_FREQUENCY)
-      fraction: Bandwidth designator :math`b`. For example, for 1/3-octave filter b=3. (Default value = 1)
-      G: Octave frequency ratio :math:`G`.
-    
-    The center frequencies are given by
-    
-    .. math:: f_m = f_r G^{x/b}
-    
-    In case the bandwidth designator :math:`b` is an even number, the center frequencies are given by
-    
-    .. math:: f_m = f_r G^{(2x+1)/2b}
-    
-    See equation 2 and 3 of the standard. (Default value = OCTAVE_FREQUENCY_RATIO)
+        x: Band index $x$.
+        fraction: Bandwidth designator $b$. For example, for 1/3-octave filter $b=3$. Defaults to 1.
+        ref: Reference center frequency $f_r$.
+        G: Octave frequency ratio $G$.
 
     Returns:
-
+        Center frequencies f_m calculated according to equations 2 and 3.
     """
     fraction = np.asarray(fraction)
     uneven = (fraction % 2).astype("bool")
@@ -114,69 +103,73 @@ def exact_center_frequency(
     ) + uneven * ref * G ** (x / fraction)
 
 
-def lower_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO):
+def lower_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO) -> float | np.ndarray:
     """Lower band-edge frequencies. See equation 4.
 
-    Args:
-      center: Center frequencies :math:`f_m`.
-      fraction: Bandwidth designator :math:`b`. (Default value = 1)
-      G: Octave frequency ratio :math:`G`.
-    
     The lower band-edge frequencies are given by
-    
-    .. math:: f_1 = f_m G^{-1/2b}
-    
-    See equation 4 of the standard. (Default value = OCTAVE_FREQUENCY_RATIO)
+    $$
+    f_1 = f_m G^{-1/2b}
+    $$
+
+    See equation 4 of the standard.
+
+    Args:
+        center: Center frequencies $f_m$.
+        fraction: Bandwidth designator $b$.
+        G: Octave frequency ratio $G$.
 
     Returns:
-
+        Lower band-edge frequencies $f_1$
     """
     return center * G ** (-1.0 / (2.0 * fraction))
 
 
-def upper_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO):
+def upper_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO) -> float | np.ndarray:
     """Upper band-edge frequencies. See equation 5.
 
-    Args:
-      center: Center frequencies :math:`f_m`.
-      fraction: Bandwidth designator :math:`b`. (Default value = 1)
-      G: Octave frequency ratio :math:`G`.
-    
     The upper band-edge frequencies are given by
-    
-    .. math:: f_2 = f_m G^{+1/2b}
-    
-    See equation 5 of the standard. (Default value = OCTAVE_FREQUENCY_RATIO)
+    $$
+    f_2 = f_m G^{+1/2b}
+    $$
+
+    See equation 5 of the standard.
+
+    Args:
+        center: Center frequencies $f_m$.
+        fraction: Bandwidth designator $b$.
+        G: Octave frequency ratio $G$.
 
     Returns:
-
+        Upper band-edge frequencies $f_2$.
     """
     return center * G ** (+1.0 / (2.0 * fraction))
 
 
 def index_of_frequency(
     frequency, fraction=1, ref=REFERENCE_FREQUENCY, G=OCTAVE_FREQUENCY_RATIO
-):
-    """Determine the band index $x$ from a given frequency.
+) -> int | np.ndarray:
+    """Calculate the band index for a given frequency.
 
-    Args:
-      frequency: Frequencies $f$.
-      fraction: Bandwidth designator $b$. (Default value = 1)
-      ref: Reference frequency. (Default value = REFERENCE_FREQUENCY)
-      G: Octave frequency ratio $G$.
-    
     The index of the center frequency is given by
 
     $$
-    x = round{b \\frac{\\log{f/f_{ref} }}{\\log{G} }}
+    x = \\text{round}\\left(b \\frac{\\log(f/f_r)}{\\log(G)}\\right)
     $$
-    
+
+    See equation 6 of the standard.
+
     Note:
-        This equation is not part of the standard. 
+        This equation is not part of the standard.
         However, it follows from [`exact_center_frequency`](acoustic_toolbox.standards.iec_61260_1_2014.exact_center_frequency).
 
-    Returns:
+    Args:
+        frequency: Frequencies $f$
+        fraction: Bandwidth designator $b$.
+        ref: Reference frequency.
+        G: Octave frequency ratio $G$.
 
+    Returns:
+        Band indices $x$
     """
     fraction = np.asarray(fraction)
     uneven = (fraction % 2).astype("bool")
@@ -189,29 +182,36 @@ def index_of_frequency(
     ).astype("int16")
 
 
-def _nominal_center_frequency(center, fraction):
-    """Nominal frequency according to standard.
+def _roundn(x, n):
+    """Round a number to n significant digits.
 
     Args:
-      center: Exact mid-frequency to be rounded.
-      fraction: Bandwidth designator or fraction.
+        x: Number to round.
+        n: Number of significant digits.
 
     Returns:
-
+        float: Rounded number.
     """
+    return round(x, -int(np.floor(np.sign(x) * np.log10(abs(x)))) + n)
 
-    def _roundn(x, n):
-        """
 
-        Args:
-          x: 
-          n: 
+def _nominal_center_frequency(center, fraction):
+    """Calculate nominal frequency according to standard.
 
-        Returns:
+    Args:
+        center: Exact mid-frequency to be rounded.
+        fraction: Bandwidth designator or fraction.
 
-        """
-        return round(x, -int(np.floor(np.sign(x) * np.log10(abs(x)))) + n)
+    Returns:
+        float: Nominal center frequency according to standard sections E.1-E.3.
 
+    See Also:
+        exact_center_frequency: Function to calculate exact center frequencies
+
+    Raises:
+        NotImplementedError: If fraction > 24.
+        ValueError: If fraction is invalid.
+    """
     b = fraction
     x = center
 
@@ -272,9 +272,12 @@ def _nominal_center_frequency(center, fraction):
 
 
 nominal_center_frequency = np.vectorize(_nominal_center_frequency)
-"""Nominal center frequency.
+"""Vectorized function to calculate nominal center frequencies.
 
-:param center: Exact center frequency.
-:param fraction: Band designator or fraction.
+Args:
+    center: Exact center frequency.
+    fraction: Band designator or fraction.
 
+Returns:
+    float or ndarray: Nominal center frequencies calculated according to standard.
 """
