@@ -1,10 +1,9 @@
-"""
-The directivity module provides tools to work with directivity.
+r"""The directivity module provides tools to work with directivity.
 
 The following conventions are used within this module:
 
-* The inclination angle $\\theta$ has a range $[0, \\pi]$.
-* The azimuth angle $\\phi$ has a range $[0 , 2 \\pi]$.
+* The inclination angle $\theta$ has a range $[0, \pi]$.
+* The azimuth angle $\phi$ has a range $[0 , 2 \pi]$.
 
 Functions:
     cardioid: Generate a cardioid pattern.
@@ -20,26 +19,26 @@ Classes:
     FigureEight: Class for figure-of-eight directivity.
     SphericalHarmonic: Class for spherical harmonic directivity.
     Custom: Class for custom directivity.
-
 """
 
 import abc
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
-from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.figure import Figure
 import numpy as np
+from numpy.typing import ArrayLike
 from scipy.interpolate import interp2d as interpolate
 from scipy.special import sph_harm  # pylint: disable=no-name-in-module
 
 
 def cardioid(theta, a=1.0, k=1.0):
-    """A cardioid pattern.
+    r"""A cardioid pattern.
 
     Args:
       a: a
       k: k
-      theta: angle $\\theta$
+      theta: angle $\theta$
 
     Returns:
       Cardioid pattern.
@@ -48,11 +47,11 @@ def cardioid(theta, a=1.0, k=1.0):
 
 
 def figure_eight(theta, phi=0.0):
-    """A figure-of-eight pattern.
+    r"""A figure-of-eight pattern.
 
     Args:
-      theta: angle $\\theta$
-      phi: angle $\\phi$
+      theta: angle $\theta$
+      phi: angle $\phi$
 
     Returns:
       Figure-of-eight pattern.
@@ -68,24 +67,27 @@ def spherical_harmonic(theta, phi, m=0, n=0):
     Note:
       The degree `n` is often denoted `l`.
 
-    See also:
+    See Also:
       [sph_harm][scipy.special.sph_harm]
     """
+    # TODO: `scipy.special.sph_harm` is deprecated since v1.15. Should use `sph_harm_y` instead.
+    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.sph_harm.html
+    # TODO: `scipy` expects `m` and `n` to be integers. Will need to adapt typehints
     return sph_harm(m, n, phi, theta).real
 
 
 def spherical_to_cartesian(r, theta, phi):
-    """Convert spherical coordinates to cartesian coordinates.
+    r"""Convert spherical coordinates to cartesian coordinates.
 
     Args:
       r: norm
-      theta: angle $\\theta$
-      phi: angle $\\phi$
+      theta: angle $\theta$
+      phi: angle $\phi$
 
     Returns:
-       x: $x = r \\sin{\\theta}\\cos{\\phi}$
-       y: $y = r \\sin{\\theta}\\sin{\\phi}$
-       z: $z = r \\cos{\\theta}$
+       x: $x = r \sin{\theta}\cos{\phi}$
+       y: $y = r \sin{\theta}\sin{\phi}$
+       z: $z = r \cos{\theta}$
     """
     r = np.asanyarray(r)
     theta = np.asanyarray(theta)
@@ -98,7 +100,7 @@ def spherical_to_cartesian(r, theta, phi):
 
 
 def cartesian_to_spherical(x, y, z):
-    """Convert cartesian coordinates to spherical coordinates.
+    r"""Convert cartesian coordinates to spherical coordinates.
 
     Args:
       x: x
@@ -106,9 +108,9 @@ def cartesian_to_spherical(x, y, z):
       z: z
 
     Returns:
-      r: $r = \\sqrt{\\left( x^2 + y^2 + z^2 \\right)}$
-      theta: $\\theta = \\arccos{\\frac{z}{r}}$
-      phi: $\\phi = \\arccos{\\frac{y}{x}}$
+      r: $r = \sqrt{\left( x^2 + y^2 + z^2 \right)}$
+      theta: $\theta = \arccos{\frac{z}{r}}$
+      phi: $\phi = \arccos{\frac{y}{x}}$
     """
     x = np.asanyarray(x)
     y = np.asanyarray(y)
@@ -124,30 +126,29 @@ class Directivity:
     """
 
     def __init__(self, rotation=None):
-        self.rotation = (
-            rotation if rotation else np.array([1.0, 0.0, 0.0])
-        )  # X, Y, Z rotation
-        """
-        Rotation of the directivity pattern.
+        """Rotation of the directivity pattern.
 
         Args:
           rotation: Rotation of the directivity pattern.
         """
+        self.rotation = (
+            rotation if rotation else np.array([1.0, 0.0, 0.0])
+        )  # X, Y, Z rotation
 
     @abc.abstractmethod
     def _directivity(self, theta, phi):
-        """This function should return the directivity as function of $\\theta$ and $\\phi$."""
+        r"""This function should return the directivity as function of $\theta$ and $\phi$."""
 
     def _undo_rotation(self, theta, phi):
         """Undo rotation."""
 
-    def using_spherical(self, r, theta, phi, include_rotation: bool = True):
-        """Return the directivity for given spherical coordinates.
+    def using_spherical(self, theta, phi, r=None, include_rotation: bool = True):
+        r"""Return the directivity for given spherical coordinates.
 
         Args:
-          r: norm
-          theta: angle $\\theta$
-          phi: angle $\\phi$
+          theta: angle $\theta$
+          phi: angle $\phi$
+          r: norm (optional)
           include_rotation: Apply the rotation to the directivity.
 
         Returns:
@@ -156,8 +157,7 @@ class Directivity:
         Todo:
           Correct for rotation!!!!
         """
-        # TODO: Correct for rotation!!!!
-        del r, include_rotation
+        # TODO: Correct for rotation!!!! use 'r' if needed in rotation logic
         return self._directivity(theta, phi)
 
     def using_cartesian(self, x, y, z, include_rotation: bool = True):
@@ -175,13 +175,12 @@ class Directivity:
         Todo:
           Correct for rotation!!!!
         """
-        # TODO: Correct for rotation!!!!
-        del include_rotation
-        return self.using_spherical(*cartesian_to_spherical(x, y, z))
+        r, theta, phi = cartesian_to_spherical(x, y, z)
+        return self.using_spherical(theta, phi, r, include_rotation)
 
     def plot(
         self, filename: str | None = None, include_rotation: bool = True
-    ) -> plt.Figure:
+    ) -> Figure:
         """Directivity plot. Plot to ``filename`` when given.
 
         Args:
@@ -195,7 +194,11 @@ class Directivity:
         Todo:
           filename
         """
-        # TODO: filename
+        raise NotImplementedError(
+            "`Directivity.plot` needs to be re-implemented, due to underlying issues from python-acoustics."
+        )
+        # I'm not sure how the example notebook ever ran before...
+        # The method needs to be re-implemented to match the `plot` function.
         del filename
         return plot(self, include_rotation)
 
@@ -228,6 +231,7 @@ class SphericalHarmonic(Directivity):
     """Directivity of a spherical harmonic of degree `n` and order `m`."""
 
     def __init__(self, rotation=None, m=None, n=None):
+        """Constructor."""
         super().__init__(rotation=rotation)
         self.m = m
         """Order `m`."""
@@ -244,7 +248,6 @@ class Custom(Directivity):
 
     def __init__(self, theta=None, phi=None, r=None):
         """Constructor."""
-
         self.theta = theta
         """Latitude. 1-D array."""
 
@@ -259,11 +262,11 @@ class Custom(Directivity):
         Interpolate the directivity given longitude and latitude vectors.
         """
         f = interpolate(self.theta, self.phi, self.r)
-
+        # TODO:
         return f(theta, phi)
 
 
-def plot(d: Directivity, sphere: bool = False) -> plt.Figure:
+def plot(d: Directivity, sphere: bool = False) -> Figure:
     """Plot directivity `d`.
 
     Args:
