@@ -354,7 +354,7 @@ class Tonality:
         B_{eff} = 1.5 \\Delta f
         $$
 
-        with $\Delta f$ the `frequency_resolution`.
+        with $\\Delta f$ the `frequency_resolution`.
         Returns:
             float: Effective analysis bandwidth in Hz.
 
