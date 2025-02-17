@@ -56,7 +56,8 @@ theme:
 # Plugins - install using: pip3 install -r requirements.txt
 plugins:
   - search
-  - autorefs
+  - autorefs:
+      resolve_closest: true
   - mkdocstrings: # For building API ref from docstrings https://mkdocstrings.github.io/usage/#docsmy_pagemd
       enable_inventory: true
       handlers:

@@ -56,7 +56,25 @@ dev-dependencies = [
     "ruff>=0.5.5",
     "pytest>=8.3.2",
     "coverage>=7.6.0",
+    "mypy>=1.15.0",
 ]
 
 [tool.uv.pip]
 universal = true
+
+# [tool.ruff.lint]
+# select = ["D"]
+# ignore = [
+#     # Relax the convention by _not_ requiring documentation for every function parameter.
+#     "D417",
+#     # Relax the convention by _not_ requiring documentation for magic methods in classes.
+#     "D105",
+# ]
+
+# [tool.ruff.lint.pydocstyle]
+# convention = "google"
+
+[[tool.mypy.overrides]]
+module = ["scipy.*", "pyfftw.*", "pandas.*"]
+follow_untyped_imports = true
+
