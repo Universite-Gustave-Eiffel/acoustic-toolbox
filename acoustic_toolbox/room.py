@@ -1,11 +1,7 @@
-"""
-Room
-====
-
-The room acoustics module contains several functions to calculate the reverberation time in spaces.
-"""
+"""The room acoustics module contains several functions to calculate the reverberation time in spaces."""
 
 import numpy as np
+from typing import Iterable
 
 from scipy.io import wavfile
 from scipy import stats
@@ -24,49 +20,54 @@ SOUNDSPEED = 343.0
 
 
 def mean_alpha(alphas, surfaces):
-    """
-    Calculate mean of absorption coefficients.
+    r"""Calculate mean of absorption coefficients.
 
-    :param alphas: Absorption coefficients :math:`\\alpha`.
-    :param surfaces: Surfaces :math:`S`.
+    Args:
+      alphas: Absorption coefficients $\alpha$.
+      surfaces: Surfaces $S$.
+
+    Returns:
+      Mean absorption coefficient $\alpha_{m}$.
     """
     axis = None if np.ndim(alphas) == 0 else 0
     return np.average(alphas, axis=axis, weights=surfaces)
 
 
 def nrc(alphas):
-    """
-    Calculate Noise Reduction Coefficient (NRC) from four absorption
-    coefficient values (250, 500, 1000 and 2000 Hz).
+    r"""Calculate Noise Reduction Coefficient (NRC) from four absorption coefficient values (250, 500, 1000 and 2000 Hz).
 
-    :param alphas: Absorption coefficients :math:`\\alpha`.
+    Args:
+      alphas: Absorption coefficients $\alpha$.
 
+    Returns:
+      NRC
     """
     alpha_axis = alphas.ndim - 1
     return np.mean(alphas, axis=alpha_axis)
 
 
-def t60_sabine(surfaces, alpha, volume, c=SOUNDSPEED):
-    """
-    Reverberation time according to Sabine.
+def t60_sabine(
+    surfaces: np.ndarray, alpha: np.ndarray, volume: float, c: float = SOUNDSPEED
+):
+    r"""Reverberation time according to Sabine.
 
-    :param surfaces: Surface of the room :math:`S`.
-        NumPy array that contains different surfaces.
-    :type surfaces: :class:`np.ndarray`
-    :param alpha: Absorption coefficient of the room :math:`\\alpha`.
+    Sabine's formula for the reverberation time is:
+      $$
+      T_{60} = \frac{24 \ln(10)}{c} \frac{V}{S\alpha}
+      $$
+
+    Args:
+      surfaces: Surface of the room $S$. NumPy array that contains different surfaces.
+      alpha: Absorption coefficient of the room $\\alpha$.
         Contains absorption coefficients of ``surfaces``.
         It could be one value or some values in different bands (1D and 2D
         array, respectively).
-    :type alpha: :class:`np.ndarray`
-    :param volume: Volume of the room :math:`V`.
-    :type volume: :class:`float`
-    :param c: Speed of sound :math:`c`.
-    :type c: :class:`float`
-    :returns: Reverberation time :math:`T_{60}`
+      volume: Volume of the room $V$.
+      c: Speed of sound $c$.
 
-    Sabine's formula for the reverberation time is:
+    Returns:
+      Reverberation time $T_{60}$
 
-    .. math:: T_{60} = \\frac{24 \\ln(10)}{c} \\frac{V}{S\\alpha}
 
     """
     mean_alpha_ = np.average(alpha, axis=0, weights=surfaces)
@@ -76,19 +77,24 @@ def t60_sabine(surfaces, alpha, volume, c=SOUNDSPEED):
     return t60
 
 
-def t60_eyring(surfaces, alpha, volume, c=SOUNDSPEED):
-    """
-    Reverberation time according to Eyring.
+def t60_eyring(
+    surfaces: np.ndarray, alpha: np.ndarray, volume: float, c: float = SOUNDSPEED
+):
+    r"""Reverberation time according to Eyring.
 
-    :param surfaces: Surfaces :math:`S`.
-    :param alpha: Mean absorption coefficient :math:`\\alpha` or by frequency bands
-    :param volume: Volume of the room :math:`V`.
-    :param c: Speed of sound :math:`c`.
-    :returns: Reverberation time :math:`T_{60}`
+      Eyring's formula for the reverberation time is:
+      $$
+      T_{60} = \frac{24 \ln{10} V}{c \left( 4 mV - S \ln{\left( 1 - \alpha \right)} \right)}
+      $$
 
-    Eyring's formula for the reverberation time is:
+    Args:
+      surfaces: Surfaces $S$.
+      alpha: Mean absorption coefficient $\alpha$ or by frequency bands
+      volume: Volume of the room $V$.
+      c: Speed of sound $c$.
 
-    .. math:: T_{60} = \\frac{24 \\ln{10} V}{c \\left( 4 mV - S \\ln{\\left( 1 - \\alpha \\right)} \\right)}
+    Returns:
+      Reverberation time $T_{60}$
 
     """
     mean_alpha_ = np.average(alpha, axis=0, weights=surfaces)
@@ -98,15 +104,20 @@ def t60_eyring(surfaces, alpha, volume, c=SOUNDSPEED):
     return t60
 
 
-def t60_millington(surfaces, alpha, volume, c=SOUNDSPEED):
-    """
-    Reverberation time according to Millington.
+def t60_millington(
+    surfaces: np.ndarray, alpha: np.ndarray, volume: float, c: float = SOUNDSPEED
+):
+    r"""Reverberation time according to Millington.
 
-    :param surfaces: Surfaces :math:`S`.
-    :param alpha: Mean absorption coefficient :math:`\\alpha` or by frequency bands
-    :param volume: Volume of the room :math:`V`.
-    :param c: Speed of sound :math:`c`.
-    :returns: Reverberation time :math:`T_{60}`
+    Args:
+      surfaces: Surfaces $S$.
+      alpha: Mean absorption coefficient $\alpha$ or by frequency bands
+      volume: Volume of the room $V$.
+      c: Speed of sound $c$.
+
+    Returns:
+      Reverberation time $T_{60}$
+
     """
     mean_alpha_ = np.average(alpha, axis=0, weights=surfaces)
     A = -np.sum(surfaces[:, np.newaxis] * np.log(1.0 - mean_alpha_), axis=0)
@@ -114,15 +125,20 @@ def t60_millington(surfaces, alpha, volume, c=SOUNDSPEED):
     return t60
 
 
-def t60_fitzroy(surfaces, alpha, volume, c=SOUNDSPEED):
-    """
-    Reverberation time according to Fitzroy.
+def t60_fitzroy(
+    surfaces: np.ndarray, alpha: np.ndarray, volume: float, c: float = SOUNDSPEED
+):
+    r"""Reverberation time according to Fitzroy.
 
-    :param surfaces: Surfaces :math:`S`.
-    :param alpha: Mean absorption coefficient :math:`\\alpha` or by frequency bands
-    :param volume: Volume of the room :math:`V`.
-    :param c: Speed of sound :math:`c`.
-    :returns: Reverberation time :math:`T_{60}`
+    Args:
+      surfaces: Surfaces $S$.
+      alpha: Mean absorption coefficient $\alpha$ or by frequency bands
+      volume: Volume of the room $V$.
+      c: Speed of sound $c$.
+
+    Returns:
+      Reverberation time $T_{60}$
+
     """
     Sx = np.sum(surfaces[0:2])
     Sy = np.sum(surfaces[2:4])
@@ -137,20 +153,32 @@ def t60_fitzroy(surfaces, alpha, volume, c=SOUNDSPEED):
     return t60
 
 
-def t60_arau(Sx, Sy, Sz, alpha, volume, c=SOUNDSPEED):
-    """
-    Reverberation time according to Arau. [#arau]_
+def t60_arau(
+    Sx: float,
+    Sy: float,
+    Sz: float,
+    alpha: tuple[float, float, float],
+    volume: float,
+    c: float = SOUNDSPEED,
+):
+    r"""Reverberation time according to Arau.
 
-    :param Sx: Total surface perpendicular to x-axis (yz-plane) :math:`S_{x}`.
-    :param Sy: Total surface perpendicular to y-axis (xz-plane) :math:`S_{y}`.
-    :param Sz: Total surface perpendicular to z-axis (xy-plane) :math:`S_{z}`.
-    :param alpha: Absorption coefficients :math:`\\mathbf{\\alpha} = \\left[ \\alpha_x, \\alpha_y, \\alpha_z \\right]`
-    :param volume: Volume of the room :math:`V`.
-    :param c: Speed of sound :math:`c`.
-    :returns: Reverberation time :math:`T_{60}`
+    For more details, please see
+    [http://www.arauacustica.com/files/publicaciones/pdf_esp_7.pdf](http://www.arauacustica.com/files/publicaciones/pdf_esp_7.pdf)
 
-    .. [#arau] For more details, please see
-       http://www.arauacustica.com/files/publicaciones/pdf_esp_7.pdf
+    Args:
+      Sx: Total surface perpendicular to x-axis (yz-plane) $S_{x}$.
+      Sy: Total surface perpendicular to y-axis (xz-plane) $S_{y}$.
+      Sz: Total surface perpendicular to z-axis (xy-plane) $S_{z}$.
+      alpha: Absorption coefficients $\mathbf{\alpha} = \left[ \alpha_x, \alpha_y, \alpha_z \right]$
+      volume: Volume of the room $V$.
+      c: Speed of sound $c$.
+
+    Returns:
+      Reverberation time $T_{60}$
+
+
+
     """
     a_x = -np.log(1 - alpha[0])
     a_y = -np.log(1 - alpha[1])
@@ -161,15 +189,16 @@ def t60_arau(Sx, Sy, Sz, alpha, volume, c=SOUNDSPEED):
     return t60
 
 
-def t60_impulse(file_name, bands, rt="t30"):  # pylint: disable=too-many-locals
-    """
-    Reverberation time from a WAV impulse response.
+def t60_impulse(file_name: str, bands: np.ndarray, rt: str = "t30"):
+    """Reverberation time from a WAV impulse response.
 
-    :param file_name: name of the WAV file containing the impulse response.
-    :param bands: Octave or third bands as NumPy array.
-    :param rt: Reverberation time estimator. It accepts `'t30'`, `'t20'`, `'t10'` and `'edt'`.
-    :returns: Reverberation time :math:`T_{60}`
+    Args:
+      file_name: name of the WAV file containing the impulse response.
+      bands: Octave or third bands as NumPy array.
+      rt: Reverberation time estimator. It accepts `'t30'`, `'t20'`, `'t10'` and `'edt'`.
 
+    Returns:
+      Reverberation time $T_{60}$
     """
     fs, raw_signal = wavfile.read(file_name)
     band_type = _check_band_type(bands)
@@ -226,18 +255,19 @@ def t60_impulse(file_name, bands, rt="t30"):  # pylint: disable=too-many-locals
     return t60
 
 
-def clarity(time, signal, fs, bands=None):
-    """
-    Clarity :math:`C_i` determined from an impulse response.
+def clarity(time: float, signal, fs: int, bands: np.ndarray):
+    """Clarity $C_i$ determined from an impulse response.
 
-    :param time: Time in miliseconds (e.g.: 50, 80).
-    :param signal: Impulse response.
-    :type signal: :class:`np.ndarray`
-    :param fs: Sample frequency.
-    :param bands: Bands of calculation (optional). Only support standard octave and third-octave bands.
-    :type bands: :class:`np.ndarray`
+    Args:
+      time: Time in miliseconds (e.g.: 50, 80).
+      signal: Impulse response.
+      fs: Sample frequency.
+      bands: Bands of calculation (optional). Only support standard octave and third-octave bands.
 
+    Returns:
+      Clarity $C_i$
     """
+    # TODO: Not tested
     band_type = _check_band_type(bands)
 
     if band_type == "octave":
@@ -256,29 +286,29 @@ def clarity(time, signal, fs, bands=None):
     return c
 
 
-def c50_from_file(file_name, bands=None):
-    """
-    Clarity for 50 miliseconds :math:`C_{50}` from a file.
+def c50_from_file(file_name: str, bands: np.ndarray):
+    """Clarity for 50 miliseconds $C_{50}$ from a file.
 
-    :param file_name: File name (only WAV is supported).
-    :type file_name: :class:`str`
-    :param bands: Bands of calculation (optional). Only support standard octave and third-octave bands.
-    :type bands: :class:`np.ndarray`
+    Args:
+      file_name: File name (only WAV is supported).
+      bands: Bands of calculation (optional). Only support standard octave and third-octave bands.
 
+    Returns:
+      Clarity $C_{50}$
     """
     fs, signal = wavfile.read(file_name)
     return clarity(50.0, signal, fs, bands)
 
 
-def c80_from_file(file_name, bands=None):
-    """
-    Clarity for 80 miliseconds :math:`C_{80}` from a file.
+def c80_from_file(file_name: str, bands: np.ndarray):
+    """Clarity for 80 miliseconds $C_{80}$ from a file.
 
-    :param file_name: File name (only WAV is supported).
-    :type file_name: :class:`str`
-    :param bands: Bands of calculation (optional). Only support standard octave and third-octave bands.
-    :type bands: :class:`np.ndarray`
+    Args:
+      file_name: File name (only WAV is supported).
+      bands: Bands of calculation (optional). Only support standard octave and third-octave bands.
 
+    Returns:
+      Clarity $C_{80}$
     """
     fs, signal = wavfile.read(file_name)
     return clarity(80.0, signal, fs, bands)
