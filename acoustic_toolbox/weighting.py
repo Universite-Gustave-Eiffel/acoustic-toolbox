@@ -1,10 +1,16 @@
-"""
-Weighting
-=========
+"""Weightings according to [IEC 61672-1:2003](https://webstore.iec.ch/en/publication/19903).
 
-Weightings according to IEC 61672-1:2003.
+Attributes:
+    THIRD_OCTAVE_A_WEIGHTING: A-weighting filter for preferred 1/3-octave band center frequencies.
+    THIRD_OCTAVE_C_WEIGHTING: C-weighting filter for preferred 1/3-octave band center frequencies.
 
-
+Functions:
+    a_weighting: A-weighting.
+    c_weighting: C-weighting.
+    z2a: Apply A-weighting to Z-weighted signal.
+    a2z: Remove A-weighting from A-weighted signal.
+    z2c: Apply C-weighting to Z-weighted signal.
+    c2z: Remove C-weighting from C-weighted signal.
 """
 
 import numpy as np
@@ -48,9 +54,7 @@ THIRD_OCTAVE_A_WEIGHTING = np.array(
         -9.3,
     ]
 )
-"""
-A-weighting filter for preferred 1/3-octave band center frequencies, as specified in :attr:`acoustic_toolbox.bands.THIRD_OCTAVE_CENTER_FREQUENCIES`.
-"""
+"""A-weighting filter for preferred 1/3-octave band center frequencies, as specified in [`acoustic_toolbox.bands.THIRD_OCTAVE_CENTER_FREQUENCIES`][acoustic_toolbox.bands.THIRD_OCTAVE_CENTER_FREQUENCIES]."""
 
 THIRD_OCTAVE_C_WEIGHTING = np.array(
     [
@@ -89,58 +93,42 @@ THIRD_OCTAVE_C_WEIGHTING = np.array(
         -11.2,
     ]
 )
-"""
-C-weighting filter for preferred 1/3-octave band center frequencies, as specified in :attr:`acoustic_toolbox.bands.THIRD_OCTAVE_CENTER_FREQUENCIES`.
-"""
+"""C-weighting filter for preferred 1/3-octave band center frequencies, as specified in [`acoustic_toolbox.bands.THIRD_OCTAVE_CENTER_FREQUENCIES`][acoustic_toolbox.bands.THIRD_OCTAVE_CENTER_FREQUENCIES]."""
 
 
-def a_weighting(first, last):
-    """
-    Select frequency weightings between ``first`` and ``last``
-    centerfrequencies from A-weighting.
+def a_weighting(first: float, last: float) -> np.ndarray:
+    """Select frequency weightings between ``first`` and ``last`` centerfrequencies from A-weighting.
+
     Possible values for these frequencies are third-octave frequencies
     between 12.5 Hz and 20,000 Hz (including them).
 
-    Parameters
-    ----------
-    first : scalar
-       First third-octave centerfrequency.
+    Args:
+      first: First third-octave centerfrequency.
+      last: Last third-octave centerfrequency.
 
-    last : scalar
-        Last third-octave centerfrequency.
-
-    Returns
-    -------
-    NumPy array with A-weighting between ``first`` and ``last``
-    centerfrequencies.
+    Returns:
+        A-weighting between `first` and `last` center frequencies.
     """
     return _weighting("a", first, last)
 
 
-def c_weighting(first, last):
-    """
-    Select frequency weightings between ``first`` and ``last``
-    centerfrequencies from C-weighting.
+def c_weighting(first: float, last: float) -> np.ndarray:
+    """Select frequency weightings between ``first`` and ``last`` centerfrequencies from C-weighting.
+
     Possible values for these frequencies are third-octave frequencies
     between 12.5 Hz and 20,000 Hz (including them).
 
-    Parameters
-    ----------
-    first : scalar
-       First third-octave centerfrequency.
+    Args:
+      first: First third-octave centerfrequency.
+      last: Last third-octave centerfrequency.
 
-    last : scalar
-        Last third-octave centerfrequency.
-
-    Returns
-    -------
-    NumPy array with A-weighting between ``first`` and ``last``
-    centerfrequencies.
+    Returns:
+        C-weighting between `first` and `last` center frequencies.
     """
     return _weighting("c", first, last)
 
 
-def _weighting(filter_type, first, last):
+def _weighting(filter_type: str, first: float, last: float) -> np.ndarray:
     third_oct_bands = third(12.5, 20000.0).tolist()
     low = third_oct_bands.index(first)
     high = third_oct_bands.index(last)
@@ -154,34 +142,88 @@ def _weighting(filter_type, first, last):
     return freq_weightings[low : high + 1]
 
 
-def z2a(levels, first, last):
-    """Apply A-weighting to Z-weighted signal."""
+def z2a(levels: np.ndarray, first: float, last: float) -> np.ndarray:
+    """Apply A-weighting to Z-weighted signal.
+
+    Args:
+      levels: Z-weighted signal.
+      first: First third-octave centerfrequency.
+      last: Last third-octave centerfrequency.
+
+    Returns:
+        A-weighted signal.
+    """
     return levels + a_weighting(first, last)
 
 
-def a2z(levels, first, last):
-    """Remove A-weighting from A-weighted signal."""
+def a2z(levels: np.ndarray, first: float, last: float) -> np.ndarray:
+    """Remove A-weighting from A-weighted signal.
+
+    Args:
+      levels: A-weighted signal.
+      first: First third-octave centerfrequency.
+      last: Last third-octave centerfrequency.
+
+    Returns:
+        Z-weighted signal.
+    """
     return levels - a_weighting(first, last)
 
 
-def z2c(levels, first, last):
-    """Apply C-weighting to Z-weighted signal."""
+def z2c(levels: np.ndarray, first: float, last: float) -> np.ndarray:
+    """Apply C-weighting to Z-weighted signal.
+
+    Args:
+      levels: Z-weighted signal.
+      first: First third-octave centerfrequency.
+      last: Last third-octave centerfrequency.
+
+    Returns:
+        C-weighted signal.
+    """
     return levels + c_weighting(first, last)
 
 
-def c2z(levels, first, last):
-    """Remove C-weighting from C-weighted signal."""
+def c2z(levels: np.ndarray, first: float, last: float) -> np.ndarray:
+    """Remove C-weighting from C-weighted signal.
+
+    Args:
+      levels: C-weighted signal.
+      first: First third-octave centerfrequency.
+      last: Last third-octave centerfrequency.
+
+    Returns:
+        Z-weighted signal.
+    """
     return levels - c_weighting(first, last)
 
 
-def a2c(levels, first, last):
-    """Go from A-weighted to C-weighted."""
+def a2c(levels: np.ndarray, first: float, last: float) -> np.ndarray:
+    """Go from A-weighted to C-weighted.
+
+    Args:
+      levels: A-weighted signal.
+      first: First third-octave centerfrequency.
+      last: Last third-octave centerfrequency.
+
+    Returns:
+        C-weighted signal.
+    """
     dB = a2z(levels, first, last)
     return z2c(dB, first, last)
 
 
-def c2a(levels, first, last):
-    """Go from C-weighted to A-weighted."""
+def c2a(levels: np.ndarray, first: float, last: float) -> np.ndarray:
+    """Go from C-weighted to A-weighted.
+
+    Args:
+      levels: C-weighted signal.
+      first: First third-octave centerfrequency.
+      last: Last third-octave centerfrequency.
+
+    Returns:
+        A-weighted signal.
+    """
     dB = c2z(levels, first, last)
     return z2a(dB, first, last)
 
