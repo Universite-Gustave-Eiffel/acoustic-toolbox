@@ -1,7 +1,4 @@
 """
-Reflection
-==========
-
 The reflection module contains functions for calculating reflection factors and impedances.
 """
 
@@ -20,9 +17,7 @@ r"""Density of air :math:`\rho`."""
 
 
 class Boundary:
-    """
-    An object describing a boundary.
-    """
+    """An object describing a boundary."""
 
     def __init__(  # pylint: disable=too-many-instance-attributes
         self,
@@ -38,105 +33,91 @@ class Boundary:
         reflection_model="plane",
     ):
         self.frequency = frequency
-        """
-        Frequency. Single value or vector for a frequency range.
-        """
+        """Frequency. Single value or vector for a frequency range."""
 
         self.flow_resistivity = flow_resistivity
-        r"""
-        Flow resistivity :math:`\sigma`.
-        """
+        """Flow resistivity $\\sigma$."""
 
         self.density = density
-        r"""
-        Density of air :math:`\rho`.
+        """Density of air $\\rho$
 
-        .. note::
-
+        Note:
             This value is only required for when calculating the impedance according to Attenborough's model.
-            See :func:`impedance_attenborough`.
-
+            See [impedance_attenborough][acoustic_toolbox.reflection.impedance_attenborough].
         """
 
         self.soundspeed = soundspeed
         """
-        Speed of sound in air :math:`c`.
+        Speed of sound in air $c$.
 
-        .. note::
-
+        Note:
             This value is required when calculating the impedance according to Attenborough's model or when
-            calculating the spherical wave reflection factor. See respectively :func:`impedance_attenborough`
-            and :func:`reflection_factor_spherical_wave`.
-
+            calculating the spherical wave reflection factor. See respectively [impedance_attenborough][acoustic_toolbox.reflection.impedance_attenborough]
+            and [reflection_factor_spherical_wave][acoustic_toolbox.reflection.reflection_factor_spherical_wave].
         """
 
         self.porosity_decrease = porosity_decrease
-        r"""
-        Rate of exponential decrease of porosity with depth :math:`\alpha`.
+        """
+        Rate of exponential decrease of porosity with depth $\\alpha$.
 
-        .. note::
-
+        Note:
             This value is only required for when calculating the impedance according to Attenborough's model.
-            See :func:`impedance_attenborough`.
+            See [impedance_attenborough][acoustic_toolbox.reflection.impedance_attenborough]
 
         """
 
         self.specific_heat_ratio = specific_heat_ratio
-        r"""
-        Ratio of specific heats :math:`\gamma` for air.
+        """
+        Ratio of specific heats $\\gamma$ for air.
 
-        .. note::
-
+        Note:
             This value is only required for when calculating the impedance according to Attenborough's model.
-            See :func:`impedance_attenborough`.
-
+            See [impedance_attenborough][acoustic_toolbox.reflection.impedance_attenborough]
         """
 
         self.angle = angle
-        r"""
-        Angle of incidence :math:`\theta`.
-
-        """
+        """Angle of incidence $\\theta$."""
 
         self.distance = distance
         """
-        Path length of the reflected ray :math:`r`.
+        Path length of the reflected ray $r$.
 
-        .. note::
-
+        Note:
             This value is only required for when calculating the spherical wave reflection factor.
-            See :func:`reflection_factor_spherical_wave`.
-
+            See [reflection_factor_spherical_wave][acoustic_toolbox.reflection.reflection_factor_spherical_wave].
         """
 
         self.impedance_model = impedance_model
         """
         Impedance model.
 
-        Possibilities are ``'db'`` and ``'att'`` for respectively :func:`impedance_delany_and_bazley` and :func:`impedance_attenborough`.
+        Possibilities are ``'db'`` and ``'att'`` for respectively [impedance_delany_and_bazley][acoustic_toolbox.reflection.impedance_delany_and_bazley]
+        and [impedance_attenborough][acoustic_toolbox.reflection.impedance_attenborough].
         """
 
         self.reflection_model = reflection_model
         """
         Reflection factor model.
 
-        Possibilities are ``'plane'`` and ``'spherical'``` for respectively :func:`reflection_factor_plane_wave` and :func:`reflection_factor_spherical_wave`.
+        Possibilities are ``'plane'`` and ``'spherical'`` for respectively [reflection_factor_plane_wave][acoustic_toolbox.reflection.reflection_factor_plane_wave]
+        and [reflection_factor_spherical_wave][acoustic_toolbox.reflection.reflection_factor_spherical_wave].
         """
 
     @property
-    def wavenumber(self):
-        r"""
-        Wavenumber :math:`k`.
+    def wavenumber(self) -> float:
+        """Wavenumber $k$.
 
-        .. math:: k = \frac{2 \pi f}{c}
+        Returns:
+            Wavenumber calculated as:
+              $$
+              k = \\frac{2 \pi f}{c}
+              $$
         """
         return 2.0 * np.pi * self.frequency / self.soundspeed
 
     @property
-    def impedance(self):
-        """
-        Impedance according to chosen impedance model defined using :meth:`impedance_model`.
-        """
+    def impedance(self) -> np.ndarray:
+        """Impedance according to chosen impedance model defined using [impedance_model][acoustic_toolbox.reflection.impedance_model]."""
         if self.impedance_model == "db":
             return impedance_delany_and_bazley(self.frequency, self.flow_resistivity)
         if self.impedance_model == "att":
@@ -152,10 +133,8 @@ class Boundary:
             raise ValueError("Incorrect impedance model.")
 
     @property
-    def reflection_factor(self):
-        """
-        Reflection factor according to chosen reflection factor model defined using :meth:`reflection_model`.
-        """
+    def reflection_factor(self) -> np.ndarray:
+        """Reflection factor according to chosen reflection factor model defined using [reflection_model][acoustic_toolbox.reflection.reflection_model]."""
         if self.angle is None:
             raise AttributeError(
                 "Cannot calculate reflection factor. self.angle has not been specified."
@@ -179,10 +158,8 @@ class Boundary:
         else:
             raise RuntimeError("Oops...")
 
-    def plot_impedance(self, filename=None):
-        """
-        Plot magnitude and phase of the impedance as function of frequency.
-        """
+    def plot_impedance(self, filename=None) -> plt.Figure:
+        """Plot magnitude and phase of the impedance as function of frequency."""
 
         fig = plt.figure()
 
@@ -206,10 +183,8 @@ class Boundary:
             fig.savefig(filename, transparant=True)
         return fig
 
-    def plot_reflection_factor(self, filename=None):
-        """
-        Plot reflection factor.
-        """
+    def plot_reflection_factor(self, filename=None) -> plt.Figure:
+        """Plot reflection factor."""
 
         if self.frequency is None:
             raise ValueError("No frequency specified.")
@@ -289,36 +264,35 @@ class Boundary:
 
 
 def reflection_factor_plane_wave(impedance, angle):
-    r"""
-    Plane wave reflection factor :math:`R`.
+    """Plane wave reflection factor $R$.
 
-    :param impedance: Normalized impedance :math:`Z`.
-    :param angle: Angle of incidence :math:`\theta`.
+    Args:
+      impedance: Normalized impedance $Z$.
+      angle: Angle of incidence $\\theta$.
 
-
-    The plane wave reflection factor :math:`R` is given by
-
-    .. math:: R = \frac{Z\cos{\theta}-1}{Z\cos{\theta}+1}
-
-    where :math:`Z` is the normalized impedance and :math:`\theta` the angle of incidence.
-
+    Returns:
+        float: Plane wave reflection factor calculated as:
+            $$
+            R = \\frac{Z\\cos{\\theta}-1}{Z\\cos{\\theta}+1}
+            $$
     """
     return (impedance * np.cos(angle) - 1.0) / (impedance * np.cos(angle) + 1.0)
 
 
 def numerical_distance(impedance, angle, distance, wavenumber):
-    r"""
-    Numerical distance :math:`w`.
+    """Numerical distance $w$.
 
-    :param impedance: Normalized impedance :math:`Z`.
-    :param angle: Angle of incidence :math:`\theta`.
-    :param distance: Path length of the reflected ray :math:`r`.
-    :param wavenumber: Wavenumber :math:`k`.
+    Args:
+      impedance: Normalized impedance $Z$.
+      angle: Angle of incidence $\\theta$.
+      distance: Path length of the reflected ray $r$.
+      wavenumber: Wavenumber $k$.
 
-    The numerical distance :math:`w` is given by
-
-    .. math:: w = \sqrt{-j k r  \left( 1 + \frac{1}{Z} \cos{\theta} - \sqrt{1 - \left( \frac{1}{Z} \right)^2} \sin{\theta} \right) }
-
+    Returns:
+        complex: Numerical distance calculated as:
+            $$
+            w = \\sqrt{-j k r  \\left( 1 + \\frac{1}{Z} \\cos{\\theta} - \\sqrt{1 - \\left( \\frac{1}{Z} \\right)^2} \\sin{\\theta} \\right) }
+            $$
     """
     return np.sqrt(
         -1j
@@ -333,23 +307,24 @@ def numerical_distance(impedance, angle, distance, wavenumber):
 
 
 def reflection_factor_spherical_wave(impedance, angle, distance, wavenumber):
-    r"""
-    Spherical wave reflection factor :math:`Q`.
+    """Spherical wave reflection factor $Q$.
 
-    :param impedance: Normalized impedance :math:`Z`.
-    :param angle: Angle of incidence :math:`\theta`.
-    :param distance: Path length of the reflected ray :math:`r`.
-    :param wavenumber: Wavenumber :math:`k`.
+    Args:
+      impedance: Normalized impedance $Z$.
+      angle: Angle of incidence $\\theta$.
+      distance: Path length of the reflected ray $r$.
+      wavenumber: Wavenumber $k$.
 
-    The spherical wave relfection factor :math:`Q` is given by
+    Returns:
+        complex: Spherical wave reflection factor calculated as:
+            $$
+            Q = R \\left(1 - R \\right) F
+            $$
 
-    .. math:: Q = R \left(1 - R \right) F
-
-    where :math:`R` is the plane wave reflection factor as calculated in :func:`reflection_factor_plane_wave` and :math:`F` is given by
-
-    .. math:: F = 1 - j \sqrt{ \pi} w e^{-w^2} \mathrm{erfc} \left( j w \right)
-
-    where :math:`w` is the numerical distance as calculated in :func:`numerical_distance`.
+            where $R$ is the plane wave reflection factor as calculated in [reflection_factor_plane_wave][acoustic_toolbox.reflection.reflection_factor_plane_wave] and $F$ is given by
+            $$
+            F = 1 - j \\sqrt{\\pi} w e^{-w^2} \\mathrm{erfc} \\left( j w \\right)
+            $$
     """
     w = numerical_distance(impedance, angle, distance, wavenumber)
 
@@ -360,16 +335,17 @@ def reflection_factor_spherical_wave(impedance, angle, distance, wavenumber):
 
 
 def impedance_delany_and_bazley(frequency, flow_resistivity):
-    r"""
-    Normalised specific acoustic impedance according to the empirical one-parameter model by Delany and Bazley.
+    """Normalised specific acoustic impedance according to the empirical one-parameter model by Delany and Bazley.
 
-    :param frequency: Frequency :math:`f`.
-    :param flow_resistivity: Flow resistivity :math:`\sigma`.
+    Args:
+      frequency: Frequency $f$.
+      flow_resistivity: Flow resistivity $\\sigma$.
 
-    The impedance :math:`Z` is given by
-
-    .. math:: Z = 1 + 9.08 \left( \frac{1000f}{\sigma}\right)^{-0.75} - 11.9 j \left( \frac{1000f}{\sigma}\right)^{-0.73}
-
+    Returns:
+        complex: Impedance calculated as:
+            $$
+            Z = 1 + 9.08 \\left( \\frac{1000f}{\\sigma}\\right)^{-0.75} - 11.9 j \\left( \\frac{1000f}{\\sigma}\\right)^{-0.73}
+            $$
     """
     return (
         1.0
@@ -386,21 +362,21 @@ def impedance_attenborough(
     porosity_decrease=POROSITY_DECREASE,
     specific_heat_ratio=SPECIFIC_HEAT_RATIO,
 ):
-    r"""
-    Normalised specific acoustics impedance according to the two-parameter model by Attenborough.
+    """Normalised specific acoustics impedance according to the two-parameter model by Attenborough.
 
-    :param frequency: Frequency :math:`f`.
-    :param flow_resistivity: Flow resistivity :math:`\sigma`.
-    :param soundspeed: Speed of sound in air :math:`c`.
-    :param density: Density of air :math:`\rho`.
-    :param porosity_decrease: Rate of exponential decrease of porosity with depth :math:`\alpha`.
-    :param specific_heat_ratio: Ratio of specific heats :math:`\gamma` for air.
+    Args:
+      frequency: Frequency $f$.
+      flow_resistivity: Flow resistivity $\\sigma$.
+      soundspeed: Speed of sound in air $c$.
+      density: Density of air $\\rho$.
+      porosity_decrease: Rate of exponential decrease of porosity with depth $\\alpha$.
+      specific_heat_ratio: Ratio of specific heats $\\gamma$ for air.
 
-
-    The impedance :math:`Z` is given by
-
-    .. math:: Z = \frac{\left( 1-j\right) \sqrt{\sigma/f}}{\sqrt{\pi \gamma_0 \rho_0}} - \frac{jc\alpha}{8 \pi \gamma_0 f}
-
+    Returns:
+        complex: Impedance calculated as:
+            $$
+            Z = \\frac{\\left( 1-j\\right) \\sqrt{\\sigma/f}}{\\sqrt{\\pi \\gamma_0 \\rho_0}} - \\frac{jc\\alpha}{8 \\pi \\gamma_0 f}
+            $$
     """
     return (1.0 - 1j) * np.sqrt(flow_resistivity / frequency) / np.sqrt(
         np.pi * specific_heat_ratio * density
