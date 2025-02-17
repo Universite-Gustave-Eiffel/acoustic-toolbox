@@ -1,16 +1,11 @@
 """
-This module implements ISO 1996-1:2003 which defines basic quantities and procedures
-for describing and assessing environmental noise in communities.
-
-The standard provides:
-- Basic quantities for noise description
-- Assessment procedures for environmental noise
-- Methods for predicting community annoyance response
-- Guidance for various types of environmental noise sources
-
-Note:
-    - Sound sources can be assessed separately or in combination
-    - Annoyance prediction is limited to residential areas and related long-term land uses
+ISO 1996-1:2003 defines the basic quantities to be used for the description of
+noise in community environments and describes basic assessment procedures. It
+also specifies methods to assess environmental noise and gives guidance on
+predicting the potential annoyance response of a community to long-term exposure
+from various types of environmental noises. The sound sources can be separate or
+in various combinations. Application of the method to predict annoyance response
+is limited to areas where people reside and to related long-term land uses.
 
 Reference:
     ISO 1996-1:2003: Description, measurement and assessment of environmental noise
@@ -22,29 +17,23 @@ import numpy as np
 def composite_rating_level(
     levels: np.ndarray, hours: np.ndarray, adjustment: np.ndarray
 ) -> float | np.ndarray:
-    """Calculate composite rating level (LR) for a whole day.
+    """Composite rating level.
 
-    Combines noise levels from different time periods, accounting for
-    the duration of each period and any adjustments. The composite rating level is
-    calculated as:
-        $$
-        LR = 10 \\cdot \\log_{10} \\left[\\sum \\left(\\frac{d_i}{24} \\cdot 10^{((L_i + K_i) / 10)}\\right)\\right]
-        $$
+    The composite rating level is calculated as:
 
-    where:
+    $$
+    L_R = 10 \\log{\\left[ \\sum_i \\frac{d_i}{24} 10^{(L_i+K_i)/10}  \\right]}
+    $$
 
-      - $L_i$ is the noise level (in dB) for period $i$,
-      - $d_i$ is the duration (in hours) for period $i$, and
-      - $K_i$ is the adjustment (in dB) for period $i$.
+    where $i$ is a period. See equation 6 and 7 of the standard.
 
     Note:
-        - Implementation of equations 6 and 7 from the standard
-        - Summation is performed over the last axis of input arrays
+      Summation is done over the last axis
 
     Args:
-        levels: Level $L_i$ per period in dB.
-        hours: Duration $d_i$ per period in hours.
-        adjustment: Adjustment $K_i$ per period in dB.
+        levels: Level per period
+        hours: Amount of hours per period
+        adjustment: Adjustment per period
 
     Returns:
         The composite rating level in dB as a float if a scalar result is obtained, or as
