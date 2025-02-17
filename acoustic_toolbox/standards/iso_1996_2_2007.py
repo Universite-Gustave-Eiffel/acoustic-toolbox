@@ -97,7 +97,7 @@ def tones_level(tone_levels):
     Returns:
         float: Total sound pressure level Lpt calculated as:
             $$
-            L_{pt} = 10 \log_{10}{\sum 10^{L_{pti}/10}}
+            L_{pt} = 10 \\log_{10}{\\sum 10^{L_{pti}/10}}
             $$
 
     Note:
@@ -122,7 +122,7 @@ def masking_noise_level(
     Returns:
         float: Masking noise level calculated as:
             $$
-            L_{pn} = 10 \log_{10}{\sum 10^{L_n/10}} + 10 \log_{10}{\frac{\Delta f}{B}}
+            L_{pn} = 10 \\log_{10}{\\sum 10^{L_n/10}} + 10 \\log_{10}{\\frac{\\Delta f}{B}}
             $$
 
     Note:
@@ -137,22 +137,25 @@ def masking_noise_level(
 
 
 def masking_noise_lines(
-    levels, line_classifier, center, bandwidth, regression_range_factor
-):
+    levels: pd.Series,
+    line_classifier,
+    center: float,
+    bandwidth: float,
+    regression_range_factor,
+) -> tuple[np.ndarray, float, float]:
     """Determine masking noise level lines using regression line. Returns array of $L_n$.
 
     Args:
-        levels: Levels as function of frequency (pandas Series).
+        levels: Levels as function of frequency
         line_classifier: Categorical indicating line types.
         center: Center frequency in Hz.
         bandwidth: Critical band bandwidth in Hz.
         regression_range_factor: Range factor for regression analysis.
 
     Returns:
-        tuple: A tuple containing:
-            - ndarray: Array of masking noise lines Ln
-            - float: Regression slope
-            - float: Regression intercept
+        (ndarray): Array of masking noise lines Ln
+        (float): Regression slope
+        (float): Regression intercept
     """
     slicer = slice(
         center - bandwidth * regression_range_factor,
@@ -166,7 +169,7 @@ def masking_noise_lines(
     return levels_from_regression, slope, intercept
 
 
-def tonal_audibility(tones_level, masking_noise_level, center):
+def tonal_audibility(tones_level, masking_noise_level, center) -> float:
     """Tonal audibility.
 
     Args:
@@ -175,9 +178,9 @@ def tonal_audibility(tones_level, masking_noise_level, center):
         center: Center frequency of critical band fc.
 
     Returns:
-        float: Tonal audibility ΔLta calculated as:
+        Tonal audibility ΔLta calculated as:
             $$
-            \Delta L_{ta} = L_{pt} - L_{pn} + 2 + \log_{10}{1 + \left(\frac{f_c}{502}\right)^{2.5}}
+            \\Delta L_{ta} = L_{pt} - L_{pn} + 2 + \\log_{10}{1 + \\left(\\frac{f_c}{502}\\right)^{2.5}}
             $$
 
 
@@ -348,7 +351,7 @@ class Tonality:
 
         In the case of the Hanning window
         $$
-        B_{eff} = 1.5 \Delta f
+        B_{eff} = 1.5 \\Delta f
         $$
 
         with $\Delta f$ the `frequency_resolution`.

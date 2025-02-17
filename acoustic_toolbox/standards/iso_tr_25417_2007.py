@@ -8,7 +8,7 @@ the principal aim of harmonizing the terminology used in [ISO/TR 25417](http://w
 import numpy as np
 
 REFERENCE_PRESSURE = 2.0e-5
-"""Reference value of the sound pressure $p_0$ is $2 \cdot 10^{-5}$ Pa."""
+"""Reference value of the sound pressure $p_0$ is $2 \\cdot 10^{-5}$ Pa."""
 
 
 def sound_pressure_level(
@@ -67,7 +67,7 @@ def max_sound_pressure_level(
         axis: Axis
 
     Returns:
-        Maximum sound pressure level $\mathrm{max}{(L_{p})}$
+        Maximum sound pressure level $\\mathrm{max}{(L_{p})}$
     """
     return sound_pressure_level(pressure, reference_pressure=reference_pressure).max(
         axis=axis
@@ -223,7 +223,7 @@ def sound_intensity(pressure, velocity) -> np.ndarray:
     Returns:
         Sound intensity
             $$
-            \\mathbf{i} = p(t) \cdot \\mathbf{u}(t)
+            \\mathbf{i} = p(t) \\cdot \\mathbf{u}(t)
             $$
     """
     return pressure * velocity

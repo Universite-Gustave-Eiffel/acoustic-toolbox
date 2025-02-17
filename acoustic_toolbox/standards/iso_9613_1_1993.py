@@ -76,7 +76,7 @@ def saturation_pressure(
 
         with exponent $C$ given by:
         $$
-        C = -6.8346 \cdot \\left( \\frac{T_{01}}{T} \\right)^{1.261}  + 4.6151
+        C = -6.8346 \\cdot \\left( \\frac{T_{01}}{T} \\right)^{1.261}  + 4.6151
         $$
 
     Args:
@@ -122,7 +122,7 @@ def relaxation_frequency_oxygen(
     Notes:
         The relaxation frequency of oxygen is calculated using the formula:
         $$
-        f_{r,O} = \\frac{p_a}{p_r} \\left( 24 + 4.04 \cdot 10^4 h \\frac{0.02 + h}{0.391 + h}  \\right)
+        f_{r,O} = \\frac{p_a}{p_r} \\left( 24 + 4.04 \\cdot 10^4 h \\frac{0.02 + h}{0.391 + h}  \\right)
         $$
 
     Args:
