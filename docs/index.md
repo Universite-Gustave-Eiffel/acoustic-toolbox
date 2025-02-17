@@ -6,7 +6,6 @@ Welcome to the documentation of the acoustic-toolbox module!
 
 <div class="grid cards" markdown>
 
-- [Signal Class](signal_class.md)
 - [Directivity](directivity.md)
 
 </div>
@@ -15,7 +14,7 @@ Welcome to the documentation of the acoustic-toolbox module!
 
 This section contains a description of all classes and functions.
 
-### Signal class
+### Signal
 
 <div class="grid cards" markdown>
 
@@ -23,28 +22,30 @@ This section contains a description of all classes and functions.
 
 </div>
 
-### Modules
+## Modules
 
 <div class="grid cards" markdown>
 
 - [Ambisonics](ambisonics.md)
-- [Atmosphere](atmosphere.md)
-- [Bands](bands.md)
-- [Building](building.md)
-- [Cepstrum](cepstrum.md)
-- [Criterion](criterion.md)
-- [Decibel](decibel.md)
-- [Generator](generator.md)
-- [Descriptors](descriptors.md)
+- [Signal Processing](signal.md)
+- [Room Acoustics](room.md)
+- [Utilities](utils.md)
+- [Weighting](weighting.md)
+- [Reflection](reflection.md)
 - [Doppler](doppler.md)
+- [Generator](generator.md)
 - [Imaging](imaging.md)
 - [Octave](octave.md)
 - [Power](power.md)
-- [Reflection](reflection.md)
-- [Room](room.md)
-- [Utils](utils.md)
-- [Weighting](weighting.md)
 - [Quantity](quantity.md)
+- [Cepstrum](cepstrum.md)
+- [Criterion](criterion.md)
+- [Decibel](decibel.md)
+- [Descriptors](descriptors.md)
+- [Directivity](directivity.md)
+- [Atmosphere](atmosphere.md)
+- [Bands](bands.md)
+- [Building](building.md)
 
 </div>
 
@@ -57,9 +58,3 @@ The `acoustic_toolbox.standards` module consists of modules where all code and v
 - [Standards](standards.md)
 
 </div>
-
-## Indices and tables
-
-- [Genindex](genindex-broken.md)
-- [Modindex](modindex-broken.md)
-- [Search](search-broken.md)

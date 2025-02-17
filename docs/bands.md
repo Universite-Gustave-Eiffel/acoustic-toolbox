@@ -1,6 +1,6 @@
-# Ambisonics
+# Bands Module
 
-::: acoustic_toolbox.ambisonics
+::: acoustic_toolbox.bands
     options:
         show_root_heading: false
         show_source: true
