@@ -1,6 +1,4 @@
-"""
-Doppler shift module.
-"""
+"""Doppler shift module."""
 
 SOUNDSPEED = 343.0
 """Speed of sound"""

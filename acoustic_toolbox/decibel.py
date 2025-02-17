@@ -1,6 +1,4 @@
-"""
-The `decibel` module contains basic functions for decibel arithmetic.
-"""
+"""The `decibel` module contains basic functions for decibel arithmetic."""
 
 import numpy as np
 

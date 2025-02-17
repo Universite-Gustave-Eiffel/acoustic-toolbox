@@ -1,5 +1,4 @@
-"""
-Acoustic Toolbox
+"""Acoustic Toolbox
 ================
 
 The acoustic_toolbox module.
@@ -29,3 +28,5 @@ import acoustic_toolbox.signal
 import acoustic_toolbox.weighting
 
 from acoustic_toolbox._signal import Signal
+
+__all__ = ["Signal"]

@@ -1,5 +1,4 @@
-"""
-The building module contains functions for calculating acoustic properties of building elements, including
+"""The building module contains functions for calculating acoustic properties of building elements, including
 sound transmission class (STC) and weighted sound reduction index ($R_w$) calculations.
 
 Functions:

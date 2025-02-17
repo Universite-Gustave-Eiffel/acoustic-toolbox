@@ -1,6 +1,5 @@
 """The descriptors module offers all kinds of acoustics related descriptors.
 
-
 Descriptors from [ISO/TR 25417:2007](https://www.iso.org/standard/51150.html).
 
 Attributes:
@@ -117,7 +116,7 @@ def lden(
     Returns:
       $L_{den}$
 
-    See also:
+    See Also:
       [composite_rating_level][acoustic_toolbox.standards.iso_1996_1_2003.composite_rating_level]
 
     """
@@ -146,7 +145,7 @@ def ldn(
     Returns:
       $L_{dn}$
 
-    See also:
+    See Also:
       [composite_rating_level][acoustic_toolbox.standards.iso_1996_1_2003.composite_rating_level]
     """
     lday = np.asarray(lday)

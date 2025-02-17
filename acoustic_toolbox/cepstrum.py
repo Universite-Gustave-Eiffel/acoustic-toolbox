@@ -1,5 +1,4 @@
-"""
-The cepstrum module contains functions for cepstral analysis of signals.
+"""The cepstrum module contains functions for cepstral analysis of signals.
 
 Functions:
   complex_cepstrum: Compute the complex cepstrum of a real sequence.
@@ -49,7 +48,6 @@ def complex_cepstrum(
 
 
     See Also:
-
       - [`real_cepstrum`][acoustic_toolbox.cepstrum.real_cepstrum]: Compute the real cepstrum.
       - [`inverse_complex_cepstrum`][acoustic_toolbox.cepstrum.inverse_complex_cepstrum]: Compute the inverse complex cepstrum of a real sequence.
 
@@ -159,7 +157,6 @@ def real_cepstrum(
       1. Wikipedia, "Cepstrum".
           [http://en.wikipedia.org/wiki/Cepstrum](http://en.wikipedia.org/wiki/Cepstrum)
     """
-
     spectrum = np.fft.fft(x, n=n)
     ceps = np.fft.ifft(np.log(np.abs(spectrum))).real
 
@@ -255,7 +252,6 @@ def minimum_phase(
           Real Cepstrum. IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS-II:
           EXPRESS BRIEFS, VOL. 53, NO. 10, OCTOBER 2006
     """
-
     if n is None:
         n = len(x)
     ceps = real_cepstrum(x, n=n)

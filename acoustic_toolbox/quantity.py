@@ -111,12 +111,10 @@ def get_quantity(name: str) -> Quantity:
     except KeyError:
         raise ValueError("Unknown quantity. Quantity is not yet specified.")
     try:
-        u = units[name]
+        q[1] = Unit(*units[name])
     except KeyError:
         raise RuntimeError(
             "Unknown unit. Quantity has been specified but unit has not."
         )
-
-    q[1] = Unit(*units[name])
 
     return Quantity(*q)
