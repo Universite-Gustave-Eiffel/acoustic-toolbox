@@ -119,6 +119,9 @@ class Signal(np.ndarray):
 
     def __array_prepare__(self, array, context=None):
         try:
+            # Best guess: the context here is the existing signal, which may have multiple channels.
+            # This is checking for (1) is it two channels and (2) are the sample frequencies the same.
+            # Issues: only works for two channels, not n channels (and just seems inelegant).
             a = context[1][0]
             b = context[1][1]
         except IndexError:
@@ -132,8 +135,11 @@ class Signal(np.ndarray):
         else:
             return array
 
-    def __array_wrap__(self, out_arr, context=None):
-        return np.ndarray.__array_wrap__(self, out_arr, context)
+    def __array_wrap__(self, out_arr, context=None, return_scalar: bool = False):
+        if np.lib.NumpyVersion(np.__version__) >= "2.0.0":
+            return np.ndarray.__array_wrap__(self, out_arr, context, return_scalar)
+        else:
+            return np.ndarray.__array_wrap__(self, out_arr, context)
 
     def __array_finalize__(self, obj):
         # see InfoArray.__array_finalize__ for comments

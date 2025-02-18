@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "acoustic-toolbox"
-version = "0.1.2-rc1"
+version = "0.1.2-rc2"
 authors = [
     { name = "Valentin LE BESCOND", email = "valentin.lebescond@univ-eiffel.fr" },
     { name = "Andrew Mitchell", email = "a.j.mitchell@ucl.ac.uk" },
