@@ -1,5 +1,5 @@
 <p align="center">
-    <img height="200px" src="https://raw.githubusercontent.com/Universite-Gustave-Eiffel/acoustic-toolbox/main/docs/source/images/logo_txt.png" />
+    <img height="200px" src="https://raw.githubusercontent.com/Universite-Gustave-Eiffel/acoustic-toolbox/main/docs/images/logo_txt.png" />
     <!-- <h1 align="center">Acoustic Toolbox</h1> -->
 </p>
 
