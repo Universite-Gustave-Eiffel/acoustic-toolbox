@@ -71,7 +71,7 @@ See equation 1.
 def exact_center_frequency(
     x, fraction=1, ref=REFERENCE_FREQUENCY, G=OCTAVE_FREQUENCY_RATIO
 ) -> float | np.ndarray:
-    """Center frequencies $f_m$ for band indices $x$. See equation 2 and 3.
+    r"""Center frequencies $f_m$ for band indices $x$. See equation 2 and 3.
 
     The center frequencies are given by
     $$
@@ -92,7 +92,7 @@ def exact_center_frequency(
         G: Octave frequency ratio $G$.
 
     Returns:
-        Center frequencies f_m calculated according to equations 2 and 3.
+        Center frequencies $f_m$ calculated according to equations 2 and 3.
     """
     fraction = np.asarray(fraction)
     uneven = (fraction % 2).astype("bool")

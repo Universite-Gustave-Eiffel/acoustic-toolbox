@@ -108,7 +108,10 @@ def upper_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
 # -- things below will be deprecated?---#
 
 frequency_of_band = iec_61260_1_2014.exact_center_frequency
+"""Calculate the center frequency for a given band index."""
+
 band_of_frequency = iec_61260_1_2014.index_of_frequency
+"""Calculate the band index for a given frequency."""
 
 
 class Octave:

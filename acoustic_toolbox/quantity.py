@@ -18,7 +18,7 @@ class Unit:
     """Unit of quantity.
 
     Note:
-      Perhaps inherit from tuple or [`collections.namedTuple`][collections.namedTuple]?
+      Perhaps inherit from tuple or [`collections.namedtuple`][collections.namedtuple]?
     """
 
     def __init__(self, name: str, symbol: str, symbol_latex: str):

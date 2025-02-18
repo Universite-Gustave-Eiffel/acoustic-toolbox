@@ -62,7 +62,7 @@ plugins:
       enable_inventory: true
       handlers:
         python:
-          import:
+          inventories:
             - https://docs.python.org/3/objects.inv
             - https://docs.scipy.org/doc/scipy/objects.inv
             - https://numpy.org/doc/stable/objects.inv

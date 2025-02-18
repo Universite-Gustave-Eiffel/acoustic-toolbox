@@ -95,9 +95,9 @@ class Boundary:
 
         Returns:
             Wavenumber calculated as:
-              $$
-              k = \frac{2 \pi f}{c}
-              $$
+            $$
+            k = \frac{2 \pi f}{c}
+            $$
         """
         return 2.0 * np.pi * self.frequency / self.soundspeed
 

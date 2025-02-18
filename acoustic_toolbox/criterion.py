@@ -36,8 +36,7 @@ def nc(levels: np.ndarray) -> str:
     returns '70+'.
 
     Args:
-      levels: 1-D NumPy array containing values between 63 Hz and 8 kHz in octave
-      bands.
+      levels: 1-D NumPy array containing values between 63 Hz and 8 kHz in octave bands.
 
     Returns:
       NC curve of `levels`.
