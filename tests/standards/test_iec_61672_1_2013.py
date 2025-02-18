@@ -16,17 +16,20 @@ def signal_fs():
 
 
 def test_fast_level():
-    """Test whether integration with time-constant FAST gives the correct level.
+    r"""Test whether integration with time-constant FAST gives the correct level.
 
     Note that the reference sound pressure is used.
 
     In this test the amplitude of the sine is 1, which means the mean squared $MS$ is 0.5
     With a reference pressure $p_r$ of 2.0e-5 the level should be 91 decibel
 
-    .. math:: L = 10 \cdot \\log_{10}{\\left(\\frac{MS}{p_r^2} \\right)}
+    $$
+    L = 10 \cdot \log_{10}{\left(\frac{MS}{p_r^2} \right)}
+    $$
 
-    .. math:: L = 10 \cdot \\log_{10}{\\left(\\frac{0.5}{(2e-5)^2} \\right)} = 91
-
+    $$
+    L = 10 \cdot \log_{10}{\left(\frac{0.5}{(2e-5)^2} \right)} = 91
+    $$
     """
     x, fs = signal_fs()
 

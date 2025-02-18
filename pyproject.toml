@@ -43,17 +43,21 @@ docs = [
     "mkdocs-macros-plugin>=1.0.4",
     "mkdocstrings[python]>=0.26.2",
     "mkdocs-jupyter>=0.25.1",
+    "mkdocs-api-autonav>=0.1.2",
 ]
 
 [tool.flit.sdist]
 include = ["tests/"]
+# Recommended to exclude data files from the package to reduce package size
+# per https://www.pyopensci.org/python-package-guide/package-structure-code/python-package-structure.html
+exclude = ["*.wav"]
 
 [tool.uv]
 dev-dependencies = [
     "ruff>=0.5.5",
     "pytest>=8.3.2",
-    "coverage>=7.6.0",
     "mypy>=1.15.0",
+    "coverage>=7.6.0",
 ]
 
 [tool.uv.pip]
