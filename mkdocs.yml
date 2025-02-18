@@ -171,6 +171,7 @@ not_in_nav: |
 # Page tree
 nav:
   - Home: index.md
+  - Signal: _signal.md
   - Standards:
       - Overview: standards.md
       - IEC 61260-1:2014: standards/iec_61260_1_2014.md

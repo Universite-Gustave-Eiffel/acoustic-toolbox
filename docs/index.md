@@ -18,7 +18,7 @@ This section contains a description of all classes and functions.
 
 <div class="grid cards" markdown>
 
-- [Signal](signal.md)
+- [Signal Class](_signal.md)
 
 </div>
 

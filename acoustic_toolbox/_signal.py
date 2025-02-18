@@ -1,4 +1,76 @@
+"""Signal class.
+
+This module contains the `Signal` class, which is a container for time-domain signals.
+
+Attributes:
+    fs: Sample frequency.
+    samples: Amount of samples in signal.
+    channels: Amount of channels in signal.
+    duration: Duration of signal in seconds.
+    values: Values of signal as instance of [`np.ndarray`][numpy.ndarray].
+
+Methods:
+    calibrate_to: Calibrate signal to value `decibel`.
+    calibrate_with: Calibrate signal with other signal.
+    decimate: Decimate signal by integer `factor`.
+    resample: Resample signal.
+    upsample: Upsample signal with integer factor.
+    gain: Apply gain of `decibel` decibels.
+    pick: Get signal from start time to stop time.
+    times: Time vector.
+    energy: Signal energy.
+    power: Signal power.
+    ms: Mean value squared of signal.
+    rms: Root mean squared of signal.
+    weigh: Apply frequency-weighting.
+    instantaneous_frequency: Instantaneous frequency.
+    instantaneous_phase: Instantaneous phase.
+    detrend: Detrend signal.
+    unwrap: Unwrap signal.
+    complex_cepstrum: Complex cepstrum.
+    real_cepstrum: Real cepstrum.
+    power_spectrum: Power spectrum.
+    angle_spectrum: Angle spectrum.
+    phase_spectrum: Phase spectrum.
+    peak: Peak value.
+    peak_level: Peak level.
+    min: Minimum value.
+    max: Maximum value.
+    max_level: Maximum level.
+    sound_exposure: Sound exposure.
+    sound_exposure_level: Sound exposure level.
+    plot_complex_cepstrum: Plot complex cepstrum.
+    plot_real_cepstrum: Plot real cepstrum.
+    plot_power_spectrum: Plot power spectrum.
+    plot_angle_spectrum: Plot angle spectrum.
+    plot_phase_spectrum: Plot phase spectrum.
+    spectrogram: Spectrogram.
+    plot_spectrogram: Plot spectrogram.
+    levels: Levels.
+    leq: Leq.
+    plot_levels: Plot levels.
+    bandpass: Bandpass filter.
+    bandstop: Bandstop filter.
+    highpass: Highpass filter.
+    lowpass: Lowpass filter.
+    octavepass: Octavepass filter.
+    third_octaves: Third octaves.
+    fractional_octaves: Fractional octaves.
+    plot_octaves: Plot octaves.
+    plot_third_octaves: Plot third octaves.
+    plot_fractional_octaves: Plot fractional octaves.
+    plot: Plot signal.
+    normalize: Normalize signal.
+    to_wav: Write signal to WAV file.
+    from_wav: Read signal from WAV file.
+
+See Also:
+    - [`acoustic_toolbox.signal`](signal.md)
+"""
+
+from __future__ import annotations
 import itertools
+from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.io import wavfile
@@ -11,7 +83,10 @@ from scipy.signal import (
     resample,
     fftconvolve,
 )
-import acoustic_toolbox
+from acoustic_toolbox import signal
+from acoustic_toolbox.cepstrum import complex_cepstrum, real_cepstrum
+from acoustic_toolbox import standards
+from acoustic_toolbox.signal import Frequencies
 
 from acoustic_toolbox.standards.iso_tr_25417_2007 import REFERENCE_PRESSURE
 from acoustic_toolbox.standards.iec_61672_1_2013 import WEIGHTING_SYSTEMS
@@ -22,9 +97,23 @@ from acoustic_toolbox.standards.iec_61672_1_2013 import (
 
 
 class Signal(np.ndarray):
-    """A signal consisting of samples (array) and a sample frequency (float)."""
+    """A signal consisting of samples (array) and a sample frequency (float).
 
-    def __new__(cls, data, fs):
+    Attributes:
+        fs: Sample frequency.
+        samples: Amount of samples in signal.
+        channels: Amount of channels in signal.
+        duration: Duration of signal in seconds.
+        values: Values of signal as instance of [`np.ndarray`][numpy.ndarray].
+    """
+
+    def __new__(cls, data, fs: float):
+        """Create a new signal.
+
+        Args:
+            data: Signal values.
+            fs: Sample frequency.
+        """
         obj = np.asarray(data).view(cls)
         obj.fs = fs
         return obj
@@ -88,88 +177,88 @@ class Signal(np.ndarray):
             return 1
 
     @property
-    def duration(self):
+    def duration(self) -> float:
         """Duration of signal in seconds."""
         return float(self.samples / self.fs)
 
     @property
-    def values(self):
-        """Return the values of this signal as an instance of :class:`np.ndarray`."""
+    def values(self) -> np.ndarray:
+        """Return the values of this signal as an instance of [`np.ndarray`][numpy.ndarray]."""
         return np.array(self)
 
-    def calibrate_to(self, decibel, inplace=False):
+    def calibrate_to(self, decibel, inplace: bool = False) -> Signal:
         """Calibrate signal to value `decibel`.
 
+        Tip:
+            Values of `decibel` are broadcasted. To set a value per channel, use `decibel[...,None]`.
+
         Args:
-                  decibel: Value to calibrate to.
-                  inplace: Whether to perform inplace or not. (Default value = False)
+            decibel: Value to calibrate to.
+            inplace: Whether to perform inplace or not.
 
         Returns:
-                  class:`Signal`
-
-        Values of `decibel` are broadcasted. To set a value per channel, use `decibel[...,None]`.: Calibrated signal.
-
+            Calibrated signal.
         """
         decibel = decibel * np.ones(self.shape)
         gain = decibel - self.leq()[..., None]
         return self.gain(gain, inplace=inplace)
 
-    def calibrate_with(self, other, decibel, inplace=False):
+    def calibrate_with(self, other: Signal, decibel, inplace: bool = False) -> Signal:
         """Calibrate signal with other signal.
 
         Args:
           other: Other signal/array.
           decibel: Signal level of `other`.
-          inplace: Whether to perform inplace or not. (Default value = False)
+          inplace: Whether to perform inplace or not.
 
         Returns:
-          class:`Signal`: calibrated signal.
-
+          Calibrated signal.
         """
         if not isinstance(other, Signal):
             other = Signal(other, self.fs)
         gain = decibel - other.leq()
         return self.gain(gain, inplace=inplace)
 
-    def decimate(self, factor, zero_phase=False, ftype="iir", order=None):
+    def decimate(self, factor, zero_phase=False, ftype="iir", order=None) -> Signal:
         """Decimate signal by integer `factor`. Before downsampling a low-pass filter is applied.
 
         Args:
-                  factor: Downsampling factor.
-                  zero_phase: Prevent phase shift by filtering with ``filtfilt`` instead of ``lfilter``. (Default value = False)
-                  ftype: Filter type. (Default value = "iir")
-                  order: Filter order. (Default value = None)
+            factor: Downsampling factor.
+            zero_phase: Prevent phase shift by filtering with ``filtfilt`` instead of ``lfilter``.
+            ftype: Filter type.
+            order: Filter order.
 
         Returns:
-                  class:`Signal`
+            Decimated signal.
 
         .. seealso:: :func:`scipy.signal.decimate`
         .. seealso:: :meth:`resample`: Decimated signal.
 
         """
         return Signal(
-            acoustic_toolbox.signal.decimate(
+            signal.decimate(
                 x=self, q=factor, n=order, ftype=ftype, zero_phase=zero_phase
             ),
             self.fs / factor,
         )
 
-    def resample(self, nsamples, times=None, axis=-1, window=None):
+    def resample(self, nsamples, times=None, axis=-1, window=None) -> Signal:
         """Resample signal.
+
+        Tip:
+            You might want to low-pass filter this signal before resampling.
 
         Args:
           samples: New amount of samples.
-          times: Times corresponding to samples. (Default value = None)
-          axis: Axis. (Default value = -1)
+          times: Times corresponding to samples.
+          axis: Axis.
           window: Window.
 
-        .. seealso:: :func:`scipy.signal.resample`
-        .. seealso:: :meth:`decimate`
-
-        You might want to low-pass filter this signal before resampling. (Default value = None)
-          nsamples:
-
         Returns:
+            Resampled signal.
+        See Also:
+            - [`scipy.signal.resample`][scipy.signal.resample]
+            - [`decimate`][acoustic_toolbox._signal.Signal.decimate]
 
         """
         return Signal(
@@ -177,29 +266,27 @@ class Signal(np.ndarray):
             nsamples / self.samples * self.fs,
         )
 
-    def upsample(self, factor, axis=-1):
+    def upsample(self, factor: int, axis: int = -1) -> Signal:
         """Upsample signal with integer factor.
 
         Args:
           factor: Upsample factor.
           axis: Axis.
 
-        .. seealso:: :meth:`resample` (Default value = -1)
-
-        Returns:
-
+        See Also:
+            - [`resample`][acoustic_toolbox._signal.Signal.resample]
         """
         return self.resample(int(self.samples * factor), axis=axis)
 
-    def gain(self, decibel, inplace=False):
+    def gain(self, decibel, inplace: bool = False) -> Signal:
         """Apply gain of `decibel` decibels.
 
         Args:
           decibel: Decibels
-          inplace: In place (Default value = False)
+          inplace: In place
 
         Returns:
-          class:`Signal`: Amplified signal.
+          Amplified signal.
 
         """
         factor = 10.0 ** (decibel / 20.0)
@@ -209,15 +296,15 @@ class Signal(np.ndarray):
         else:
             return self * factor
 
-    def pick(self, start=0.0, stop=None):
+    def pick(self, start: float = 0.0, stop: float | None = None) -> Signal:
         """Get signal from start time to stop time.
 
         Args:
-          start(float, optional): Start time. (Default value = 0.0)
-          stop(float, optional): End time. (Default value = None)
+          start: Start time.
+          stop: End time.
 
         Returns:
-          class:`Signal`: Selected part of the signal.
+          Selected part of the signal.
 
         """
         if start is not None:
@@ -226,101 +313,92 @@ class Signal(np.ndarray):
             stop = int(np.floor(stop * self.fs))
         return self[..., start:stop]
 
-    def times(self):
+    def times(self) -> np.ndarray:
         """Time vector.
 
-        Args:
-
         Returns:
-          class:`np.ndarray`: A vector with a timestamp for each sample.
+          A vector with a timestamp for each sample.
 
         """
         return np.arange(0, self.samples) / self.fs
 
-    def energy(self):
-        """Signal energy.
-
-        Args:
+    def energy(self) -> np.ndarray:
+        r"""Signal energy.
 
         Returns:
-                  class:`np.ndarray`
+            Total energy per channel.
 
-        .. math:: E = \\sum_{n=0}^{N-1} |x_n|^2: Total energy per channel.
+            $$
+            E = \sum_{n=0}^{N-1} |x_n|^2
+            $$
 
         """
         return float((self * self).sum())
 
     def power(self):
-        """Signal power.
+        r"""Signal power.
 
-        .. math:: P = \\frac{1}{N} \\sum_{n=0}^{N-1} |x_n|^2
-
-        Args:
-
-        Returns:
-
+        $$
+        P = \frac{1}{N} \sum_{n=0}^{N-1} |x_n|^2
+        $$
         """
         return self.energy() / len(self)
 
     def ms(self):
         """Mean value squared of signal.
 
-        .. seealso:: :func:`acoustic_toolbox.signal.ms`
-
-        Args:
-
-        Returns:
-
+        See Also:
+            [`acoustic_toolbox.signal.ms`][acoustic_toolbox._signal.Signal.ms]
         """
-        return acoustic_toolbox.signal.ms(self)
+        return signal.ms(self)
 
     def rms(self):
         """Root mean squared of signal.
 
-        .. seealso:: :func:`acoustic_toolbox.signal.rms`
-
-        Args:
-
-        Returns:
-
+        See Also:
+            [`acoustic_toolbox.signal.rms`][acoustic_toolbox._signal.Signal.rms]
         """
-        return acoustic_toolbox.signal.rms(self)
+        return signal.rms(self)
         # return np.sqrt(self.power())
 
-    def weigh(self, weighting="A", zero_phase=False):
+    def weigh(self, weighting: str = "A", zero_phase: bool = False) -> Signal:
         """Apply frequency-weighting. By default 'A'-weighting is applied.
 
+        Note:
+            By default the weighting filter is applied using
+            [`scipy.signal.lfilter`][scipy.signal.lfilter] causing a frequency-dependent delay.
+
+            In case a delay is undesired, the filter can be applied using
+            [`scipy.signal.filtfilt`][scipy.signal.filtfilt] by setting `zero_phase=True`.
+
         Args:
-                  weighting: Frequency-weighting filter to apply.
-                Valid options are 'A', 'C' and 'Z'. Default weighting is 'A'.
-                  zero_phase:  (Default value = False)
+            weighting: Frequency-weighting filter to apply.
+                       Valid options are 'A', 'C' and 'Z'. Default weighting is 'A'.
+            zero_phase: Prevent phase shift by filtering with ``filtfilt`` instead of ``lfilter``.
 
         Returns:
-                  class:`Signal`.
-
-        By default the weighting filter is applied using
-        :func:`scipy.signal.lfilter` causing a frequency-dependent delay. In case a
-        delay is undesired, the filter can be applied using :func:`scipy.signal.filtfilt`
-        by setting `zero_phase=True`.: Weighted signal.
-
+            Weighted signal.
         """
         num, den = WEIGHTING_SYSTEMS[weighting]()
         b, a = bilinear(num, den, self.fs)
         func = filtfilt if zero_phase else lfilter
         return self._construct(func(b, a, self))
 
-    def correlate(self, other=None, mode="full"):
+    def correlate(self, other: Signal | None = None, mode: str = "full"):
         """Correlate signal with `other` signal. In case `other==None` this
         method returns the autocorrelation.
 
         Args:
-          other: Other signal. (Default value = None)
+          other: Other signal.
           mode: Mode.
 
-        .. seealso:: :func:`np.correlate`, :func:`scipy.signal.fftconvolve` (Default value = "full")
+        Raises:
+            ValueError: If sample frequencies are not the same.
+            ValueError: If not supported for multichannel signals.
 
-        Returns:
-
+        See Also:
+            - [`np.correlate`][numpy.correlate]
+            - [`scipy.signal.fftconvolve`][scipy.signal.fftconvolve]
         """
         if other is None:
             other = self
@@ -332,143 +410,135 @@ class Signal(np.ndarray):
             )
         return self._construct(fftconvolve(self, other[::-1], mode=mode))
 
-    def amplitude_envelope(self):
+    def amplitude_envelope(self) -> Signal:
         """Amplitude envelope.
 
-        Args:
-
         Returns:
-                  class:`Signal`
+            Amplitude envelope.
 
-        .. seealso:: :func:`acoustic_toolbox.signal.amplitude_envelope`: Amplitude envelope of signal.
+        See Also:
+            - [`acoustic_toolbox.signal.amplitude_envelope`][acoustic_toolbox._signal.Signal.amplitude_envelope]
 
         """
-        return self._construct(
-            acoustic_toolbox.signal.amplitude_envelope(self, self.fs)
-        )
+        return self._construct(signal.amplitude_envelope(self, self.fs))
 
-    def instantaneous_frequency(self):
+    def instantaneous_frequency(self) -> Signal:
         """Instantaneous frequency.
 
-        Args:
-
         Returns:
-                  class:`Signal`
+            Instantaneous frequency of signal
 
-        .. seealso:: :func:`acoustic_toolbox.signal.instantaneous_frequency`: Instantaneous frequency of signal.
+        See Also:
+            - [`acoustic_toolbox.signal.instantaneous_frequency`][acoustic_toolbox._signal.Signal.instantaneous_frequency]
+
 
         """
-        return self._construct(
-            acoustic_toolbox.signal.instantaneous_frequency(self, self.fs)
-        )
+        return self._construct(signal.instantaneous_frequency(self, self.fs))
 
-    def instantaneous_phase(self):
+    def instantaneous_phase(self) -> Signal:
         """Instantaneous phase.
 
-        Args:
-
         Returns:
-                  class:`Signal`
+            Instantaneous phase of signal
 
-        .. seealso:: :func:`acoustic_toolbox.signal.instantaneous_phase`: Instantaneous phase of signal.
-
+        See Also:
+            - [`acoustic_toolbox.signal.instantaneous_phase`][acoustic_toolbox._signal.Signal.instantaneous_phase]
         """
-        return self._construct(
-            acoustic_toolbox.signal.instantaneous_phase(self, self.fs)
-        )
+        return self._construct(signal.instantaneous_phase(self, self.fs))
 
-    def detrend(self, **kwargs):
+    def detrend(self, **kwargs) -> Signal:
         """Detrend signal.
 
         Args:
-                  **kwargs:
+            **kwargs:
 
         Returns:
-                  class:`Signal`
+            Detrended signal.
 
-        .. seealso:: :func:`scipy.signal.detrend`: Detrended version of signal.
+        See Also:
+            - [`scipy.signal.detrend`][scipy.signal.detrend]
 
         """
         return self._construct(detrend(self, **kwargs))
 
-    def unwrap(self):
+    def unwrap(self) -> Signal:
         """Unwrap signal in case the signal represents wrapped phase.
 
-        Args:
-
         Returns:
-                  class:`Signal`
+            Unwrapped signal.
 
-        .. seealso:: :func:`np.unwrap`: Unwrapped signal.
-
+        See Also:
+            - [`np.unwrap`][numpy.unwrap]
         """
         return self._construct(np.unwrap(self))
 
-    def complex_cepstrum(self, N=None):
+    def complex_cepstrum(
+        self, N: int | None = None
+    ) -> tuple[np.ndarray, np.ndarray, int]:
         """Complex cepstrum.
 
         Args:
-          N: Amount of bins. (Default value = None)
+            N: Amount of bins.
 
         Returns:
-          Quefrency, complex cepstrum and delay in amount of samples.
+            Quefrency
+            Complex cepstrum
+            Delay in amount of samples.
 
-          .. seealso:: :func:`acoustic_toolbox.cepstrum.complex_cepstrum`
+        See Also:
+            - [`acoustic_toolbox.cepstrum.complex_cepstrum`][acoustic_toolbox._signal.Signal.complex_cepstrum]
 
         """
         if N is not None:
             times = np.linspace(0.0, self.duration, N, endpoint=False)
         else:
             times = self.times()
-        cepstrum, ndelay = acoustic_toolbox.cepstrum.complex_cepstrum(self, n=N)
+        cepstrum, ndelay = complex_cepstrum(self, n=N)
         return times, cepstrum, ndelay
 
     def real_cepstrum(self, N=None):
         """Real cepstrum.
 
         Args:
-          N: Amount of bins. (Default value = None)
+          N: Amount of bins.
 
         Returns:
-          Quefrency and real cepstrum.
+          Quefrency
+          Real cepstrum.
 
-          .. seealso:: :func:`acoustic_toolbox.cepstrum.real_cepstrum`
+        See Also:
+            - [`acoustic_toolbox.cepstrum.real_cepstrum`][acoustic_toolbox._signal.Signal.real_cepstrum]
 
         """
         if N is not None:
             times = np.linspace(0.0, self.duration, N, endpoint=False)
         else:
             times = self.times()
-        return times, acoustic_toolbox.cepstrum.real_cepstrum(self, n=N)
+        return times, real_cepstrum(self, n=N)
 
-    def power_spectrum(self, N=None):
+    def power_spectrum(self, N: int | None = None):
         """Power spectrum.
 
         Args:
-          N: Amount of bins.
+            N: Amount of bins.
 
-        .. seealso:: :func:`acoustic_toolbox.signal.power_spectrum` (Default value = None)
-
-        Returns:
-
+        See Also:
+            - [`acoustic_toolbox.signal.power_spectrum`][acoustic_toolbox._signal.Signal.power_spectrum]
         """
-        return acoustic_toolbox.signal.power_spectrum(self, self.fs, N=N)
+        return signal.power_spectrum(self, self.fs, N=N)
 
-    def angle_spectrum(self, N=None):
+    def angle_spectrum(self, N: int | None = None):
         """Phase angle spectrum. Wrapped.
 
         Args:
           N: amount of bins.
 
-        .. seealso::
-
-        :func:`acoustic_toolbox.signal.angle_spectrum`, :func:`acoustic_toolbox.signal.phase_spectrum`
-        and :meth:`phase_spectrum`. (Default value = None)
-
-        Returns:
-
+        See Also:
+            - [`acoustic_toolbox.signal.angle_spectrum`][acoustic_toolbox._signal.Signal.angle_spectrum]
+            - [`acoustic_toolbox.signal.phase_spectrum`][acoustic_toolbox._signal.Signal.phase_spectrum]
+            - [`phase_spectrum`][acoustic_toolbox._signal.Signal.phase_spectrum]
         """
-        return acoustic_toolbox.signal.angle_spectrum(self, self.fs, N=N)
+        return signal.angle_spectrum(self, self.fs, N=N)
 
     def phase_spectrum(self, N=None):
         """Phase spectrum. Unwrapped.
@@ -476,15 +546,12 @@ class Signal(np.ndarray):
         Args:
           N: Amount of bins.
 
-        .. seealso::
-
-        :func:`acoustic_toolbox.signal.phase_spectrum`, :func:`acoustic_toolbox.signal.angle_spectrum`
-        and :meth:`angle_spectrum`. (Default value = None)
-
-        Returns:
-
+        See Also:
+            - [`acoustic_toolbox.signal.phase_spectrum`][acoustic_toolbox._signal.Signal.phase_spectrum]
+            - [`acoustic_toolbox.signal.angle_spectrum`][acoustic_toolbox._signal.Signal.angle_spectrum]
+            - [`angle_spectrum`][acoustic_toolbox._signal.Signal.angle_spectrum]
         """
-        return acoustic_toolbox.signal.phase_spectrum(self, self.fs, N=N)
+        return signal.phase_spectrum(self, self.fs, N=N)
 
     def peak(self, axis=-1):
         """Peak sound pressure.
@@ -492,16 +559,10 @@ class Signal(np.ndarray):
         Args:
           axis: Axis.
 
-        .. seealso::
-
-        :func:`acoustic.standards.iso_tr_25417_2007.peak_sound_pressure` (Default value = -1)
-
-        Returns:
-
+        See Also:
+            - [`acoustic_toolbox.standards.iso_tr_25417_2007.peak_sound_pressure`][acoustic_toolbox.standards.iso_tr_25417_2007.peak_sound_pressure]
         """
-        return acoustic_toolbox.standards.iso_tr_25417_2007.peak_sound_pressure(
-            self, axis=axis
-        )
+        return standards.iso_tr_25417_2007.peak_sound_pressure(self, axis=axis)
 
     def peak_level(self, axis=-1):
         """Peak sound pressure level.
@@ -509,34 +570,30 @@ class Signal(np.ndarray):
         Args:
           axis: Axis.
 
-        .. seealso::
-
-        :func:`acoustic_toolbox.standards.iso_tr_25417_2007.peak_sound_pressure_level` (Default value = -1)
-
-        Returns:
-
+        See Also:
+            - [`acoustic_toolbox.standards.iso_tr_25417_2007.peak_sound_pressure_level`][acoustic_toolbox.standards.iso_tr_25417_2007.peak_sound_pressure_level]
         """
-        return acoustic_toolbox.standards.iso_tr_25417_2007.peak_sound_pressure_level(
-            self, axis=axis
-        )
+        return standards.iso_tr_25417_2007.peak_sound_pressure_level(self, axis=axis)
 
     def min(self, axis=-1):
-        """Args:
-          axis:  (Default value = -1)
+        """Return the minimum along a given axis.
 
-        Returns:
-          Refer to `np.amin` for full documentation.
+        Args:
+          axis: Axis.
 
+        See Also:
+            - Refer to [`np.amin`][numpy.amin] for full documentation.
         """
         return np.ndarray.min(self, axis=axis)
 
     def max(self, axis=-1):
-        """Args:
-          axis:  (Default value = -1)
+        """Return the maximum along a given axis.
 
-        Returns:
-          Refer to `np.amax` for full documentation.
+        Args:
+          axis: Axis.
 
+        See Also:
+            - Refer to [`np.amax`][numpy.amax] for full documentation.
         """
         return np.ndarray.max(self, axis=axis)
 
@@ -546,14 +603,10 @@ class Signal(np.ndarray):
         Args:
           axis: Axis.
 
-        .. seealso:: :func:`acoustic_toolbox.standards.iso_tr_25417_2007.max_sound_pressure_level` (Default value = -1)
-
-        Returns:
-
+        See Also:
+            - [`acoustic_toolbox.standards.iso_tr_25417_2007.max_sound_pressure_level`][acoustic_toolbox.standards.iso_tr_25417_2007.max_sound_pressure_level]
         """
-        return acoustic_toolbox.standards.iso_tr_25417_2007.max_sound_pressure_level(
-            self, axis=axis
-        )
+        return standards.iso_tr_25417_2007.max_sound_pressure_level(self, axis=axis)
 
     def sound_exposure(self, axis=-1):
         """Sound exposure.
@@ -561,14 +614,10 @@ class Signal(np.ndarray):
         Args:
           axis: Axis.
 
-        .. seealso:: :func:`acoustic_toolbox.standards.iso_tr_25417_2007.sound_exposure` (Default value = -1)
-
-        Returns:
-
+        See Also:
+            - [`acoustic_toolbox.standards.iso_tr_25417_2007.sound_exposure`][acoustic_toolbox.standards.iso_tr_25417_2007.sound_exposure]
         """
-        return acoustic_toolbox.standards.iso_tr_25417_2007.sound_exposure(
-            self, self.fs, axis=axis
-        )
+        return standards.iso_tr_25417_2007.sound_exposure(self, self.fs, axis=axis)
 
     def sound_exposure_level(self, axis=-1):
         """Sound exposure level.
@@ -576,33 +625,29 @@ class Signal(np.ndarray):
         Args:
           axis: Axis.
 
-        .. seealso:: :func:`acoustic_toolbox.standards.iso_tr_25417_2007.sound_exposure_level` (Default value = -1)
-
-        Returns:
-
+        See Also:
+            - [`acoustic_toolbox.standards.iso_tr_25417_2007.sound_exposure_level`][acoustic_toolbox.standards.iso_tr_25417_2007.sound_exposure_level]
         """
-        return acoustic_toolbox.standards.iso_tr_25417_2007.sound_exposure_level(
+        return standards.iso_tr_25417_2007.sound_exposure_level(
             self, self.fs, axis=axis
         )
 
-    def plot_complex_cepstrum(self, N=None, **kwargs):
+    def plot_complex_cepstrum(self, N: int | None = None, **kwargs):
         """Plot complex cepstrum of signal.
 
-        Valid kwargs:
-
-        * xscale
-        * yscale
-        * xlim
-        * ylim
-        * frequency: Boolean indicating whether the x-axis should show time in seconds or quefrency
-        * xlabel_frequency: Label in case frequency is shown.
-
         Args:
-          N:  (Default value = None)
+          N: Amount of bins.
           **kwargs:
 
-        Returns:
+        **Valid kwargs:**
 
+        Other Args:
+            xscale: X-axis scale.
+            yscale: Y-axis scale.
+            xlim: X-axis limits.
+            ylim: Y-axis limits.
+            frequency (bool): Boolean indicating whether the x-axis should show time in seconds or quefrency
+            xlabel_frequency: Label in case frequency is shown.
         """
         params = {
             "xscale": "linear",
@@ -623,24 +668,22 @@ class Signal(np.ndarray):
             ceps = ceps[::-1]
         return _base_plot(t, ceps, params)
 
-    def plot_real_cepstrum(self, N=None, **kwargs):
+    def plot_real_cepstrum(self, N: int | None = None, **kwargs):
         """Plot real cepstrum of signal.
 
-        Valid kwargs:
-
-        * xscale
-        * yscale
-        * xlim
-        * ylim
-        * frequency: Boolean indicating whether the x-axis should show time in seconds or quefrency
-        * xlabel_frequency: Label in case frequency is shown.
-
         Args:
-          N:  (Default value = None)
+          N: Amount of bins.
           **kwargs:
 
-        Returns:
+        **Valid kwargs:**
 
+        Other Args:
+            xscale: X-axis scale.
+            yscale: Y-axis scale.
+            xlim: X-axis limits.
+            ylim: Y-axis limits.
+            frequency (bool): Boolean indicating whether the x-axis should show time in seconds or quefrency
+            xlabel_frequency: Label in case frequency is shown.
         """
         params = {
             "xscale": "linear",
@@ -664,23 +707,21 @@ class Signal(np.ndarray):
     def plot_power_spectrum(self, N=None, **kwargs):  # filename=None, scale='log'):
         """Plot spectrum of signal.
 
-        Valid kwargs:
-
-        * xscale
-        * yscale
-        * xlim
-        * ylim
-        * reference: Reference power
-
-        .. seealso:: :meth:`power_spectrum`
-
         Args:
-          N:  (Default value = None)
-          **kwargs):  # filename:  (Default value = None)
-          scale:  (Default value = 'log')
+          N: Amount of bins.
+          **kwargs:
 
-        Returns:
+        **Valid kwargs:**
 
+        Other Args:
+            xscale: X-axis scale.
+            yscale: Y-axis scale.
+            xlim: X-axis limits.
+            ylim: Y-axis limits.
+            reference: Reference power
+
+        See Also:
+            - [`acoustic_toolbox.signal.power_spectrum`][acoustic_toolbox._signal.Signal.power_spectrum]
         """
         params = {
             "xscale": "log",
@@ -695,23 +736,21 @@ class Signal(np.ndarray):
         f, o = self.power_spectrum(N=N)
         return _base_plot(f, 10.0 * np.log10(o / params["reference"]), params)
 
-    def plot_angle_spectrum(self, N=None, **kwargs):
+    def plot_angle_spectrum(self, N: int | None = None, **kwargs):
         """Plot phase angle spectrum of signal. Wrapped.
 
-        Valid kwargs:
-
-        * xscale
-        * yscale
-        * xlim
-        * ylim
-        * reference: Reference power
-
         Args:
-          N:  (Default value = None)
+          N: Amount of bins.
           **kwargs:
 
-        Returns:
+        **Valid kwargs:**
 
+        Other Args:
+            xscale: X-axis scale.
+            yscale: Y-axis scale.
+            xlim: X-axis limits.
+            ylim: Y-axis limits.
+            reference: Reference power
         """
         params = {
             "xscale": "linear",
@@ -724,23 +763,21 @@ class Signal(np.ndarray):
         f, o = self.angle_spectrum(N=N)
         return _base_plot(f, o, params)
 
-    def plot_phase_spectrum(self, N=None, **kwargs):
+    def plot_phase_spectrum(self, N: int | None = None, **kwargs):
         """Plot phase spectrum of signal. Unwrapped.
 
-        Valid kwargs:
-
-        * xscale
-        * yscale
-        * xlim
-        * ylim
-        * reference: Reference power
-
         Args:
-          N:  (Default value = None)
+          N: Amount of bins.
           **kwargs:
 
-        Returns:
+        **Valid kwargs:**
 
+        Other Args:
+            xscale: X-axis scale.
+            yscale: Y-axis scale.
+            xlim: X-axis limits.
+            ylim: Y-axis limits.
+            reference: Reference power
         """
         params = {
             "xscale": "linear",
@@ -756,14 +793,14 @@ class Signal(np.ndarray):
     def spectrogram(self, **kwargs):
         """Spectrogram of signal.
 
-        Args:
-          **kwargs:
-
         Returns:
-          Spectrogram.
+          Time
+          Frequency
+          Power
 
-          See :func:`scipy.signal.spectrogram`. Some of the default values have been changed.
-          The generated spectrogram consists by default of complex values.
+        See Also:
+            See [`scipy.signal.spectrogram`][scipy.signal.spectrogram]. Some of the default values have been changed.
+            The generated spectrogram consists by default of complex values.
 
         """
         params = {
@@ -780,20 +817,24 @@ class Signal(np.ndarray):
     def plot_spectrogram(self, **kwargs):
         """Plot spectrogram of the signal.
 
-        Valid kwargs:
+        Note:
+            This method only works for a single channel.
 
-        * xlim
-        * ylim
-        * clim
-        .. note:: This method only works for a single channel.
+        **Valid kwargs:**
 
-        Args:
-          **kwargs:
-
-        Returns:
-
+        Other Args:
+            xlim: X-axis limits.
+            ylim: Y-axis limits.
+            clim: Color limits.
+            NFFT: Amount of FFT bins.
+            noverlap: Amount of overlap between FFT bins.
+            title: Title.
+            xlabel: X-axis label.
+            ylabel: Y-axis label.
+            clabel: Color label.
+            colorbar: Whether to show the colorbar.
         """
-        # To do, use :meth:`spectrogram`.
+        # TODO: use `spectrogram`.
         params = {
             "xlim": None,
             "ylim": None,
@@ -845,31 +886,28 @@ class Signal(np.ndarray):
 
         return ax0
 
-    def levels(self, time=0.125, method="average"):
+    def levels(self, time: float = 0.125, method: str = "average"):
         """Calculate sound pressure level as function of time.
 
         Args:
-          time: Averaging time or integration time constant. Default value is 0.125 corresponding to FAST.
-          method: Use time `average` or time `weighting`. Default option is `average`.
+            time: Averaging time or integration time constant. Default value is 0.125 corresponding to FAST.
+            method: Use time `average` or time `weighting`.
 
         Returns:
-          sound pressure level as function of time.
+            sound pressure level as function of time.
 
-          .. seealso:: :func:`acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_sound_level`
-          .. seealso:: :func:`acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_sound_level`
+        See Also:
+            - [`acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_sound_level`][acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_sound_level]
+            - [`acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_sound_level`][acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_sound_level]
 
         """
         if method == "average":
-            return (
-                acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_sound_level(
-                    self.values, self.fs, time
-                )
+            return standards.iec_61672_1_2013.time_averaged_sound_level(
+                self.values, self.fs, time
             )
         elif method == "weighting":
-            return (
-                acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_sound_level(
-                    self.values, self.fs, time
-                )
+            return standards.iec_61672_1_2013.time_weighted_sound_level(
+                self.values, self.fs, time
             )
         else:
             raise ValueError("Invalid method")
@@ -877,27 +915,16 @@ class Signal(np.ndarray):
     def leq(self):
         """Equivalent level. Single-value number.
 
-        .. seealso:: :func:`acoustic_toolbox.standards.iso_tr_25417_2007.equivalent_sound_pressure_level`
-
-        Args:
-
-        Returns:
-
+        See Also:
+            - [`acoustic_toolbox.standards.iso_tr_25417_2007.equivalent_sound_pressure_level`][acoustic_toolbox.standards.iso_tr_25417_2007.equivalent_sound_pressure_level]
         """
-        return acoustic_toolbox.standards.iso_tr_25417_2007.equivalent_sound_pressure_level(
-            self.values
-        )
+        return standards.iso_tr_25417_2007.equivalent_sound_pressure_level(self.values)
 
     def plot_levels(self, **kwargs):
         """Plot sound pressure level as function of time.
 
-        .. seealso:: :meth:`levels`
-
-        Args:
-          **kwargs:
-
-        Returns:
-
+        See Also:
+            - [`levels`][acoustic_toolbox._signal.Signal.levels]
         """
         params = {
             "xscale": "linear",
@@ -923,109 +950,114 @@ class Signal(np.ndarray):
     # return acoustic_toolbox.signal.fractional_octaves(self, self.fs, frequency,
     # frequency, fraction, False)[1]
 
-    def bandpass(self, lowcut, highcut, order=8, zero_phase=False):
+    def bandpass(self, lowcut, highcut, order=8, zero_phase=False) -> Signal:
         """Filter signal with band-pass filter.
 
         Args:
-                  lowcut: Lower cornerfrequency.
-                  highcut: Upper cornerfrequency.
-                  order: Filter order. (Default value = 8)
-                  zero_phase: Prevent phase error by filtering in both directions (filtfilt). (Default value = False)
+            lowcut: Lower cornerfrequency.
+            highcut: Upper cornerfrequency.
+            order: Filter order. (Default value = 8)
+            zero_phase: Prevent phase error by filtering in both directions (filtfilt). (Default value = False)
 
         Returns:
-                  class:`Signal`.
+            class:`Signal`.
 
-        .. seealso:: :func:`acoustic_toolbox.signal.bandpass`: Band-pass filtered signal.
+        See Also:
+            - [`acoustic_toolbox.signal.bandpass`][acoustic_toolbox.signal.bandpass]
 
         """
         return type(self)(
-            acoustic_toolbox.signal.bandpass(
+            signal.bandpass(
                 self, lowcut, highcut, self.fs, order=order, zero_phase=zero_phase
             ),
             self.fs,
         )
 
-    def bandstop(self, lowcut, highcut, order=8, zero_phase=False):
+    def bandstop(
+        self, lowcut, highcut, order: int = 8, zero_phase: bool = False
+    ) -> Signal:
         """Filter signal with band-stop filter.
 
         Args:
-                  lowcut: Lower cornerfrequency.
-                  highcut: Upper cornerfrequency.
-                  order: Filter order. (Default value = 8)
-                  zero_phase: Prevent phase error by filtering in both directions (filtfilt). (Default value = False)
+            lowcut: Lower cornerfrequency.
+            highcut: Upper cornerfrequency.
+            order: Filter order.
+            zero_phase: Prevent phase error by filtering in both directions (filtfilt).
 
         Returns:
-                  class:`Signal`.
+            Band-pass filtered signal
 
-        .. seealso:: :func:`acoustic_toolbox.signal.bandstop`: Band-pass filtered signal.
+        See Also:
+            - [`acoustic_toolbox.signal.bandstop`][acoustic_toolbox.signal.bandstop]
 
         """
         return type(self)(
-            acoustic_toolbox.signal.bandstop(
+            signal.bandstop(
                 self, lowcut, highcut, self.fs, order=order, zero_phase=zero_phase
             ),
             self.fs,
         )
 
-    def highpass(self, cutoff, order=4, zero_phase=False):
+    def highpass(self, cutoff, order: int = 4, zero_phase: bool = False) -> Signal:
         """Filter signal with high-pass filter.
 
         Args:
-                  cutoff: Cornerfrequency.
-                  order: Filter order. (Default value = 4)
-                  zero_phase: Prevent phase error by filtering in both directions (filtfilt). (Default value = False)
+            cutoff: Cornerfrequency.
+            order: Filter order.
+            zero_phase: Prevent phase error by filtering in both directions (filtfilt).
 
         Returns:
-                  class:`Signal`.
+            High-pass filtered signal
 
-        .. seealso:: :func:`acoustic_toolbox.signal.highpass`: High-pass filtered signal.
+        See Also:
+            - [`acoustic_toolbox.signal.highpass`][acoustic_toolbox.signal.highpass]
 
         """
         return type(self)(
-            acoustic_toolbox.signal.highpass(
-                self, cutoff, self.fs, order=order, zero_phase=zero_phase
-            ),
+            signal.highpass(self, cutoff, self.fs, order=order, zero_phase=zero_phase),
             self.fs,
         )
 
-    def lowpass(self, cutoff, order=4, zero_phase=False):
+    def lowpass(self, cutoff, order: int = 4, zero_phase: bool = False) -> Signal:
         """Filter signal with low-pass filter.
 
         Args:
-                  cutoff: Cornerfrequency.
-                  order: Filter order. (Default value = 4)
-                  zero_phase: Prevent phase error by filtering in both directions (filtfilt). (Default value = False)
+            cutoff: Cornerfrequency.
+            order: Filter order.
+            zero_phase: Prevent phase error by filtering in both directions (filtfilt).
 
         Returns:
-                  class:`Signal`.
+            Low-pass filtered signal
 
-        .. seealso:: :func:`acoustic_toolbox.signal.lowpass`: Low-pass filtered signal.
+        See Also:
+            - [`acoustic_toolbox.signal.lowpass`][acoustic_toolbox.signal.lowpass]
 
         """
         return type(self)(
-            acoustic_toolbox.signal.lowpass(
-                self, cutoff, self.fs, order=order, zero_phase=zero_phase
-            ),
+            signal.lowpass(self, cutoff, self.fs, order=order, zero_phase=zero_phase),
             self.fs,
         )
 
-    def octavepass(self, center, fraction, order=8, zero_phase=False):
+    def octavepass(
+        self, center, fraction, order: int = 8, zero_phase: bool = False
+    ) -> Signal:
         """Filter signal with fractional-octave band-pass filter.
 
         Args:
-                  center: Center frequency. Any value in the band will suffice.
-                  fraction: Band designator.
-                  order: Filter order. (Default value = 8)
-                  zero_phase: Prevent phase error by filtering in both directions (filtfilt). (Default value = False)
+            center: Center frequency. Any value in the band will suffice.
+            fraction: Band designator.
+            order: Filter order.
+            zero_phase: Prevent phase error by filtering in both directions (filtfilt).
 
         Returns:
-                  class:`Signal`.
+            Band-pass filtered signal
 
-        .. seealso:: :func:`acoustic_toolbox.signal.octavepass`: Band-pass filtered signal.
+        See Also:
+            - [`acoustic_toolbox.signal.octavepass`][acoustic_toolbox.signal.octavepass]
 
         """
         return type(self)(
-            acoustic_toolbox.signal.octavepass(
+            signal.octavepass(
                 self,
                 center,
                 self.fs,
@@ -1036,103 +1068,119 @@ class Signal(np.ndarray):
             self.fs,
         )
 
-    def bandpass_frequencies(self, frequencies, order=8, purge=True, zero_phase=False):
+    def bandpass_frequencies(
+        self,
+        frequencies: Frequencies,
+        order: int = 8,
+        purge: bool = True,
+        zero_phase: bool = False,
+    ) -> tuple[Frequencies, Signal]:
         """Apply bandpass filters for frequencies.
 
         Args:
-          frequencies(Instance of :class:`acoustic_toolbox.signal.Frequencies`): Band-pass filter frequencies.
-          order: Filter order. (Default value = 8)
-          purge: Discard bands of which the upper corner frequency is above the Nyquist frequency. (Default value = True)
-          zero_phase: Prevent phase error by filtering in both directions (filtfilt). (Default value = False)
+            frequencies: Instance of :class:`acoustic_toolbox.signal.Frequencies`
+            order: Filter order.
+            purge: Discard bands of which the upper corner frequency is above the Nyquist frequency.
+            zero_phase: Prevent phase error by filtering in both directions (filtfilt).
 
         Returns:
-          Frequencies and band-pass filtered signal.
+            Frequencies
+            Band-pass filtered signal.
 
-          .. seealso:: :func:`acoustic_toolbox.signal.bandpass_frequencies`
+        See Also:
+            - [`acoustic_toolbox.signal.bandpass_frequencies`][acoustic_toolbox.signal.bandpass_frequencies]
 
         """
-        frequencies, filtered = acoustic_toolbox.signal.bandpass_frequencies(
+        frequencies, filtered = signal.bandpass_frequencies(
             self, self.fs, frequencies, order, purge, zero_phase=zero_phase
         )
         return frequencies, type(self)(filtered, self.fs)
 
     def octaves(
         self,
-        frequencies=NOMINAL_OCTAVE_CENTER_FREQUENCIES,
-        order=8,
-        purge=True,
-        zero_phase=False,
+        frequencies: Frequencies | np.ndarray = NOMINAL_OCTAVE_CENTER_FREQUENCIES,
+        order: int = 8,
+        purge: bool = True,
+        zero_phase: bool = False,
     ):
         """Apply 1/1-octaves bandpass filters.
 
         Args:
-          frequencies(class:`np.ndarray` with (approximate) center-frequencies or an instance of :class:`acoustic_toolbox.signal.Frequencies`, optional): Band-pass filter frequencies. (Default value = NOMINAL_OCTAVE_CENTER_FREQUENCIES)
-          order: Filter order. (Default value = 8)
-          purge: Discard bands of which the upper corner frequency is above the Nyquist frequency. (Default value = True)
-          zero_phase: Prevent phase error by filtering in both directions (filtfilt). (Default value = False)
+            frequencies: Band-pass filter frequencies.
+            order: Filter order.
+            purge: Discard bands of which the upper corner frequency is above the Nyquist frequency.
+            zero_phase: Prevent phase error by filtering in both directions (filtfilt).
 
         Returns:
-          Frequencies and band-pass filtered signal.
+            Frequencies
+            Band-pass filtered signal.
 
-          .. seealso:: :func:`acoustic_toolbox.signal.bandpass_octaves`
-
+        See Also:
+            - [`acoustic_toolbox.signal.bandpass_octaves`][acoustic_toolbox.signal.bandpass_octaves]
         """
-        frequencies, octaves = acoustic_toolbox.signal.bandpass_octaves(
+        frequencies, octaves = signal.bandpass_octaves(
             self, self.fs, frequencies, order, purge, zero_phase=zero_phase
         )
         return frequencies, type(self)(octaves, self.fs)
 
     def third_octaves(
         self,
-        frequencies=NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES,
-        order=8,
-        purge=True,
-        zero_phase=False,
+        frequencies: Frequencies | np.ndarray = NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES,
+        order: int = 8,
+        purge: bool = True,
+        zero_phase: bool = False,
     ):
         """Apply 1/3-octaves bandpass filters.
 
         Args:
-          frequencies(class:`np.ndarray` with (approximate) center-frequencies or an instance of :class:`acoustic_toolbox.signal.Frequencies`, optional): Band-pass filter frequencies. (Default value = NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES)
-          order: Filter order. (Default value = 8)
-          purge: Discard bands of which the upper corner frequency is above the Nyquist frequency. (Default value = True)
-          zero_phase: Prevent phase error by filtering in both directions (filtfilt). (Default value = False)
+            frequencies: Band-pass filter frequencies.
+            order: Filter order.
+            purge: Discard bands of which the upper corner frequency is above the Nyquist frequency.
+            zero_phase: Prevent phase error by filtering in both directions (filtfilt).
 
         Returns:
           Frequencies and band-pass filtered signal.
 
-          .. seealso:: :func:`acoustic_toolbox.signal.bandpass_third_octaves`
+        See Also:
+            - [`acoustic_toolbox.signal.bandpass_third_octaves`][acoustic_toolbox.signal.bandpass_third_octaves]
 
         """
-        frequencies, octaves = acoustic_toolbox.signal.bandpass_third_octaves(
+        frequencies, octaves = signal.bandpass_third_octaves(
             self, self.fs, frequencies, order, purge, zero_phase=zero_phase
         )
         return frequencies, type(self)(octaves, self.fs)
 
     def fractional_octaves(
-        self, frequencies=None, fraction=1, order=8, purge=True, zero_phase=False
+        self,
+        frequencies: Frequencies | None = None,
+        fraction: int = 1,
+        order: int = 8,
+        purge: bool = True,
+        zero_phase: bool = False,
     ):
         """Apply 1/N-octaves bandpass filters.
 
         Args:
-          frequencies(Instance of :class:`acoustic_toolbox.signal.Frequencies`, optional): Band-pass filter frequencies. (Default value = None)
-          fraction: Default band-designator of fractional-octaves.
-          order: Filter order. (Default value = 8)
-          purge: Discard bands of which the upper corner frequency is above the Nyquist frequency. (Default value = True)
-          zero_phase: Prevent phase error by filtering in both directions (filtfilt). (Default value = False)
+            frequencies: Band-pass filter frequencies.
+            fraction: Default band-designator of fractional-octaves.
+            order: Filter order.
+            purge: Discard bands of which the upper corner frequency is above the Nyquist frequency.
+            zero_phase: Prevent phase error by filtering in both directions (filtfilt).
 
         Returns:
           Frequencies and band-pass filtered signal.
 
-          .. seealso:: :func:`acoustic_toolbox.signal.bandpass_fractional_octaves`
+        See Also:
+            - [`acoustic_toolbox.signal.bandpass_fractional_octaves`][acoustic_toolbox.signal.bandpass_fractional_octaves]
 
         """
         if frequencies is None:
-            frequencies = acoustic_toolbox.signal.OctaveBand(
+            frequencies = signal.OctaveBand(
                 fstart=NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES[0],
                 fstop=self.fs / 2.0,
                 fraction=fraction,
             )
-        frequencies, octaves = acoustic_toolbox.signal.bandpass_fractional_octaves(
+        frequencies, octaves = signal.bandpass_fractional_octaves(
             self, self.fs, frequencies, fraction, order, purge, zero_phase=zero_phase
         )
         return frequencies, type(self)(octaves, self.fs)
@@ -1140,13 +1188,8 @@ class Signal(np.ndarray):
     def plot_octaves(self, **kwargs):
         """Plot octaves.
 
-        .. seealso:: :meth:`octaves`
-
-        Args:
-          **kwargs:
-
-        Returns:
-
+        See Also:
+            - [`octaves`][acoustic_toolbox._signal.Signal.octaves]
         """
         params = {
             "xscale": "log",
@@ -1163,13 +1206,8 @@ class Signal(np.ndarray):
     def plot_third_octaves(self, **kwargs):
         """Plot 1/3-octaves.
 
-        .. seealso:: :meth:`third_octaves`
-
-        Args:
-          **kwargs:
-
-        Returns:
-
+        See Also:
+            - [`third_octaves`][acoustic_toolbox._signal.Signal.third_octaves]
         """
         params = {
             "xscale": "log",
@@ -1191,19 +1229,7 @@ class Signal(np.ndarray):
         zero_phase=False,
         **kwargs,
     ):
-        """Plot fractional octaves.
-
-        Args:
-          frequencies:  (Default value = None)
-          fraction:  (Default value = 1)
-          order:  (Default value = 8)
-          purge:  (Default value = True)
-          zero_phase:  (Default value = False)
-          **kwargs:
-
-        Returns:
-
-        """
+        """Plot fractional octaves."""
         title = "1/{}-Octaves SPL".format(fraction)
 
         params = {
@@ -1226,14 +1252,12 @@ class Signal(np.ndarray):
     def plot(self, **kwargs):
         """Plot signal as function of time. By default the entire signal is plotted.
 
-        Args:
-          filename: Name of file.
-          start(Start time in seconds from start of signal.): First sample index.
-          stop(Stop time in seconds. from stop of signal.): Last sample index.
-          **kwargs:
+        **Valid kwargs:**
 
-        Returns:
-
+        Other Args:
+            filename: Name of file.
+            start: First sample index.
+            stop: Last sample index.
         """
         params = {
             "xscale": "linear",
@@ -1304,15 +1328,13 @@ class Signal(np.ndarray):
     def normalize(self, gap=6.0, inplace=False):
         """Normalize signal.
 
-        Args:
-          gap: Gap between maximum value and ceiling in decibel. (Default value = 6.0)
-          inplace: Normalize signal in place.
-
         The parameter `gap` can be understood as using `gap` decibels fewer for the dynamic range.
+
         By default a 6 decibel gap is used.
 
-        Returns:
-
+        Args:
+          gap: Gap between maximum value and ceiling in decibel.
+          inplace: Normalize signal in place.
         """
         factor = np.abs(self).max() * 10.0 ** (gap / 20.0)
         if inplace:
@@ -1324,13 +1346,11 @@ class Signal(np.ndarray):
     def to_wav(self, filename, depth=16):
         """Save signal as WAV file.
 
-        Args:
-          filename: Name of file to save to.
-          depth: If given, convert to integer with specified depth. Else, try to store using the original data type.
-
         By default, this function saves a normalized 16-bit version of the signal with at least 6 dB range till clipping occurs.
 
-        Returns:
+        Args:
+            filename: Name of file to save to.
+            depth: If given, convert to integer with specified depth. Else, try to store using the original data type.
 
         """
         data = self
@@ -1342,15 +1362,15 @@ class Signal(np.ndarray):
         # wavfile.write(filename, int(self.fs), np.int16(self._data/(np.abs(self._data).max()) * 32767) )
 
     @classmethod
-    def from_wav(cls, filename, normalize=True):
+    def from_wav(cls, filename, normalize=True) -> Signal:
         """Create an instance of `Signal` from a WAV file.
 
         Args:
-          filename: Filename
-          normalize: Whether to normalize the signal. (Default value = True)
+            filename: Filename of WAV file.
+            normalize: Whether to normalize the signal.
 
         Returns:
-
+            Signal
         """
         fs, data = wavfile.read(filename)
         data = data.astype(np.float32, copy=False).T
@@ -1373,22 +1393,16 @@ _PLOTTING_PARAMS = {
 
 
 def _get_plotting_params():
-    """ """
     d = dict()
     d.update(_PLOTTING_PARAMS)
     return d
 
 
-def _base_plot(x, y, given_params):
+def _base_plot(x, y, given_params) -> Axes:
     """Common function for creating plots.
 
-    Args:
-      x:
-      y:
-      given_params:
-
     Returns:
-      class:`matplotlib.Axes`: Axes object.
+        Axes object.
 
     """
     params = _get_plotting_params()
