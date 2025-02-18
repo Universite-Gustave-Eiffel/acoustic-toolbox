@@ -8,7 +8,10 @@ Welcome to the documentation of the acoustic-toolbox module!
 
 <div class="grid cards" markdown>
 
-- [Directivity](directivity.md)
+- [Signal Class](examples/signal_class.ipynb)
+- [Directivity](examples/directivity_example.ipynb)
+- [Octave](examples/example_octave.py)
+- [Signal Processing](examples/example_signal.py)
 
 </div>
 

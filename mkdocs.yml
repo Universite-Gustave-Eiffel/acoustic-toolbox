@@ -46,6 +46,7 @@ theme:
     - content.code.copy
     - content.tabs.link
     - navigation.tracking
+    - navigation.tabs
     - navigation.prune
     - navigation.indexes
     - toc.follow
@@ -56,6 +57,9 @@ theme:
 # Plugins - install using: pip3 install -r requirements.txt
 plugins:
   - search
+  - mkdocs-jupyter:
+      ignore_h1_titles: True
+      include_source: True
   - autorefs:
       resolve_closest: true
   - mkdocstrings: # For building API ref from docstrings https://mkdocstrings.github.io/usage/#docsmy_pagemd
@@ -171,6 +175,12 @@ not_in_nav: |
 # Page tree
 nav:
   - Home: index.md
+  - Examples:
+    - Overview: examples.md
+    - Signal Class: examples/signal_class.ipynb
+    - Directivity: examples/directivity_example.ipynb
+    - Octave: examples/example_octave.py
+    - Signal Processing: examples/example_signal.py
   - Signal Class: _signal.md
   - Modules:
       - Ambisonics: ambisonics.md
@@ -194,7 +204,7 @@ nav:
       - Utilities: utils.md
       - Weighting: weighting.md
   - Standards:
-      - Overview: standards.md
+      - Standards Overview: standards.md
       - IEC 61260-1:2014: standards/iec_61260_1_2014.md
       - IEC 61672-1:2013: standards/iec_61672_1_2013.md
       - ISO 1683:2015: standards/iso_1683_2015.md
