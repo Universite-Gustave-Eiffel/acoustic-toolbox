@@ -13,7 +13,7 @@ repo_url: https://github.com/Universite-Gustave-Eiffel/acoustic-toolbox
 edit_uri: edit/main/example/docs
 
 # Copyright
-copyright: Copyright &copy; 2024, Valentin LE BESCOND
+copyright: Copyright &copy; 2024, Valentin LE BESCOND, Andrew Mitchell
 
 # Configuration
 theme:

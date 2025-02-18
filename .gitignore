@@ -65,4 +65,4 @@ temp
 .ruff*
 
 sphinx-docs
-memory-bank/*
+memory-bank

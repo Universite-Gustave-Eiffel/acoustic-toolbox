@@ -6,5 +6,9 @@ The Open AIR Library is developed and maintained by Damian Murphy and Simon Shel
 
 The WAV files included in this project are:
 
- - [sportcentre_omni.wav](http://www.openairlib.net/auralizationdb/content/sports-centre-university-york) ([CC-BY-SA](http://creativecommons.org/licenses/by-sa/3.0/))
- - [living_room_1.wav](http://www.openairlib.net/auralizationdb/content/domestic-living-room) ([Public Domain](http://creativecommons.org/licenses/publicdomain/)])
+- [sportcentre_omni.wav](http://www.openairlib.net/auralizationdb/content/sports-centre-university-york) ([CC-BY-SA](http://creativecommons.org/licenses/by-sa/3.0/))
+- [living_room_1.wav](http://www.openairlib.net/auralizationdb/content/domestic-living-room) ([Public Domain](http://creativecommons.org/licenses/publicdomain/)])
+
+Additional sample recordings downloaded from Freesound:
+
+- [aircraft_recording.wav](https://freesound.org/s/195412/): `LancSPtHur_flypast_mono.wav` by beerbelly38 -- License: Attribution 4.0

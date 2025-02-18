@@ -106,7 +106,7 @@ class Signal(np.ndarray):
         values: Values of signal as instance of [`np.ndarray`][numpy.ndarray].
     """
 
-    def __new__(cls, data, fs: float):
+    def __new__(cls, data, fs):
         """Create a new signal.
 
         Args:
@@ -1124,8 +1124,7 @@ class Signal(np.ndarray):
 
     def third_octaves(
         self,
-        frequencies: "Frequencies"
-        | np.ndarray = NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES,
+        frequencies: "Frequencies" = NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES,
         order: int = 8,
         purge: bool = True,
         zero_phase: bool = False,
