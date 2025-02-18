@@ -43,7 +43,6 @@ docs = [
     "mkdocs-macros-plugin>=1.0.4",
     "mkdocstrings[python]>=0.26.2",
     "mkdocs-jupyter>=0.25.1",
-    "mkdocs-api-autonav>=0.1.2",
 ]
 
 [tool.flit.sdist]

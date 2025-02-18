@@ -8,7 +8,7 @@ resolution-markers = [
 
 [[package]]
 name = "acoustic-toolbox"
-version = "0.1.2.dev0"
+version = "0.1.2.dev1"
 source = { editable = "." }
 dependencies = [
     { name = "matplotlib" },
@@ -24,7 +24,6 @@ dependencies = [
 docs = [
     { name = "jupyter" },
     { name = "mkdocs" },
-    { name = "mkdocs-api-autonav" },
     { name = "mkdocs-exclude" },
     { name = "mkdocs-include-markdown-plugin" },
     { name = "mkdocs-jupyter" },
@@ -46,7 +45,6 @@ requires-dist = [
     { name = "jupyter", marker = "extra == 'docs'", specifier = ">=1.0.0" },
     { name = "matplotlib", specifier = ">=3.9.1" },
     { name = "mkdocs", marker = "extra == 'docs'", specifier = ">=1.6.1" },
-    { name = "mkdocs-api-autonav", marker = "extra == 'docs'", specifier = ">=0.1.2" },
     { name = "mkdocs-exclude", marker = "extra == 'docs'", specifier = ">=1.0.2" },
     { name = "mkdocs-include-markdown-plugin", marker = "extra == 'docs'", specifier = ">=6.0.4" },
     { name = "mkdocs-jupyter", marker = "extra == 'docs'", specifier = ">=0.25.1" },
@@ -1385,19 +1383,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/bc/c6/bbd4f061bd16b378247f12953ffcb04786a618ce5e904b8c5a01a0309061/mkdocs-1.6.1.tar.gz", hash = "sha256:7b432f01d928c084353ab39c57282f29f92136665bdd6abf7c1ec8d822ef86f2", size = 3889159 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/22/5b/dbc6a8cddc9cfa9c4971d59fb12bb8d42e161b7e7f8cc89e49137c5b279c/mkdocs-1.6.1-py3-none-any.whl", hash = "sha256:db91759624d1647f3f34aa0c3f327dd2601beae39a366d6e064c03468d35c20e", size = 3864451 },
-]
-
-[[package]]
-name = "mkdocs-api-autonav"
-version = "0.1.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "mkdocs" },
-    { name = "mkdocstrings-python" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ac/45/c70b41262edc8656bc997281800e5cdc05dc453dbcbc233e7983743adb05/mkdocs_api_autonav-0.1.2.tar.gz", hash = "sha256:50d69f0440cc28918e151d9317f5643b11baea023876673155445c8d32ec2add", size = 53107 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/56/58/3d8e8e908150c07628dfa0c4f8ea596e111fab3ea1ade4c2f1c75dc80355/mkdocs_api_autonav-0.1.2-py3-none-any.whl", hash = "sha256:369e9e21730d22487be55db899dced2c63c37f56087044081911e494a2f6a4b6", size = 10355 },
 ]
 
 [[package]]
