@@ -16,12 +16,12 @@ The `acoustic-toolbox` module is a Python module with useful tools for acoustici
 ## Installation
 
 The latest release can be found on PyPI and installed with `pip install acoustic-toolbox`.
-Otherwise, you can clone this repository and install with `pip install` or `pip install -e` when you want an editable install.
 
+Otherwise, you can clone this repository and install with `pip install` or `pip install -e` when you want an editable install.
 
 ## Examples
 
-Several examples can be found in the `examples` folder.
+Several examples can be found in the `docs/examples` folder.
 
 ## Tests
 
@@ -47,6 +47,6 @@ To install the development environment, run `uv sync --all-extras` in the root o
 
 Documentation is built with `uv run make html` from the `docs` folder and can be viewed in the `docs/build/html` folder.
 
-## Origin project 
+## Origin project
 
 This project is based on the amazing work initially done here: [python-acoustics](https://github.com/python-acoustics/python-acoustics)

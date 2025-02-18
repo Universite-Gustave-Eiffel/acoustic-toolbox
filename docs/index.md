@@ -27,7 +27,7 @@ This section contains a description of all classes and functions.
 
 </div>
 
-## Modules
+### Modules
 
 <div class="grid cards" markdown>
 
@@ -54,7 +54,7 @@ This section contains a description of all classes and functions.
 
 </div>
 
-## [Standards](standards.md)
+### [Standards](standards.md)
 
 The `acoustic_toolbox.standards` module consists of modules where all code and values are according to the respective standard.
 
