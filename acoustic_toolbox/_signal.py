@@ -86,7 +86,6 @@ from scipy.signal import (
 from acoustic_toolbox import signal
 from acoustic_toolbox.cepstrum import complex_cepstrum, real_cepstrum
 from acoustic_toolbox import standards
-from acoustic_toolbox.signal import Frequencies
 
 from acoustic_toolbox.standards.iso_tr_25417_2007 import REFERENCE_PRESSURE
 from acoustic_toolbox.standards.iec_61672_1_2013 import WEIGHTING_SYSTEMS
@@ -1070,11 +1069,11 @@ class Signal(np.ndarray):
 
     def bandpass_frequencies(
         self,
-        frequencies: Frequencies,
+        frequencies: "Frequencies",
         order: int = 8,
         purge: bool = True,
         zero_phase: bool = False,
-    ) -> tuple[Frequencies, Signal]:
+    ) -> tuple["Frequencies", Signal]:
         """Apply bandpass filters for frequencies.
 
         Args:
@@ -1098,7 +1097,7 @@ class Signal(np.ndarray):
 
     def octaves(
         self,
-        frequencies: Frequencies | np.ndarray = NOMINAL_OCTAVE_CENTER_FREQUENCIES,
+        frequencies: "Frequencies" | np.ndarray = NOMINAL_OCTAVE_CENTER_FREQUENCIES,
         order: int = 8,
         purge: bool = True,
         zero_phase: bool = False,
@@ -1125,7 +1124,8 @@ class Signal(np.ndarray):
 
     def third_octaves(
         self,
-        frequencies: Frequencies | np.ndarray = NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES,
+        frequencies: "Frequencies"
+        | np.ndarray = NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES,
         order: int = 8,
         purge: bool = True,
         zero_phase: bool = False,
@@ -1152,7 +1152,7 @@ class Signal(np.ndarray):
 
     def fractional_octaves(
         self,
-        frequencies: Frequencies | None = None,
+        frequencies: "Frequencies" | None = None,
         fraction: int = 1,
         order: int = 8,
         purge: bool = True,

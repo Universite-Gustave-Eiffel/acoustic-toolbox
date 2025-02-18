@@ -78,7 +78,6 @@ import acoustic_toolbox.octave
 from scipy.signal import lti, cheby1, firwin
 
 import acoustic_toolbox.bands
-from acoustic_toolbox._signal import Signal
 from scipy.signal import hilbert
 from acoustic_toolbox.standards.iso_tr_25417_2007 import REFERENCE_PRESSURE
 from acoustic_toolbox.standards.iec_61672_1_2013 import (
@@ -1307,7 +1306,7 @@ def zero_crossings(data):
     return ((pos[:-1] & npos[1:]) | (npos[:-1] & pos[1:])).nonzero()[0]
 
 
-def amplitude_envelope(signal: Signal, fs, axis=-1):
+def amplitude_envelope(signal: "Signal", fs, axis=-1):
     """Instantaneous amplitude of tone.
 
     The instantaneous amplitude is the magnitude of the analytic signal.
@@ -1326,7 +1325,7 @@ def amplitude_envelope(signal: Signal, fs, axis=-1):
     return np.abs(hilbert(signal, axis=axis))
 
 
-def instantaneous_phase(signal: Signal, fs, axis=-1):
+def instantaneous_phase(signal: "Signal", fs, axis=-1):
     """Instantaneous phase of tone.
 
     The instantaneous phase is the angle of the analytic signal.
@@ -1346,7 +1345,7 @@ def instantaneous_phase(signal: Signal, fs, axis=-1):
     return np.angle(hilbert(signal, axis=axis))
 
 
-def instantaneous_frequency(signal: Signal, fs, axis=-1):
+def instantaneous_frequency(signal: "Signal", fs, axis=-1):
     """Determine instantaneous frequency of tone.
 
     The instantaneous frequency can be obtained by differentiating the unwrapped instantaneous phase.
@@ -1371,7 +1370,7 @@ def instantaneous_frequency(signal: Signal, fs, axis=-1):
     )
 
 
-def wvd(signal: Signal, fs, analytic=True):
+def wvd(signal: "Signal", fs, analytic=True):
     r"""Wigner-Ville Distribution.
 
     $$
