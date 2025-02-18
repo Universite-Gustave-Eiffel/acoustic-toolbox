@@ -1,49 +1,40 @@
-"""
-Atmosphere
-==========
+"""The atmosphere module contains functions and classes related to atmospheric acoustics and is based on [ISO 9613-1:1993](standards/iso_9613_1_1993.md).
 
-The atmosphere module contains functions and classes related to atmospheric
-acoustics and is based on :mod:`acoustic_toolbox.standards.iso_9613_1_1993`.
+Classes:
+    Atmosphere: Class describing atmospheric conditions.
 
-Atmosphere class
-****************
-
-.. autoclass:: acoustic_toolbox.atmosphere.Atmosphere
-
-From ISO 9613-1 1993
-********************
-
-Constants
----------
-
-.. autoattribute:: acoustic_toolbox.standards.iso_9613_1_1993.SOUNDSPEED
-.. autoattribute:: acoustic_toolbox.standards.iso_9613_1_1993.REFERENCE_TEMPERATURE
-.. autoattribute:: acoustic_toolbox.standards.iso_9613_1_1993.REFERENCE_PRESSURE
-.. autoattribute:: acoustic_toolbox.standards.iso_9613_1_1993.TRIPLE_TEMPERATURE
-
-Functions
----------
-
-.. autofunction:: acoustic_toolbox.standards.iso_9613_1_1993.soundspeed
-.. autofunction:: acoustic_toolbox.standards.iso_9613_1_1993.saturation_pressure
-.. autofunction:: acoustic_toolbox.standards.iso_9613_1_1993.molar_concentration_water_vapour
-.. autofunction:: acoustic_toolbox.standards.iso_9613_1_1993.relaxation_frequency_nitrogen
-.. autofunction:: acoustic_toolbox.standards.iso_9613_1_1993.relaxation_frequency_oxygen
-.. autofunction:: acoustic_toolbox.standards.iso_9613_1_1993.attenuation_coefficient
-
+Functions:
+    soundspeed: Calculate the speed of sound.
+    saturation_pressure: Calculate the saturation pressure.
+    molar_concentration_water_vapour: Calculate the molar concentration of water vapour.
+    relaxation_frequency_nitrogen: Calculate the relaxation frequency of nitrogen.
+    relaxation_frequency_oxygen: Calculate the relaxation frequency of oxygen.
+    attenuation_coefficient: Calculate the attenuation coefficient.
 """
 
+from typing import Any
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from numpy.typing import NDArray
 
 import acoustic_toolbox
-from acoustic_toolbox.standards.iso_9613_1_1993 import *  # pylint: disable=wildcard-import
+from acoustic_toolbox.standards.iso_9613_1_1993 import (
+    SOUNDSPEED,
+    REFERENCE_TEMPERATURE,
+    REFERENCE_PRESSURE,
+    TRIPLE_TEMPERATURE,
+    soundspeed,
+    saturation_pressure,
+    molar_concentration_water_vapour,
+    relaxation_frequency_oxygen,
+    relaxation_frequency_nitrogen,
+    attenuation_coefficient,
+)
 
 
 class Atmosphere:
-    """
-    Class describing atmospheric conditions.
-    """
+    """Class describing atmospheric conditions."""
 
     REF_TEMP = 293.15
     """Reference temperature"""
@@ -56,51 +47,48 @@ class Atmosphere:
 
     def __init__(
         self,
-        temperature=REFERENCE_TEMPERATURE,
-        pressure=REFERENCE_PRESSURE,
-        relative_humidity=0.0,
-        reference_temperature=REFERENCE_TEMPERATURE,
-        reference_pressure=REFERENCE_PRESSURE,
-        triple_temperature=TRIPLE_TEMPERATURE,
+        temperature: float = REFERENCE_TEMPERATURE,
+        pressure: float = REFERENCE_PRESSURE,
+        relative_humidity: float = 0.0,
+        reference_temperature: float = REFERENCE_TEMPERATURE,
+        reference_pressure: float = REFERENCE_PRESSURE,
+        triple_temperature: float = TRIPLE_TEMPERATURE,
     ):
-        """
+        """Initialize atmosphere conditions.
 
-        :param temperature: Temperature in kelvin
-        :param pressure: Pressure
-        :param relative_humidity: Relative humidity
-        :param reference_temperature: Reference temperature.
-        :param reference_pressure: Reference pressure.
-        :param triple_temperature: Triple temperature.
-        """
+        Args:
+            temperature: Temperature in kelvin.
+            pressure: Pressure.
+            relative_humidity: Relative humidity.
+            reference_temperature: Reference temperature.
+            reference_pressure: Reference pressure.
+            triple_temperature: Triple temperature.
 
+        Returns:
+            An instance of the Atmosphere class.
+        """
         self.temperature = temperature
-        """Ambient temperature :math:`T`."""
+        """Ambient temperature $T$."""
 
         self.pressure = pressure
-        """Ambient pressure :math:`p_a`."""
+        """Ambient pressure $p_a$."""
 
         self.relative_humidity = relative_humidity
         """Relative humidity"""
 
         self.reference_temperature = reference_temperature
-        """
-        Reference temperature.
-        """
+        """Reference temperature."""
 
         self.reference_pressure = reference_pressure
-        """
-        Reference pressure.
-        """
+        """Reference pressure."""
 
         self.triple_temperature = triple_temperature
-        """
-        Triple temperature.
-        """
+        """Triple temperature."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Atmosphere{}".format(self.__str__())
 
-    def __str__(self):
+    def __str__(self) -> str:
         attributes = [
             "temperature",
             "pressure",
@@ -115,15 +103,17 @@ class Atmosphere:
             )
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return self.__dict__ == other.__dict__ and self.__class__ == other.__class__
 
     @property
-    def soundspeed(self):
-        """
-        Speed of sound :math:`c`.
+    def soundspeed(self) -> float:
+        """Speed of sound $c$.
 
-        The speed of sound is calculated using :func:`acoustic_toolbox.standards.iso_9613_1_1993.soundspeed`.
+        The speed of sound is calculated using [`standards.iso_9613_1_1993.soundspeed`][acoustic_toolbox.standards.iso_9613_1_1993.soundspeed].
+
+        Returns:
+            float: The speed of sound.
         """
         return soundspeed(
             self.temperature,
@@ -131,11 +121,13 @@ class Atmosphere:
         )
 
     @property
-    def saturation_pressure(self):
-        """
-        Saturation pressure :math:`p_{sat}`.
+    def saturation_pressure(self) -> float:
+        """Saturation pressure $p_{sat}$.
 
-        The saturation pressure is calculated using :func:`acoustic_toolbox.standards.iso_9613_1_1993.saturation_pressure`.
+        The saturation pressure is calculated using [`standards.iso_9613_1_1993.saturation_pressure`][acoustic_toolbox.standards.iso_9613_1_1993.saturation_pressure].
+
+        Returns:
+            float: The saturation pressure.
         """
         return saturation_pressure(
             self.temperature,
@@ -144,12 +136,14 @@ class Atmosphere:
         )
 
     @property
-    def molar_concentration_water_vapour(self):
-        """
-        Molar concentration of water vapour :math:`h`.
+    def molar_concentration_water_vapour(self) -> float:
+        """Molar concentration of water vapour $h$.
 
         The molar concentration of water vapour is calculated using
-        :func:`acoustic_toolbox.standards.iso_9613_1_1993.molar_concentration_water_vapour`.
+        [`standards.iso_9613_1_1993.molar_concentration_water_vapour`][acoustic_toolbox.standards.iso_9613_1_1993.molar_concentration_water_vapour].
+
+        Returns:
+            float: The molar concentration of water vapour.
         """
         return molar_concentration_water_vapour(
             self.relative_humidity,
@@ -158,12 +152,14 @@ class Atmosphere:
         )
 
     @property
-    def relaxation_frequency_nitrogen(self):
-        """
-        Resonance frequency of nitrogen :math:`f_{r,N}`.
+    def relaxation_frequency_nitrogen(self) -> float:
+        """Resonance frequency of nitrogen $f_{r,N}$.
 
         The resonance frequency is calculated using
-        :func:`acoustic_toolbox.standards.iso_9613_1_1993.relaxation_frequency_nitrogen`.
+        [`standards.iso_9613_1_1993.relaxation_frequency_nitrogen`][acoustic_toolbox.standards.iso_9613_1_1993.relaxation_frequency_nitrogen].
+
+        Returns:
+            float: The resonance frequency of nitrogen.
         """
         return relaxation_frequency_nitrogen(
             self.pressure,
@@ -174,12 +170,14 @@ class Atmosphere:
         )
 
     @property
-    def relaxation_frequency_oxygen(self):
-        """
-        Resonance frequency of oxygen :math:`f_{r,O}`.
+    def relaxation_frequency_oxygen(self) -> float:
+        """Resonance frequency of oxygen $f_{r,O}$.
 
         The resonance frequency is calculated using
-        :func:`acoustic_toolbox.standards.iso_9613_1_1993.relaxation_frequency_oxygen`.
+        [`standards.iso_9613_1_1993.relaxation_frequency_oxygen`][acoustic_toolbox.standards.iso_9613_1_1993.relaxation_frequency_oxygen].
+
+        Returns:
+            float: The resonance frequency of oxygen.
         """
         return relaxation_frequency_oxygen(
             self.pressure,
@@ -187,15 +185,19 @@ class Atmosphere:
             self.reference_pressure,
         )
 
-    def attenuation_coefficient(self, frequency):
-        """
-        Attenuation coefficient :math:`\\alpha` describing atmospheric absorption in dB/m
-        as function of ``frequency``.
-
-        :param frequency: Frequencies to be considered.
+    def attenuation_coefficient(
+        self, frequency: float | NDArray[np.float64]
+    ) -> float | NDArray[np.float64]:
+        r"""Attenuation coefficient $\alpha$ describing atmospheric absorption in dB/m.
 
         The attenuation coefficient is calculated using
-        :func:`acoustic_toolbox.standards.iso_9613_1_1993.attenuation_coefficient`.
+        [`standards.iso_9613_1_1993.attenuation_coefficient`][acoustic_toolbox.standards.iso_9613_1_1993.attenuation_coefficient].
+
+        Args:
+            frequency: Frequencies to be considered.
+
+        Returns:
+            float: The attenuation coefficient.
         """
         return attenuation_coefficient(
             self.pressure,
@@ -207,13 +209,21 @@ class Atmosphere:
             frequency,
         )
 
-    def frequency_response(self, distance, frequencies, inverse=False):
-        """Frequency response.
+    def frequency_response(
+        self,
+        distance: float,
+        frequencies: float | NDArray[np.float64],
+        inverse: bool = False,
+    ) -> NDArray[np.float64]:
+        """Calculate the frequency response.
 
-        :param distance: Distance between source and receiver.
-        :param frequencies: Frequencies for which to compute the response.
-        :param inverse: Whether the attenuation should be undone.
+        Args:
+            distance: Distance between source and receiver.
+            frequencies: Frequencies for which to compute the response.
+            inverse: Whether the attenuation should be undone.
 
+        Returns:
+            array: The frequency response.
         """
         return frequency_response(
             self,
@@ -222,16 +232,26 @@ class Atmosphere:
             inverse,
         )
 
-    def impulse_response(self, distance, fs, ntaps=None, inverse=False):
-        """Impulse response of sound travelling through `atmosphere` for a given `distance` sampled at `fs`.
+    def impulse_response(
+        self,
+        distance: float,
+        fs: float,
+        ntaps: int,
+        inverse: bool = False,
+    ) -> NDArray[np.float64]:
+        """Calculate the impulse response of sound travelling through atmosphere.
 
-        :param atmosphere: Atmosphere.
-        :param distance: Distance between source and receiver.
-        :param fs: Sample frequency
-        :param ntaps: Amount of taps.
-        :param inverse: Whether the attenuation should be undone.
+        Args:
+            distance: Distance between source and receiver.
+            fs: Sample frequency.
+            ntaps: Amount of taps.
+            inverse: Whether the attenuation should be undone.
 
-        .. seealso:: :func:`impulse_response`
+        Returns:
+            array: The impulse response.
+
+        See Also:
+            [`atmosphere.impulse_response`][acoustic_toolbox.atmosphere.impulse_response]
         """
         return impulse_response(
             self,
@@ -241,15 +261,19 @@ class Atmosphere:
             inverse,
         )
 
-    def plot_attenuation_coefficient(self, frequency):
-        """
-        Plot the attenuation coefficient :math:`\\alpha` as function of frequency and write the figure to ``filename``.
+    def plot_attenuation_coefficient(
+        self, frequency: float | NDArray[np.float64]
+    ) -> Figure:
+        r"""Plot the attenuation coefficient $\alpha$ as function of frequency.
 
-        :param filename: Filename
-        :param frequency: Frequencies
+        Args:
+            frequency: Frequencies.
 
-        .. note:: The attenuation coefficient is plotted in dB/km!
+        Note:
+            The attenuation coefficient is plotted in dB/km!
 
+        Returns:
+            matplotlib.figure.Figure: The generated figure.
         """
         fig = plt.figure()
         ax0 = fig.add_subplot(111)
@@ -263,13 +287,22 @@ class Atmosphere:
         return fig
 
 
-def frequency_response(atmosphere, distance, frequencies, inverse=False):
-    """Single-sided frequency response.
+def frequency_response(
+    atmosphere: Atmosphere,
+    distance: float,
+    frequencies: float | NDArray[np.float64],
+    inverse: bool = False,
+) -> NDArray[np.float64]:
+    """Calculate the single-sided frequency response.
 
-    :param atmosphere: Atmosphere.
-    :param distance: Distance between source and receiver.
-    :param frequencies: Frequencies for which to compute the response.
-    :param inverse: Whether the attenuation should be undone.
+    Args:
+        atmosphere: Atmosphere instance.
+        distance: Distance between source and receiver.
+        frequencies: Frequencies for which to compute the response.
+        inverse: Whether the attenuation should be undone.
+
+    Returns:
+        array: The frequency response.
     """
     sign = +1 if inverse else -1
     tf = 10.0 ** (
@@ -278,14 +311,14 @@ def frequency_response(atmosphere, distance, frequencies, inverse=False):
     return tf
 
 
-def impulse_response(atmosphere, distance, fs, ntaps, inverse=False):
-    """Impulse response of sound travelling through `atmosphere` for a given `distance` sampled at `fs`.
-
-    :param atmosphere: Atmosphere.
-    :param distance: Distance between source and receiver.
-    :param fs: Sample frequency
-    :param ntaps: Amount of taps.
-    :param inverse: Whether the attenuation should be undone.
+def impulse_response(
+    atmosphere: Atmosphere,
+    distance: float,
+    fs: float,
+    ntaps: int,
+    inverse: bool = False,
+) -> NDArray[np.float64]:
+    """Calculate the impulse response of sound travelling through `atmosphere` for a given `distance` sampled at `fs`.
 
     The attenuation is calculated for a set of positive frequencies. Because the
     attenuation is the same for the negative frequencies, we have Hermitian
@@ -297,6 +330,16 @@ def impulse_response(atmosphere, distance, fs, ntaps, inverse=False):
     impulse response of the filter is made causal by rotating it by M/2 samples and
     discarding the imaginary parts. A real, even impulse response corresponds to a
     real, even frequency response.
+
+    Args:
+        atmosphere: Atmosphere instance.
+        distance: Distance between source and receiver.
+        fs: Sample frequency.
+        ntaps: Amount of taps.
+        inverse: Whether the attenuation should be undone.
+
+    Returns:
+        array: The impulse response.
     """
     # Frequencies vector with positive frequencies only.
     frequencies = np.fft.rfftfreq(ntaps, 1.0 / fs)

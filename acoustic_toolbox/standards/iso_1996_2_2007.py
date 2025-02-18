@@ -1,10 +1,11 @@
-"""
-ISO 1996-2:2007
+"""ISO 1996-2:2007
 
 ISO 1996-2:2007 describes how sound pressure levels can be determined by direct measurement,
 by extrapolation of measurement results by means of calculation, or exclusively by calculation,
 intended as a basis for assessing environmental noise.
 
+Reference:
+    ISO 1996-2:2007: Description, measurement and assessment of environmental noise
 """
 
 import numpy as np
@@ -35,10 +36,24 @@ REGRESSION_RANGE_FACTOR = 0.75
 _WINDOW_CORRECTION = {
     "hann": -1.8,
 }
+"""Window correction factors for different window types."""
 
 
 def window_correction(window):
-    """Correction to be applied to :math:`L_{pt}` due to use of window."""
+    """Get correction factor to be applied to $L_{pt}$ due to window type.
+
+    Args:
+        window: Window type (e.g., 'hann').
+
+    Returns:
+        float: Correction factor in dB.
+
+    Raises:
+        ValueError: If window correction is not available for specified window.
+
+    See Also:
+        Tonality: Class that uses window correction in tonal analysis
+    """
     try:
         return _WINDOW_CORRECTION[window]
     except KeyError:
@@ -48,9 +63,18 @@ def window_correction(window):
 def critical_band(frequency):
     """Bandwidth of critical band of frequency.
 
-    :param frequency: Center frequency of tone.
-    :returns: (bandwidth, center, lower, upper) of band.
+    Args:
+        frequency: Center frequency of tone in Hz.
 
+    Returns:
+        tuple: A tuple containing:
+            - float: Center frequency (minimum 50 Hz)
+            - float: Lower band-edge frequency
+            - float: Upper band-edge frequency
+            - float: Bandwidth (100 Hz below 500 Hz, 20% of center frequency above)
+
+    See Also:
+        tonal_audibility: Function that uses critical band parameters
     """
     if isinstance(frequency, np.ndarray):
         center = frequency.copy()
@@ -67,11 +91,19 @@ def critical_band(frequency):
 
 
 def tones_level(tone_levels):
-    """Total sound pressure level of the tones in a critical band given the level of each of the tones.
+    r"""Total sound pressure level of the tones in a critical band given the level of each of the tones.
 
-    .. math L_{pt} = 10 \log_{10}{\sum 10^{L_{pti}/10}}
+    Returns:
+        float: Total sound pressure level Lpt calculated as:
+            $$
+            L_{pt} = 10 \log_{10}{\sum 10^{L_{pti}/10}}
+            $$
 
-    See equation C.1 in section C.2.3.1.
+    Note:
+        Implementation of equation C.1 from section C.2.3.1 of the standard.
+
+    See Also:
+        masking_noise_level: Function to calculate masking noise level
     """
     return dbsum(tone_levels)
 
@@ -79,16 +111,24 @@ def tones_level(tone_levels):
 def masking_noise_level(
     noise_lines, frequency_resolution, effective_analysis_bandwidth
 ):
-    """Masking noise level :math:`L_{pn}`
+    r"""Masking noise level $L_{pn}$.
 
-    :param noise_lines: Masking noise lines. See :func:`masking_noise_lines`.
-    :param frequency_resolution: Frequency resolution :math:`\Delta f`.
-    :param effective_analysis_bandwidth: Effective analysis bandwidth :math:`B`.
+    Args:
+        noise_lines: Array of masking noise lines Ln in dB.
+        frequency_resolution: Frequency resolution Δf in Hz.
+        effective_analysis_bandwidth: Effective analysis bandwidth B in Hz.
 
-    .. math:: L_{pn} = 10 \log_{10}{\sum 10^{L_n/10}} + 10 \log_{10}{\frac{\Delta f}{B}}
+    Returns:
+        float: Masking noise level calculated as:
+            $$
+            L_{pn} = 10 \log_{10}{\sum 10^{L_n/10}} + 10 \log_{10}{\frac{\Delta f}{B}}
+            $$
 
-    See equation C.11 in section C.4.4.
+    Note:
+        Implementation of equation C.11 from section C.4.4 of the standard.
 
+    See Also:
+        tones_level: Function to calculate total sound pressure level of tones
     """
     return dbsum(noise_lines) + 10.0 * np.log10(
         frequency_resolution / effective_analysis_bandwidth
@@ -96,17 +136,25 @@ def masking_noise_level(
 
 
 def masking_noise_lines(
-    levels, line_classifier, center, bandwidth, regression_range_factor
-):
-    """Determine masking noise level lines using regression line. Returns array of :math:`L_n`.
+    levels: pd.Series,
+    line_classifier,
+    center: float,
+    bandwidth: float,
+    regression_range_factor,
+) -> tuple[np.ndarray, float, float]:
+    """Determine masking noise level lines using regression line. Returns array of $L_n$.
 
-    :param levels: Levels as function of frequency.
-    :type levels: :class:`pd.Series`.
-    :param lines_classifier: Categorical indicating what each line is.
-    :param center: Center frequency.
-    :param bandwidth: bandwidth of critical band.
-    :param regression_range_factor: Range factor.
-    :returns: (Array with masking noise lines, slope, intercept).
+    Args:
+        levels: Levels as function of frequency
+        line_classifier: Categorical indicating line types.
+        center: Center frequency in Hz.
+        bandwidth: Critical band bandwidth in Hz.
+        regression_range_factor: Range factor for regression analysis.
+
+    Returns:
+        (ndarray): Array of masking noise lines Ln
+        (float): Regression slope
+        (float): Regression intercept
     """
     slicer = slice(
         center - bandwidth * regression_range_factor,
@@ -120,17 +168,27 @@ def masking_noise_lines(
     return levels_from_regression, slope, intercept
 
 
-def tonal_audibility(tones_level, masking_noise_level, center):
-    """Tonal audibility.
+def tonal_audibility(tones_level, masking_noise_level, center) -> float:
+    r"""Tonal audibility.
 
-    :param tones_level: Total sound pressure level of the tones in the critical band :math:`L_{pt}.
-    :param masking_noise_level: Total sound pressure level of the masking noise in the critical band :math:`L_{pn}.
-    :param center: Center frequency of the critical band :math:`f_c`.
-    :returns: Tonal audibility :math:`\Delta L_{ta}`
+    Args:
+        tones_level: Total sound pressure level of tones in critical band Lpt.
+        masking_noise_level: Total sound pressure level of masking noise Lpn.
+        center: Center frequency of critical band fc.
 
-    .. math:: \Delta L_{ta} = L_{pt} - L_{pn} + 2 + \log_{10}{1 + \left(\frac{f_c}{502}\right)^{2.5}}
+    Returns:
+        Tonal audibility ΔLta calculated as:
+            $$
+            \Delta L_{ta} = L_{pt} - L_{pn} + 2 + \log_{10}{1 + \left(\frac{f_c}{502}\right)^{2.5}}
+            $$
 
-    See equation C.3. in section C.2.4.
+
+    Note:
+        Implementation of equation C.3 from section C.2.4 of the standard.
+
+    See Also:
+        critical_band: Function to calculate critical band parameters
+        tonal_adjustment: Function to calculate tonal adjustment
     """
     return (
         tones_level
@@ -141,11 +199,22 @@ def tonal_audibility(tones_level, masking_noise_level, center):
 
 
 def tonal_adjustment(tonal_audibility):
-    """Adjustment :math:`K`.
+    """Calculate tonal adjustment Kt.
 
-    :param tonal_audibility: Tonal audibility :math:`L_{ta}`.
+    Args:
+        tonal_audibility: Tonal audibility $L_{ta}$ in dB.
 
-    See equations C.4, C.5 and C.6 in section C.2.4.
+    Returns:
+        float: Adjustment Kt in dB:
+            - 6.0 dB if ΔLta > 10 dB
+            - 0.0 dB if ΔLta < 4 dB
+            - ΔLta - 4 dB otherwise
+
+    Note:
+        Implementation of equations C.4-C.6 from section C.2.4 of the standard.
+
+    See Also:
+        tonal_audibility: Function to calculate tonal audibility
     """
     if tonal_audibility > 10.0:
         return 6.0
@@ -159,6 +228,17 @@ class Tonality:
     """Perform assessment of audibility of tones in noise.
 
     Objective method for assessing the audibility of tones in noise.
+
+    Args:
+        signal: Time-domain signal samples.
+        sample_frequency: Sample frequency in Hz.
+        window: Window type for spectral analysis. Defaults to 'hann'.
+        reference_pressure: Reference pressure. Defaults to REFERENCE_PRESSURE.
+        tsc: Tone seeking criterion in dB. Defaults to TONE_SEEK_CRITERION.
+        regression_range_factor: Regression range factor. Defaults to REGRESSION_RANGE_FACTOR.
+        nbins: Number of frequency bins for FFT. Defaults to sample_frequency.
+        force_tone_without_pause: Force tone detection without noise pause. Defaults to False.
+        force_bandwidth_criterion: Force bandwidth criterion. Defaults to False.
     """
 
     def __init__(  # pylint: disable=too-many-instance-attributes
@@ -198,26 +278,44 @@ class Tonality:
 
     @property
     def noise_pauses(self):
-        """Noise pauses that were determined."""
+        """Get determined noise pauses.
+
+        Yields:
+            NoisePause: Each noise pause found in the signal.
+        """
         for noise_pause in self._noise_pauses:
             yield noise_pause
 
     @property
     def tones(self):
-        """Tones that were determined."""
+        """Get determined tones.
+
+        Yields:
+            Tone: Each tone found in noise pauses.
+        """
         for noise_pause in self.noise_pauses:
             if noise_pause.tone is not None:
                 yield noise_pause.tone
 
     @property
     def critical_bands(self):
-        """Critical bands that were determined. A critical band is determined for each tone."""
+        """Get critical bands.
+
+        A critical band is determined for each detected tone.
+
+        Yields:
+            CriticalBand: Each critical band around detected tones.
+        """
         for tone in self.tones:
             yield tone.critical_band
 
     @property
     def spectrum(self):
-        """Power spectrum of the input signal."""
+        """Get power spectrum of the input signal.
+
+        Returns:
+            pandas.Series: Power spectrum in dB re reference_pressure.
+        """
         if self._spectrum is None:
             nbins = self.nbins
             if nbins is None:
@@ -238,22 +336,33 @@ class Tonality:
 
     @property
     def frequency_resolution(self):
-        """Frequency resolution."""
+        """Frequency resolution.
+
+        Returns:
+            float: Frequency resolution Δf in Hz.
+        """
         df = np.diff(np.array(self.spectrum.index)).mean()
         return df
-        # return 1.0 / self.sample_frequency
 
     @property
     def effective_analysis_bandwidth(self):
-        """Effective analysis bandwidth.
+        r"""Effective analysis bandwidth.
 
         In the case of the Hanning window
+        $$
+        B_{eff} = 1.5 \Delta f
+        $$
 
-        .. math:: B_{eff} = 1.5 \Delta f
+        with $\Delta f$ the `frequency_resolution`.
 
-        with \Delta f the :attr:`frequency_resolution`.
+        Returns:
+            float: Effective analysis bandwidth in Hz.
 
-        C.2.2: Note 1.
+        Raises:
+            ValueError: If window type is not supported.
+
+        Note:
+            See section C.2.2 Note 1 of the standard.
         """
         if self.window == "hann":
             return 1.5 * self.frequency_resolution
@@ -261,14 +370,27 @@ class Tonality:
             raise ValueError()
 
     def _set_noise_pauses(self, noise_pauses):
-        """Manually set noise pauses. Expects iterable of tuples."""
+        """Manually set noise pauses. Expects iterable of tuples.
+
+        Args:
+            noise_pauses: Iterable of (start, end) tuples.
+
+        Returns:
+            self: For method chaining.
+        """
         self._noise_pauses = [NoisePause(start, end) for start, end in noise_pauses]
         return self
 
     def determine_noise_pauses(self, end=None):
-        """Determine noise pauses. The determined noise pauses are available in :attr:`noise_pause_ranges`.
+        """Find noise pauses in the spectrum.
 
-        Noise pauses are search for using :func:`noise_pause_seeker`.
+        Uses noise_pause_seeker to find potential noise pauses.
+
+        Args:
+            end: Optional end index to limit search range.
+
+        Returns:
+            self: For method chaining.
         """
         self._set_noise_pauses(
             noise_pause_seeker(np.array(self.spectrum[:end]), self.tsc)
@@ -276,9 +398,11 @@ class Tonality:
         return self
 
     def _construct_line_classifier(self):
-        """Set values of line classifier."""
+        """Set values of line classifier.
 
-        # Build classifier.
+        Returns:
+            self: For method chaining.
+        """
         levels = self.spectrum
 
         categories = ["noise", "start", "end", "neither", "tone"]
@@ -304,8 +428,13 @@ class Tonality:
         return self
 
     def _determine_tones(self):
-        """Analyse the noise pauses for tones. The determined tones are available via :attr:`tones`.
-        Per frequency line results are available via :attr:`line_classifier`.
+        """Analyze noise pauses for tones.
+
+        Examines each noise pause for potential tones using determine_tone_lines.
+        Creates Tone objects for any detected tones.
+
+        Returns:
+            self: For method chaining.
         """
         levels = self.spectrum
 
@@ -332,8 +461,11 @@ class Tonality:
         return self
 
     def _determine_critical_bands(self):
-        """Put a critical band around each of the determined tones."""
+        """Put a critical band around each of the determined tones.
 
+        Returns:
+            self: For method chaining.
+        """
         for tone in self.tones:
             critical_band = self.critical_band_at(tone.center)
             tone.critical_band = critical_band
@@ -342,10 +474,13 @@ class Tonality:
 
     def analyse(self):
         """Analyse the noise pauses for tones and put critical bands around each of these tones.
-        The tones are available via :attr:`tones` and the critical bands via :attr:`critical_bands`.
-        Per frequency line results are available via :attr:`line_classifier`.
-        """
 
+        The tones are available via `tones` and the critical bands via `critical_bands`.
+        Per frequency line results are available via `line_classifier`.
+
+        Returns:
+            self: For method chaining.
+        """
         # Determine tones. Puts noise pause starts/ends in classier as well as tone lines
         # and lines that are neither tone nor noise.
         self._determine_tones()
@@ -357,8 +492,18 @@ class Tonality:
 
     def critical_band_at(self, frequency):
         """Put at a critical band at `frequency`.
-        In order to use this function :attr:`line_classifier` needs to be available,
-        which means :meth:`analyse` needs to be used first.
+
+        In order to use this function `line_classifier` needs to be available,
+        which means `analyse` needs to be used first.
+
+        Args:
+            frequency: Center frequency in Hz.
+
+        Returns:
+            CriticalBand: Critical band object.
+
+        Note:
+            Requires line_classifier to be available (call analyse first).
         """
         return create_critical_band(
             self.spectrum,
@@ -371,7 +516,11 @@ class Tonality:
         )
 
     def plot_spectrum(self):
-        """Plot power spectrum."""
+        """Plot power spectrum.
+
+        Returns:
+            matplotlib.figure.Figure: Figure with spectrum plot.
+        """
         spectrum = self.spectrum
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -382,9 +531,12 @@ class Tonality:
 
     @property
     def dominant_tone(self):
-        """Most dominant_tone tone.
+        """Get most dominant tone.
 
-        The most dominant_tone tone is the tone with the highest tonal audibility :math:`L_{ta}`.
+        The most dominant tone is the one with highest tonal audibility $L_{ta}$.
+
+        Returns:
+            Tone: Most dominant tone, or None if no tones found.
         """
         try:
             return sorted(
@@ -394,8 +546,16 @@ class Tonality:
             return None
 
     def plot_results(self, noise_pauses=False, tones=True, critical_bands=True):
-        """Plot overview of results."""
+        """Plot analysis results.
 
+        Args:
+            noise_pauses: Whether to show noise pauses. Defaults to False.
+            tones: Whether to show tones. Defaults to True.
+            critical_bands: Whether to show critical bands. Defaults to True.
+
+        Returns:
+            matplotlib.figure.Figure: Figure with results plot.
+        """
         df = self.frequency_resolution
         levels = self.spectrum
 
@@ -432,7 +592,14 @@ class Tonality:
         return fig
 
     def overview(self):
-        """Print overview of results."""
+        """Print overview of analysis results.
+
+        Returns:
+            str: Tabulated overview of results.
+
+        Raises:
+            ValueError: If no tones have been determined yet.
+        """
         try:
             cb = self.dominant_tone.critical_band
         except AttributeError:
@@ -471,7 +638,11 @@ class Tonality:
         return tabulate(table)
 
     def results_as_dataframe(self):
-        """Return results in dataframe."""
+        """Get analysis results as pandas DataFrame.
+
+        Returns:
+            pandas.DataFrame: DataFrame containing results for each tone.
+        """
         data = (
             (
                 tone.center,
@@ -507,6 +678,16 @@ class Tonality:
 
 
 class NoisePause:
+    """Container for noise pause information.
+
+    A noise pause is a section of the spectrum that may contain a tone.
+
+    Args:
+        start: Start index of noise pause.
+        end: End index of noise pause.
+        tone: Optional Tone object if a tone is found in this pause.
+    """
+
     def __init__(self, start, end, tone=None):
         self.start = start
         self.end = end
@@ -523,13 +704,13 @@ class NoisePause:
         yield self.stop
 
     def _repr_html_(self):
+        """HTML representation for Jupyter notebooks."""
         table = [("Start", self.start), ("End", self.end)]
         return tabulate(table, tablefmt="html")
 
 
 def create_tone(levels, tone_lines, bandwidth_for_tone_criterion, noise_pause):
     """Create an instance of Tone."""
-
     center = levels.iloc[tone_lines].idxmax()
     tone_level = tones_level(levels.iloc[tone_lines])
     return Tone(
@@ -538,7 +719,16 @@ def create_tone(levels, tone_lines, bandwidth_for_tone_criterion, noise_pause):
 
 
 class Tone:
-    """Tone."""
+    """Container for tone information.
+
+    Args:
+        center: Center frequency in Hz.
+        tone_lines: Indices of spectral lines belonging to tone.
+        tone_level: Total level of tone in dB.
+        noise_pause: Parent NoisePause object.
+        bandwidth_3db: -3 dB bandwidth in Hz.
+        critical_band: Optional CriticalBand object.
+    """
 
     def __init__(
         self,
@@ -563,6 +753,7 @@ class Tone:
         return "Tone{}".format(str(self))
 
     def _repr_html_(self):
+        """HTML representation for Jupyter notebooks."""
         table = [
             ("Center frequency", "{:4.1f} Hz".format(self.center)),
             ("Tone level", "{:4.1f} dB".format(self.tone_level)),
@@ -581,7 +772,6 @@ def create_critical_band(
     tone=None,
 ):
     """Create an instance of CriticalBand."""
-
     center, start, end, bandwidth = critical_band(frequency)
 
     # Masking noise lines
@@ -617,6 +807,25 @@ def create_critical_band(
 
 
 class CriticalBand:
+    """Container for critical band information.
+
+    A critical band is a frequency band around a tone used for masking analysis.
+
+    Args:
+        center: Center frequency in Hz.
+        start: Lower band-edge frequency in Hz.
+        end: Upper band-edge frequency in Hz.
+        bandwidth: Bandwidth in Hz.
+        regression_range_factor: Factor for regression range.
+        regression_slope: Slope from linear regression.
+        regression_intercept: Intercept from linear regression.
+        noise_level: Masking noise level in dB.
+        tone_level: Total tone level in dB.
+        audibility: Tonal audibility in dB.
+        adjustment: Tonal adjustment in dB.
+        tone: Optional Tone object.
+    """
+
     def __init__(  # pylint: disable=too-many-instance-attributes
         self,
         center,
@@ -647,13 +856,13 @@ class CriticalBand:
         self.regression_intercept = regression_intercept
         """Linear regression intercept."""
         self.masking_noise_level = noise_level
-        """Masking noise level :math:`L_{pn}`."""
+        """Masking noise level $L_{pn}$."""
         self.total_tone_level = tone_level
-        """Total tone level :math:`L_{pt}`."""
+        """Total tone level $L_{pt}$."""
         self.tonal_audibility = audibility
-        """Tonal audibility :math:`L_{ta}`."""
+        """Tonal audibility $L_{ta}$."""
         self.adjustment = adjustment
-        """Adjustment :math:`K_{t}`."""
+        """Adjustment $K_{t}$."""
         self.tone = tone
 
     def __str__(self):
@@ -665,6 +874,7 @@ class CriticalBand:
         return "CriticalBand{}".format(str(self))
 
     def _repr_html_(self):
+        """HTML representation for Jupyter notebooks."""
         table = [
             ("Center frequency", "{:4.1f} Hz".format(self.center)),
             ("Start frequency", "{:4.1f} Hz".format(self.start)),
@@ -686,6 +896,15 @@ class CriticalBand:
 
 
 def _search_noise_pauses(levels, tsc):
+    """Search for noise pauses in a level sequence.
+
+    Args:
+        levels: Array of level values.
+        tsc: Tone seeking criterion in dB.
+
+    Returns:
+        list: List of tuples containing (start_index, end_index) for each noise pause.
+    """
     pauses = list()
     possible_start = None
     for i in range(2, len(levels) - 2):
@@ -699,13 +918,20 @@ def _search_noise_pauses(levels, tsc):
 
 
 def noise_pause_seeker(levels, tsc):
-    """Given the levels of a spectrum and a tone seeking criterium this top level function seeks possible noise pauses.
+    """Given the levels of a spectrum and a tone seeking criterium
+    this top level function seeks possible noise pauses.
 
-    :param levels: Spectral levels.
-    :param df: Frequency resolution.
-    :param tsc: Tone seeking criterium.
+    Args:
+        levels: Spectral levels in dB.
+        tsc: Tone seeking criterion in dB.
 
-    Possible start and end indices of noise pauses are determined using :func:`possible_noise_pauses.
+    Returns:
+        list: List of tuples containing (start_index, end_index) for each noise pause,
+            sorted and filtered to avoid overlapping intervals.
+
+    Note:
+    Possible start and end indices of noise pauses are determined using `possible_noise_pauses.
+
     Then, only those that correspond to the smallest intervals that do not overlap other intervals are kept.
     """
     n = len(levels)
@@ -729,15 +955,20 @@ def determine_tone_lines(
     force_tone_without_pause=False,
     force_bandwidth_criterion=False,
 ):
-    """Determine tone lines in noise pause.
+    """Determine tone lines in a noise pause.
 
-    :param levels: Series with levels as function of frequency.
-    :param df: Frequency resolution.
-    :param start: Index of noise pause start.
-    :param end: Index of noise pause end.
+    Args:
+        levels: Series with levels as function of frequency.
+        df: Frequency resolution in Hz.
+        start: Index of noise pause start.
+        end: Index of noise pause end.
+        force_tone_without_pause: Force tone detection without pause. Defaults to False.
+        force_bandwidth_criterion: Force bandwidth criterion. Defaults to False.
 
-    :returns: Array with indices of tone lines in noise pause.
-
+    Returns:
+        tuple: A tuple containing:
+            - ndarray: Indices of tone lines
+            - float: -3 dB bandwidth in Hz
     """
     # Noise pause range object
     npr = slice(start, end + 1)

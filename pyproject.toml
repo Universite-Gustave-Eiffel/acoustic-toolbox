@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "acoustic-toolbox"
-version = "0.1.1"
+version = "0.1.2-dev1"
 authors = [
     { name = "Valentin LE BESCOND", email = "valentin.lebescond@univ-eiffel.fr" },
     { name = "Andrew Mitchell", email = "a.j.mitchell@ucl.ac.uk"}
@@ -35,22 +35,46 @@ file = "LICENSE"
 
 [project.optional-dependencies]
 docs = [
-    "sphinx-rtd-theme==1.3.0rc1",
-    "sphinx>=1.6, <8",
-    "nbsphinx>=0.9.4",
-    "nbsphinx-link>=1.3.0",
     "jupyter>=1.0.0",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.5.9",
+    "mkdocs-include-markdown-plugin>=6.0.4",
+    "mkdocs-exclude>=1.0.2",
+    "mkdocs-macros-plugin>=1.0.4",
+    "mkdocstrings[python]>=0.26.2",
+    "mkdocs-jupyter>=0.25.1",
 ]
 
 [tool.flit.sdist]
 include = ["tests/"]
+# Recommended to exclude data files from the package to reduce package size
+# per https://www.pyopensci.org/python-package-guide/package-structure-code/python-package-structure.html
+exclude = ["*.wav"]
 
 [tool.uv]
 dev-dependencies = [
     "ruff>=0.5.5",
     "pytest>=8.3.2",
+    "mypy>=1.15.0",
     "coverage>=7.6.0",
 ]
 
 [tool.uv.pip]
 universal = true
+
+# [tool.ruff.lint]
+# select = ["D"]
+# ignore = [
+#     # Relax the convention by _not_ requiring documentation for every function parameter.
+#     "D417",
+#     # Relax the convention by _not_ requiring documentation for magic methods in classes.
+#     "D105",
+# ]
+
+# [tool.ruff.lint.pydocstyle]
+# convention = "google"
+
+[[tool.mypy.overrides]]
+module = ["scipy.*", "pyfftw.*", "pandas.*"]
+follow_untyped_imports = true
+

@@ -5,9 +5,7 @@ from tests.get_data_path import data_path
 
 
 class TestAtmosphere:
-    """
-    Test :mod:`acoustic_toolbox.atmosphere`
-    """
+    """Test :mod:`acoustic_toolbox.atmosphere`"""
 
     def test_standard_atmosphere(self):
         a = Atmosphere()
@@ -27,17 +25,41 @@ class TestAtmosphere:
         data = np.loadtxt(
             data_path() / "absorption_coefficient.csv", skiprows=1, delimiter=","
         )
-        f = np.array([
-            50.0, 63.0, 80.0, 100.0, 125.0, 160.0, 200.0, 250.0, 315.0, 400.0, 500.0, 630.0, 800.0, 1000.0, 1250.0,
-            1600.0, 2000.0, 2500.0, 3150.0, 4000.0, 5000.0, 6300.0, 8000.0, 10000.0
-        ])
+        f = np.array(
+            [
+                50.0,
+                63.0,
+                80.0,
+                100.0,
+                125.0,
+                160.0,
+                200.0,
+                250.0,
+                315.0,
+                400.0,
+                500.0,
+                630.0,
+                800.0,
+                1000.0,
+                1250.0,
+                1600.0,
+                2000.0,
+                2500.0,
+                3150.0,
+                4000.0,
+                5000.0,
+                6300.0,
+                8000.0,
+                10000.0,
+            ]
+        )
 
         for row in data:
             temperature = 273.15 + row[0]  # Degrees Celsius to Kelvin
             relative_humidity = row[1]
             alpha = row[2:] / 1000.0  # Given in dB/km while we calculate in dB/m.
 
-            assert (f.shape == alpha.shape)
+            assert f.shape == alpha.shape
 
             a = Atmosphere(temperature=temperature, relative_humidity=relative_humidity)
             calculated_alpha = a.attenuation_coefficient(f)

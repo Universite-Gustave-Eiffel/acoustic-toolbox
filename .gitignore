@@ -63,3 +63,6 @@ temp
 
 .pytest*
 .ruff*
+
+sphinx-docs
+memory-bank

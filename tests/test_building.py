@@ -19,9 +19,7 @@ def tl():
 
 
 class TestBuilding:
-    """
-    Test :mod:`acoustic_toolbox.building`
-    """
+    """Test :mod:`acoustic_toolbox.building`"""
 
     def test_rw_curve(self, tl):
         calculated = rw_curve(tl)

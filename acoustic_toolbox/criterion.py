@@ -1,9 +1,3 @@
-"""
-Criterion
-=========
-
-"""
-
 import numpy as np
 
 NC_CURVES = {
@@ -20,31 +14,32 @@ NC_CURVES = {
     65: np.array([80.0, 75.0, 71.0, 68.0, 66.0, 64.0, 63.0, 62.0]),
     70: np.array([83.0, 79.0, 75.0, 72.0, 71.0, 70.0, 69.0, 68.0]),
 }
-"""
-NC curves.
-"""
+"""NC curves."""
 
 
-def nc_curve(nc):
+def nc_curve(nc: int) -> np.ndarray | None:
     """Return an array containing the `nc` curve.
 
-    Parameter:
+    Args:
+      nc: `int` between 15 and 70 with step of 5. Valid values are: 15, 20, 25,
+          ..., 60, 65 and 70.
 
-    nc: `int` between 15 and 70 with step of 5. Valid values are: 15, 20, 25,
-    ..., 60, 65 and 70. Invalid values (e.g. 23) returns `None`.
+    Returns:
+      (np.ndarray): Array containing the `nc` curve.
+      (None): Invalid values (e.g. 23) returns `None`.
     """
     return NC_CURVES.get(nc)
 
 
-def nc(levels):
-    """
-    It returns the NC curve of `levels`. If `levels` is upper than NC-70
+def nc(levels: np.ndarray) -> str:
+    """It returns the NC curve of `levels`. If `levels` is upper than NC-70
     returns '70+'.
 
-    Parameter:
+    Args:
+      levels: 1-D NumPy array containing values between 63 Hz and 8 kHz in octave bands.
 
-    levels: 1-D NumPy array containing values between 63 Hz and 8 kHz in octave
-    bands.
+    Returns:
+      NC curve of `levels`.
     """
     nc_range = np.arange(15, 71, 5)
     for nc_test in nc_range:

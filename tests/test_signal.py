@@ -1,6 +1,4 @@
-"""
-Tests for :func:`acoustic_toolbox.signal`
-"""
+"""Tests for :func:`acoustic_toolbox.signal`"""
 
 from acoustic_toolbox.signal import convolve as convolveLTV
 from scipy.signal import convolve as convolveLTI
@@ -81,10 +79,7 @@ def test_neper_to_decibel():
 
 
 def test_ir2fr():
-    """
-    Test whether the frequency vector is correct.
-    """
-
+    """Test whether the frequency vector is correct."""
     t = 1.0
     fs = 100.0
     f = 20.0
@@ -102,9 +97,7 @@ def test_ir2fr():
 
 
 class TestEqualBand:  # (unittest.TestCase):
-    """
-    Test :class:`acoustic_toolbox.signal.EqualBand`.
-    """
+    """Test :class:`acoustic_toolbox.signal.EqualBand`."""
 
     def test_construction_1(self):
         """Using center."""
@@ -155,9 +148,7 @@ class TestEqualBand:  # (unittest.TestCase):
 
 
 class Test_integrate_bands:
-    """
-    Test :func:`acoustic_toolbox.signal.test_integrate_bands`.
-    """
+    """Test :func:`acoustic_toolbox.signal.test_integrate_bands`."""
 
     def test_narrowband_to_octave(self):
         nb = EqualBand(np.arange(100, 900, 200.0))
