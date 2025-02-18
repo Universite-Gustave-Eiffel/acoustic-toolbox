@@ -129,15 +129,15 @@ def mass_law(
     c: float = 343,
     rho0: float = 1.225,
 ) -> float | NDArray[np.float64]:
-    """Calculate transmission loss according to mass law.
+    r"""Calculate transmission loss according to mass law.
 
     Args:
         freq: Frequency of interest in Hz.
-        vol_density: Volumetric density of material in $\\frac{kg}{m^3}$.
+        vol_density: Volumetric density of material in $frac{kg}{m^3}$.
         thickness: Thickness of wall in m.
         theta: Angle of incidence in degrees. Default value is 0 (normal incidence).
         c: Speed of sound in m/s. Defaults to 343.
-        rho0: Density of air in $\\frac{kg}{m^3}$. Defaults to 1.225.
+        rho0: Density of air in $\frac{kg}{m^3}$. Defaults to 1.225.
 
     Returns:
         float | NDArray[np.float64]: Transmission loss value(s) in dB.

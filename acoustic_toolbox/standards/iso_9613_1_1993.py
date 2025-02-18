@@ -42,12 +42,12 @@ TRIPLE_TEMPERATURE = 273.16
 def soundspeed(
     temperature: float, reference_temperature: float = REFERENCE_TEMPERATURE
 ) -> float:
-    """Calculate speed of sound $c$ in air.
+    r"""Calculate speed of sound $c$ in air.
 
     Notes:
         The speed of sound is calculated using the formula:
         $$
-        c = 343.2 \\left( \\frac{T}{T_0} \\right)
+        c = 343.2 \left( \frac{T}{T_0} \right)
         $$
 
     Args:
@@ -65,17 +65,17 @@ def saturation_pressure(
     reference_pressure: float = REFERENCE_PRESSURE,
     triple_temperature: float = TRIPLE_TEMPERATURE,
 ) -> float:
-    """Calculate saturation vapor pressure $p_{sat}$.
+    r"""Calculate saturation vapor pressure $p_{sat}$.
 
     Notes:
         The saturation vapor pressure is calculated using the formula:
         $$
-        p_{sat} = 10^C \\cdot p_r
+        p_{sat} = 10^C \cdot p_r
         $$
 
         with exponent $C$ given by:
         $$
-        C = -6.8346 \\cdot \\left( \\frac{T_{01}}{T} \\right)^{1.261}  + 4.6151
+        C = -6.8346 \cdot \left( \frac{T_{01}}{T} \right)^{1.261}  + 4.6151
         $$
 
     Args:
@@ -94,12 +94,12 @@ def saturation_pressure(
 def molar_concentration_water_vapour(
     relative_humidity: float, saturation_pressure: float, pressure: float
 ) -> float:
-    """Calculate molar concentration of water vapour $h$.
+    r"""Calculate molar concentration of water vapour $h$.
 
     Notes:
         The molar concentration of water vapour is calculated using the formula:
         $$
-        h = h_r  \\frac{p_{sat}}{p_a}
+        h = h_r  \frac{p_{sat}}{p_a}
         $$
 
     Args:
@@ -116,12 +116,12 @@ def molar_concentration_water_vapour(
 def relaxation_frequency_oxygen(
     pressure: float, h: float, reference_pressure: float = REFERENCE_PRESSURE
 ) -> float:
-    """Calculate relaxation frequency of oxygen $f_{r,O}$.
+    r"""Calculate relaxation frequency of oxygen $f_{r,O}$.
 
     Notes:
         The relaxation frequency of oxygen is calculated using the formula:
         $$
-        f_{r,O} = \\frac{p_a}{p_r} \\left( 24 + 4.04 \\cdot 10^4 h \\frac{0.02 + h}{0.391 + h}  \\right)
+        f_{r,O} = \frac{p_a}{p_r} \left( 24 + 4.04 \cdot 10^4 h \frac{0.02 + h}{0.391 + h}  \right)
         $$
 
     Args:
@@ -149,12 +149,12 @@ def relaxation_frequency_nitrogen(
     reference_pressure: float = REFERENCE_PRESSURE,
     reference_temperature: float = REFERENCE_TEMPERATURE,
 ) -> float:
-    """Calculate relaxation frequency of nitrogen $f_{r,N}$.
+    r"""Calculate relaxation frequency of nitrogen $f_{r,N}$.
 
     Notes:
         The relaxation frequency of nitrogen is calculated by:
         $$
-        f_{r,N} = \\frac{p_a}{p_r} \\left( \\frac{T}{T_0} \\right)^{-1/2} \\cdot \\left( 9 + 280 \\cdot h \\cdot \\exp \\left( -4.170 \\left[ \\left(\\frac{T}{T_0} \\right)^{-1/3} -1 \\right] \\right) \\right)
+        f_{r,N} = \frac{p_a}{p_r} \left( \frac{T}{T_0} \right)^{-1/2} \cdot \left( 9 + 280 \cdot h \cdot \exp \left( -4.170 \left[ \left(\frac{T}{T_0} \right)^{-1/3} -1 \right] \right) \right)
         $$
 
     Args:
@@ -191,7 +191,7 @@ def attenuation_coefficient(
     relaxation_frequency_oxygen: float,
     frequency: float | NDArray[np.float64],
 ) -> float | NDArray[np.float64]:
-    """Calculate attenuation coefficient $\\alpha$ describing atmospheric absorption in dB/m for the specified ``frequency``.
+    r"""Calculate attenuation coefficient $\alpha$ describing atmospheric absorption in dB/m for the specified ``frequency``.
 
     Args:
         pressure: Ambient pressure $p_a$
@@ -200,7 +200,7 @@ def attenuation_coefficient(
         reference_temperature: Reference temperature $T_{ref}$
         relaxation_frequency_nitrogen: Relaxation frequency of nitrogen $f_{r,N}$
         relaxation_frequency_oxygen: Relaxation frequency of oxygen $f_{r,O}$
-        frequency: Frequencies $f$ to calculate $\\alpha$ for
+        frequency: Frequencies $f$ to calculate $\alpha$ for
 
     Returns:
         float | NDArray[np.float64]: Attenuation coefficient in dB/m

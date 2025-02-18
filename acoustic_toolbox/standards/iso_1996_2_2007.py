@@ -91,12 +91,12 @@ def critical_band(frequency):
 
 
 def tones_level(tone_levels):
-    """Total sound pressure level of the tones in a critical band given the level of each of the tones.
+    r"""Total sound pressure level of the tones in a critical band given the level of each of the tones.
 
     Returns:
         float: Total sound pressure level Lpt calculated as:
             $$
-            L_{pt} = 10 \\log_{10}{\\sum 10^{L_{pti}/10}}
+            L_{pt} = 10 \log_{10}{\sum 10^{L_{pti}/10}}
             $$
 
     Note:
@@ -111,7 +111,7 @@ def tones_level(tone_levels):
 def masking_noise_level(
     noise_lines, frequency_resolution, effective_analysis_bandwidth
 ):
-    """Masking noise level $L_{pn}$.
+    r"""Masking noise level $L_{pn}$.
 
     Args:
         noise_lines: Array of masking noise lines Ln in dB.
@@ -121,7 +121,7 @@ def masking_noise_level(
     Returns:
         float: Masking noise level calculated as:
             $$
-            L_{pn} = 10 \\log_{10}{\\sum 10^{L_n/10}} + 10 \\log_{10}{\\frac{\\Delta f}{B}}
+            L_{pn} = 10 \log_{10}{\sum 10^{L_n/10}} + 10 \log_{10}{\frac{\Delta f}{B}}
             $$
 
     Note:
@@ -169,7 +169,7 @@ def masking_noise_lines(
 
 
 def tonal_audibility(tones_level, masking_noise_level, center) -> float:
-    """Tonal audibility.
+    r"""Tonal audibility.
 
     Args:
         tones_level: Total sound pressure level of tones in critical band Lpt.
@@ -179,7 +179,7 @@ def tonal_audibility(tones_level, masking_noise_level, center) -> float:
     Returns:
         Tonal audibility ΔLta calculated as:
             $$
-            \\Delta L_{ta} = L_{pt} - L_{pn} + 2 + \\log_{10}{1 + \\left(\\frac{f_c}{502}\\right)^{2.5}}
+            \Delta L_{ta} = L_{pt} - L_{pn} + 2 + \log_{10}{1 + \left(\frac{f_c}{502}\right)^{2.5}}
             $$
 
 
@@ -346,14 +346,14 @@ class Tonality:
 
     @property
     def effective_analysis_bandwidth(self):
-        """Effective analysis bandwidth.
+        r"""Effective analysis bandwidth.
 
         In the case of the Hanning window
         $$
-        B_{eff} = 1.5 \\Delta f
+        B_{eff} = 1.5 \Delta f
         $$
 
-        with $\\Delta f$ the `frequency_resolution`.
+        with $\Delta f$ the `frequency_resolution`.
 
         Returns:
             float: Effective analysis bandwidth in Hz.

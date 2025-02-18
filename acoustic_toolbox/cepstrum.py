@@ -27,11 +27,11 @@ __all__ = [
 def complex_cepstrum(
     x: NDArray[np.float64], n: Optional[int] = None
 ) -> Tuple[NDArray[np.float64], NDArray[np.int_]]:
-    """Compute the complex cepstrum of a real sequence.
+    r"""Compute the complex cepstrum of a real sequence.
 
     The complex cepstrum is given by:
     $$
-    c[n] = F^{-1}\\left[\\log_{10}{\\left(F{x[n]}\\right)}\\right]
+    c[n] = F^{-1}\left[\log_{10}\left(F{x[n]}\right)\right]
     $$
 
     where $x[n]$ is the input signal and $F$ and $F^{-1}$
@@ -126,11 +126,11 @@ def complex_cepstrum(
 def real_cepstrum(
     x: NDArray[np.float64], n: Optional[int] = None
 ) -> NDArray[np.float64]:
-    """Compute the real cepstrum of a real sequence.
+    r"""Compute the real cepstrum of a real sequence.
 
     The real cepstrum is given by:
     $$
-    c[n] = F^{-1}\\left[\\log_{10}{\\left|F{x[n]}\\right|}\\right]
+    c[n] = F^{-1}\left[\log_{10}\left|F{x[n]}\right|\right]
     $$
 
     where $x[n]$ is the input signal and $F$ and $F^{-1}$ are respectively
@@ -166,11 +166,11 @@ def real_cepstrum(
 def inverse_complex_cepstrum(
     ceps: NDArray[np.float64], ndelay: NDArray[np.int_]
 ) -> NDArray[np.float64]:
-    """Compute the inverse complex cepstrum of a real sequence.
+    r"""Compute the inverse complex cepstrum of a real sequence.
 
     The inverse complex cepstrum is given by:
     $$
-    x[n] = F^{-1}\\left[\\exp(F(c[n]))\\right]
+    x[n] = F^{-1}\left[\exp(F(c[n]))\right]
     $$
 
     where $c[n]$ is the input signal and $F$ and $F^{-1}$ are respectively the forward and backward Fourier transform.

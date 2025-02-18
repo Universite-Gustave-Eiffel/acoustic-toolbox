@@ -45,7 +45,7 @@ Setting up the development environment and dependency management is done with `u
 
 To install the development environment, run `uv sync --all-extras` in the root of the repository. This will setup a `.venv` and install all dependencies including dev and docs dependencies.
 
-Documentation is built with `uv run make html` from the `docs` folder and can be viewed in the `docs/build/html` folder.
+Documentation and examples are stored in the `docs/` folder and built with `uv run mkdocs serve` or `uv run mkdocs build` from .
 
 ## Origin project
 

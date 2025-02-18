@@ -61,7 +61,7 @@ def t60_sabine(
 
     Args:
       surfaces: Surface of the room $S$. NumPy array that contains different surfaces.
-      alpha: Absorption coefficient of the room $\\alpha$.
+      alpha: Absorption coefficient of the room $\alpha$.
         Contains absorption coefficients of ``surfaces``.
         It could be one value or some values in different bands (1D and 2D
         array, respectively).

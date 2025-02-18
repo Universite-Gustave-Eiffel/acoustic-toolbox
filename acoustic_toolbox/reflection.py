@@ -299,7 +299,7 @@ def numerical_distance(impedance, angle, distance, wavenumber):
     Returns:
         complex: Numerical distance calculated as:
             $$
-            w = \sqrt{-j k r  \left( 1 + \frac{1}{Z} \cos{\theta} - \sqrt{1 - \left( \frac{1}{Z} \right)^2} \sin{\theta} \\right) }
+            w = \sqrt{-j k r  \left( 1 + \frac{1}{Z} \cos{\theta} - \sqrt{1 - \left( \frac{1}{Z} \right)^2} \sin{\theta} \right) }
             $$
     """
     return np.sqrt(
@@ -331,7 +331,7 @@ def reflection_factor_spherical_wave(impedance, angle, distance, wavenumber):
 
             where $R$ is the plane wave reflection factor as calculated in [reflection_factor_plane_wave][acoustic_toolbox.reflection.reflection_factor_plane_wave] and $F$ is given by
             $$
-            F = 1 - j \sqrt{\pi} w e^{-w^2} \mathrm{erfc} \left( j w \\right)
+            F = 1 - j \sqrt{\pi} w e^{-w^2} \mathrm{erfc} \left( j w \right)
             $$
     """
     w = numerical_distance(impedance, angle, distance, wavenumber)

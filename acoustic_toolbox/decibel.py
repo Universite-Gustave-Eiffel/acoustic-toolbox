@@ -4,13 +4,13 @@ import numpy as np
 
 
 def dbsum(levels, axis=None) -> float:
-    """Energetic summation of levels.
+    r"""Energetic summation of levels.
 
     Args:
       levels: Sequence of levels.
       axis: Axis over which to perform the operation.
         $$
-        L_{sum} = 10 \\log_{10}{\\sum_{i=0}^n{10^{L/10}}}
+        L_{sum} = 10 \log_{10}{\sum_{i=0}^n{10^{L/10}}}
         $$
 
     Returns:
@@ -21,13 +21,13 @@ def dbsum(levels, axis=None) -> float:
 
 
 def dbmean(levels, axis=None) -> float:
-    """Energetic average of levels.
+    r"""Energetic average of levels.
 
     Args:
       levels: Sequence of levels.
       axis: Axis over which to perform the operation.
         $$
-        L_{mean} = 10 \\log_{10}{\\frac{1}{n}\\sum_{i=0}^n{10^{L/10}}}
+        L_{mean} = 10 \log_{10}{\frac{1}{n}\sum_{i=0}^n{10^{L/10}}}
         $$
 
     Returns:
@@ -38,12 +38,12 @@ def dbmean(levels, axis=None) -> float:
 
 
 def dbadd(a: float | np.ndarray, b: float | np.ndarray) -> float:
-    """Energetic addition.
+    r"""Energetic addition.
 
     Energetically adds b to a.
 
       $$
-      L_{a+b} = 10 \\log_{10}{10^{L_b/10}+10^{L_a/10}}
+      L_{a+b} = 10 \log_{10}{10^{L_b/10}+10^{L_a/10}}
       $$
 
     Args:
@@ -60,12 +60,12 @@ def dbadd(a: float | np.ndarray, b: float | np.ndarray) -> float:
 
 
 def dbsub(a: float | np.ndarray, b: float | np.ndarray) -> float:
-    """Energetic subtraction.
+    r"""Energetic subtraction.
 
     Energitally subtract b from a.
 
     $$
-    L_{a-b} = 10 \\log_{10}{10^{L_a/10}-10^{L_b/10}}
+    L_{a-b} = 10 \log_{10}{10^{L_a/10}-10^{L_b/10}}
     $$
 
     Args:
@@ -81,10 +81,10 @@ def dbsub(a: float | np.ndarray, b: float | np.ndarray) -> float:
 
 
 def dbmul(levels, f, axis=None) -> np.ndarray:
-    """Energetically add `levels` `f` times.
+    r"""Energetically add `levels` `f` times.
 
     $$
-    L_{sum} = 10 \\log_{10}{\\sum_{i=0}^n{10^{L/10} \\cdot f}}
+    L_{sum} = 10 \log_{10}{\sum_{i=0}^n{10^{L/10} \cdot f}}
     $$
 
     Args:
@@ -100,10 +100,10 @@ def dbmul(levels, f, axis=None) -> np.ndarray:
 
 
 def dbdiv(levels: float | np.ndarray, f: float, axis: int | None = None) -> np.ndarray:
-    """Energetically divide `levels` `f` times.
+    r"""Energetically divide `levels` `f` times.
 
     $$
-    L_{sum} = 10 \\log_{10}{\\sum_{i=0}^n{10^{L/10} / f}}
+    L_{sum} = 10 \log_{10}{\sum_{i=0}^n{10^{L/10} / f}}
     $$
 
     Args:

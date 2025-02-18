@@ -16,12 +16,12 @@ import numpy as np
 def composite_rating_level(
     levels: np.ndarray, hours: np.ndarray, adjustment: np.ndarray
 ) -> float | np.ndarray:
-    """Composite rating level.
+    r"""Composite rating level.
 
     The composite rating level is calculated as:
 
     $$
-    L_R = 10 \\log{\\left[ \\sum_i \\frac{d_i}{24} 10^{(L_i+K_i)/10}  \\right]}
+    L_R = 10 \log{\left[ \sum_i \frac{d_i}{24} 10^{(L_i+K_i)/10}  \right]}
     $$
 
     where $i$ is a period. See equation 6 and 7 of the standard.

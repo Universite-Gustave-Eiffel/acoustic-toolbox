@@ -146,12 +146,12 @@ def upper_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO) -> float | np.
 def index_of_frequency(
     frequency, fraction=1, ref=REFERENCE_FREQUENCY, G=OCTAVE_FREQUENCY_RATIO
 ) -> int | np.ndarray:
-    """Calculate the band index for a given frequency.
+    r"""Calculate the band index for a given frequency.
 
     The index of the center frequency is given by
 
     $$
-    x = \\text{round}\\left(b \\frac{\\log(f/f_r)}{\\log(G)}\\right)
+    x = \text{round}\left(b \frac{\log(f/f_r)}{\log(G)}\right)
     $$
 
     See equation 6 of the standard.
