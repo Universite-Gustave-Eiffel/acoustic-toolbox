@@ -60,7 +60,6 @@ plugins:
   - mkdocs-jupyter:
       ignore_h1_titles: True
       include_source: True
-      exclude: ["*.py"]
   - autorefs:
       resolve_closest: true
   - mkdocstrings: # For building API ref from docstrings https://mkdocstrings.github.io/usage/#docsmy_pagemd
@@ -85,7 +84,7 @@ plugins:
             separate_signature: true
             show_signature_annotations: true
             signature_crossrefs: true
-            modernize_annotations: true
+            # modernize_annotations: true
             line_length: 60
 
             # Toc styling
@@ -97,6 +96,7 @@ plugins:
             docstring_options:
               ignore_init_summary: true
               trim_doctest_flags: true
+              warn_unknown_params: false
 
   # From setup template I used - can remove if not needed
   - exclude:
@@ -154,7 +154,7 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.keys
   - pymdownx.smartsymbols
-  - pymdownx.superfences:
+  - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
   - md_in_html

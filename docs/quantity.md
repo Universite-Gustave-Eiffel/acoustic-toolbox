@@ -6,3 +6,4 @@
         show_source: true
         show_docstring_yields: true
         show_inheritance_diagram: true
+:::
