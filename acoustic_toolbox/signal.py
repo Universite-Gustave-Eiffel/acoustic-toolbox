@@ -69,6 +69,8 @@ Functions:
 from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy.typing import NDArray
+from typing import Generator
 from scipy.sparse import spdiags
 from scipy.signal import (
     butter,
@@ -81,6 +83,7 @@ from scipy.signal import (
     firwin,
     hilbert,
 )
+from scipy.signal._arraytools import even_ext, odd_ext, const_ext
 
 import acoustic_toolbox.octave
 import acoustic_toolbox.bands
@@ -98,7 +101,7 @@ except ImportError:
 
 def bandpass_filter(
     lowcut: float, highcut: float, fs: float, order: int = 8, output: str = "sos"
-) -> tuple:
+) -> tuple | None:
     """Band-pass filter.
 
     Args:
@@ -117,8 +120,7 @@ def bandpass_filter(
     nyq = 0.5 * fs
     low = lowcut / nyq
     high = highcut / nyq
-    output = butter(order / 2, [low, high], btype="band", output=output)
-    return output
+    return butter(order / 2, [low, high], btype="band", output=output)
 
 
 def bandpass(
@@ -327,7 +329,7 @@ def convolve(signal, ltv: np.ndarray, mode: str = "full"):
         stop = len(signal) + ltv.shape[0] / 2 - 1 + ltv.shape[0] % 2
         return out[start:stop]
     elif mode == "valid":
-        length = len(signal) - ltv.shape[0]
+        # length = len(signal) - ltv.shape[0]
         start = ltv.shape[0] - 1
         stop = len(signal)
         return out[start:stop]
@@ -417,7 +419,18 @@ class Frequencies:
         bandwidth: Bandwidth.
     """
 
-    def __init__(self, center, lower, upper, bandwidth=None):
+    center: NDArray[np.float64]
+    lower: NDArray[np.float64]
+    upper: NDArray[np.float64]
+    bandwidth: NDArray[np.float64]
+
+    def __init__(
+        self,
+        center: NDArray[np.float64] | list[float],
+        lower: NDArray[np.float64] | list[float],
+        upper: NDArray[np.float64] | list[float],
+        bandwidth: NDArray[np.float64] | list[float] | None = None,
+    ):
         self.center = np.asarray(center)
         self.lower = np.asarray(lower)
         self.upper = np.asarray(upper)
@@ -440,7 +453,7 @@ class Frequencies:
     def __repr__(self):
         return "Frequencies({})".format(str(self.center))
 
-    def _get_scalar(self, arr):
+    def _get_scalar(self, arr: NDArray[np.float64]) -> float | NDArray[np.float64]:
         """Safely extract a scalar value from a single-element array.
 
         Args:
@@ -1214,7 +1227,9 @@ class Filterbank:
         # nyq = self.sample_frequency / 2.0
         # return ( butter(order, [lower/nyq, upper/nyq], btype='band', analog=False) for lower, upper in zip(self.frequencies.lower, self.frequencies.upper) )
 
-    def lfilter(self, signal):
+    def lfilter(
+        self, signal: NDArray[np.float64]
+    ) -> Generator[NDArray[np.float64], None, None]:
         """Filter signal with filterbank.
 
         Note:
@@ -1228,7 +1243,9 @@ class Filterbank:
         """
         return (sosfilt(sos, signal) for sos in self.filters)
 
-    def filtfilt(self, signal):
+    def filtfilt(
+        self, signal: NDArray[np.float64]
+    ) -> Generator[NDArray[np.float64], None, None]:
         """Filter signal with filterbank.
 
         Note:
@@ -1242,7 +1259,7 @@ class Filterbank:
         """
         return (_sosfiltfilt(sos, signal) for sos in self.filters)
 
-    def power(self, signal):
+    def power(self, signal: NDArray[np.float64]) -> NDArray[np.float64]:
         """Power per band in signal.
 
         Args:
@@ -1457,7 +1474,7 @@ def _sosfiltfilt(sos, x, axis=-1, padtype="odd", padlen=None, method="pad", irle
     Note that boradcasting does not work.
     """
     from scipy.signal import sosfilt_zi
-    from scipy.signal._arraytools import odd_ext, axis_slice, axis_reverse
+    from scipy.signal._arraytools import axis_slice, axis_reverse
 
     x = np.asarray(x)
 

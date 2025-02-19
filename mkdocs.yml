@@ -60,6 +60,7 @@ plugins:
   - mkdocs-jupyter:
       ignore_h1_titles: True
       include_source: True
+      exclude: ["*.py"]
   - autorefs:
       resolve_closest: true
   - mkdocstrings: # For building API ref from docstrings https://mkdocstrings.github.io/usage/#docsmy_pagemd
@@ -176,11 +177,11 @@ not_in_nav: |
 nav:
   - Home: index.md
   - Examples:
-    - Overview: examples.md
-    - Signal Class: examples/signal_class.ipynb
-    - Directivity: examples/directivity_example.ipynb
-    - Octave: examples/example_octave.py
-    - Signal Processing: examples/example_signal.py
+      - Overview: examples.md
+      - Signal Class: examples/signal_class.ipynb
+      - Directivity: examples/directivity_example.ipynb
+      - Octave: examples/example_octave.py
+      - Signal Processing: examples/example_signal.py
   - Signal Class: _signal.md
   - Modules:
       - Ambisonics: ambisonics.md
