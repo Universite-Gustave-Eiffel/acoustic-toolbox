@@ -84,7 +84,7 @@ plugins:
             separate_signature: true
             show_signature_annotations: true
             signature_crossrefs: true
-            modernize_annotations: true
+            # modernize_annotations: true
             line_length: 60
 
             # Toc styling
@@ -96,6 +96,7 @@ plugins:
             docstring_options:
               ignore_init_summary: true
               trim_doctest_flags: true
+              warn_unknown_params: false
 
   # From setup template I used - can remove if not needed
   - exclude:
@@ -153,7 +154,7 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.keys
   - pymdownx.smartsymbols
-  - pymdownx.superfences:
+  - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
   - md_in_html
@@ -176,11 +177,11 @@ not_in_nav: |
 nav:
   - Home: index.md
   - Examples:
-    - Overview: examples.md
-    - Signal Class: examples/signal_class.ipynb
-    - Directivity: examples/directivity_example.ipynb
-    - Octave: examples/example_octave.py
-    - Signal Processing: examples/example_signal.py
+      - Overview: examples.md
+      - Signal Class: examples/signal_class.ipynb
+      - Directivity: examples/directivity_example.ipynb
+      - Octave: examples/example_octave.py
+      - Signal Processing: examples/example_signal.py
   - Signal Class: _signal.md
   - Modules:
       - Ambisonics: ambisonics.md
