@@ -8,7 +8,7 @@ resolution-markers = [
 
 [[package]]
 name = "acoustic-toolbox"
-version = "0.1.2rc1"
+version = "0.1.2rc2"
 source = { editable = "." }
 dependencies = [
     { name = "matplotlib" },

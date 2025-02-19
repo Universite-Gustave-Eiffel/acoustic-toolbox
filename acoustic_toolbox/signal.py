@@ -70,15 +70,20 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.sparse import spdiags
-from scipy.signal import butter, lfilter, freqz, filtfilt, sosfilt
+from scipy.signal import (
+    butter,
+    lfilter,
+    freqz,
+    filtfilt,
+    sosfilt,
+    lti,
+    cheby1,
+    firwin,
+    hilbert,
+)
 
 import acoustic_toolbox.octave
-
-# from acoustic_toolbox.octave import REFERENCE
-from scipy.signal import lti, cheby1, firwin
-
 import acoustic_toolbox.bands
-from scipy.signal import hilbert
 from acoustic_toolbox.standards.iso_tr_25417_2007 import REFERENCE_PRESSURE
 from acoustic_toolbox.standards.iec_61672_1_2013 import (
     NOMINAL_OCTAVE_CENTER_FREQUENCIES,
@@ -237,7 +242,9 @@ def octave_filter(center, fs, fraction, order=8, output: str = "sos"):
         [`bandpass_filter`][acoustic_toolbox.signal.bandpass_filter]: Used to create the fractional-octave filter.
     """
     ob = OctaveBand(center=center, fraction=fraction)
-    return bandpass_filter(ob.lower[0], ob.upper[0], fs, order, output=output)
+    return bandpass_filter(
+        ob._get_scalar(ob.lower), ob._get_scalar(ob.upper), fs, order, output=output
+    )
 
 
 def octavepass(signal, center, fs, fraction, order=8, zero_phase: bool = True):
@@ -432,6 +439,20 @@ class Frequencies:
 
     def __repr__(self):
         return "Frequencies({})".format(str(self.center))
+
+    def _get_scalar(self, arr):
+        """Safely extract a scalar value from a single-element array.
+
+        Args:
+            arr: Array to extract scalar from.
+
+        Returns:
+            Scalar value if array has one element, otherwise the original array.
+        """
+        try:
+            return arr.item() if arr.size == 1 else arr
+        except ValueError:
+            return arr  # Return original array if it has multiple elements
 
     def angular(self):
         """Angular center frequency in radians per second.
@@ -909,7 +930,14 @@ def bandpass_frequencies(
         frequencies = frequencies[frequencies.upper < fs / 2.0]
     return frequencies, np.array(
         [
-            bandpass(x, band.lower, band.upper, fs, order, zero_phase=zero_phase)
+            bandpass(
+                x,
+                band._get_scalar(band.lower),
+                band._get_scalar(band.upper),
+                fs,
+                order,
+                zero_phase=zero_phase,
+            )
             for band in frequencies
         ]
     )
@@ -1171,7 +1199,13 @@ class Filterbank:
         """
         fs = self.sample_frequency
         return (
-            bandpass_filter(lower, upper, fs, order=self.order, output="sos")
+            bandpass_filter(
+                self.frequencies._get_scalar(lower),
+                self.frequencies._get_scalar(upper),
+                fs,
+                order=self.order,
+                output="sos",
+            )
             for lower, upper in zip(self.frequencies.lower, self.frequencies.upper)
         )
 
@@ -1306,7 +1340,7 @@ def zero_crossings(data):
     return ((pos[:-1] & npos[1:]) | (npos[:-1] & pos[1:])).nonzero()[0]
 
 
-def amplitude_envelope(signal: "Signal", fs, axis=-1):
+def amplitude_envelope(signal: np.ndarray, fs, axis=-1):
     """Instantaneous amplitude of tone.
 
     The instantaneous amplitude is the magnitude of the analytic signal.
@@ -1325,7 +1359,7 @@ def amplitude_envelope(signal: "Signal", fs, axis=-1):
     return np.abs(hilbert(signal, axis=axis))
 
 
-def instantaneous_phase(signal: "Signal", fs, axis=-1):
+def instantaneous_phase(signal: np.ndarray, fs, axis=-1):
     """Instantaneous phase of tone.
 
     The instantaneous phase is the angle of the analytic signal.
@@ -1345,7 +1379,7 @@ def instantaneous_phase(signal: "Signal", fs, axis=-1):
     return np.angle(hilbert(signal, axis=axis))
 
 
-def instantaneous_frequency(signal: "Signal", fs, axis=-1):
+def instantaneous_frequency(signal: np.ndarray, fs, axis=-1):
     """Determine instantaneous frequency of tone.
 
     The instantaneous frequency can be obtained by differentiating the unwrapped instantaneous phase.
@@ -1370,7 +1404,7 @@ def instantaneous_frequency(signal: "Signal", fs, axis=-1):
     )
 
 
-def wvd(signal: "Signal", fs, analytic=True):
+def wvd(signal: np.ndarray, fs, analytic=True):
     r"""Wigner-Ville Distribution.
 
     $$
@@ -1405,7 +1439,7 @@ def wvd(signal: "Signal", fs, analytic=True):
 
     i = length_time
     for t in range(length_time):
-        R[t, tau1] = s[i + tau] * s[i - tau].conj()  # In one direction
+        R[t, tau] = s[i + tau] * s[i - tau].conj()  # In one direction
         R[t, N - (tau + 1)] = R[t, tau + 1].conj()  # And the other direction
         i += 1
     W = np.fft.fft(R, length_FFT) / (2 * length_FFT)

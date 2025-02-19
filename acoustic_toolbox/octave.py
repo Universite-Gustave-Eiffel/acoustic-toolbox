@@ -65,7 +65,9 @@ def nominal_center_frequency(frequency=None, fraction=1, n=None):
     return iec_61260_1_2014.nominal_center_frequency(center, fraction)
 
 
-def lower_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
+def lower_frequency(
+    frequency=None, fraction=1, n=None, ref=REFERENCE
+) -> float | np.ndarray:
     """Lower band-edge frequency.
 
     Args:
@@ -85,7 +87,9 @@ def lower_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
     return iec_61260_1_2014.lower_frequency(center, fraction)
 
 
-def upper_frequency(frequency=None, fraction=1, n=None, ref=REFERENCE):
+def upper_frequency(
+    frequency=None, fraction=1, n=None, ref=REFERENCE
+) -> float | np.ndarray:
     """Upper band-edge frequency.
 
     Args:

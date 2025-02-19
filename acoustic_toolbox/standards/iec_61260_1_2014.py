@@ -101,7 +101,9 @@ def exact_center_frequency(
     ) + uneven * ref * G ** (x / fraction)
 
 
-def lower_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO) -> float | np.ndarray:
+def lower_frequency(
+    center: float | np.ndarray, fraction=1, G=OCTAVE_FREQUENCY_RATIO
+) -> float | np.ndarray:
     """Lower band-edge frequencies. See equation 4.
 
     The lower band-edge frequencies are given by
@@ -122,7 +124,9 @@ def lower_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO) -> float | np.
     return center * G ** (-1.0 / (2.0 * fraction))
 
 
-def upper_frequency(center, fraction=1, G=OCTAVE_FREQUENCY_RATIO) -> float | np.ndarray:
+def upper_frequency(
+    center: float | np.ndarray, fraction=1, G=OCTAVE_FREQUENCY_RATIO
+) -> float | np.ndarray:
     """Upper band-edge frequencies. See equation 5.
 
     The upper band-edge frequencies are given by

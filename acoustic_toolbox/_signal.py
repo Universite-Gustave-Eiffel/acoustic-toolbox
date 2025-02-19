@@ -86,6 +86,7 @@ from scipy.signal import (
 from acoustic_toolbox import signal
 from acoustic_toolbox.cepstrum import complex_cepstrum, real_cepstrum
 from acoustic_toolbox import standards
+from acoustic_toolbox.signal import Frequencies
 
 from acoustic_toolbox.standards.iso_tr_25417_2007 import REFERENCE_PRESSURE
 from acoustic_toolbox.standards.iec_61672_1_2013 import WEIGHTING_SYSTEMS
