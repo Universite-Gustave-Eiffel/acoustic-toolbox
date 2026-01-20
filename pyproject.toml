@@ -4,10 +4,10 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "acoustic-toolbox"
-version = "0.1.2"
+version = "0.2.0"
 authors = [
-    { name = "Valentin LE BESCOND", email = "valentin.lebescond@univ-eiffel.fr" },
-    { name = "Andrew Mitchell", email = "a.j.mitchell@ucl.ac.uk" },
+    { name = "Valentin LE BESCOND" },
+    { name = "Andrew Mitchell" },
 ]
 description = "Acoustic Toolbox module for Python."
 readme = "README.md"
@@ -52,8 +52,8 @@ include = ["tests/"]
 # per https://www.pyopensci.org/python-package-guide/package-structure-code/python-package-structure.html
 exclude = ["*.wav"]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "ruff>=0.5.5",
     "pytest>=8.3.2",
     "mypy>=1.15.0",

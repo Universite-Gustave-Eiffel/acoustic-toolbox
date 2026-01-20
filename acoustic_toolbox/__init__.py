@@ -29,4 +29,5 @@ import acoustic_toolbox.weighting
 
 from acoustic_toolbox._signal import Signal
 
+__version__ = "0.2.0"
 __all__ = ["Signal"]
