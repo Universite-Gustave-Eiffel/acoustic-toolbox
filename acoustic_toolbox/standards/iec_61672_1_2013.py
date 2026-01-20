@@ -10,10 +10,13 @@ for three kinds of sound measuring instruments:
 The module provides functions for:
 - Frequency weighting (A, C, Z)
 - Time weighting (Fast, Slow)
-- Sound level calculations
+- Decibel level calculations
+
+It uses the pyoctaveband package for accurate time and frequency weighting filters.
 
 Reference:
     IEC 61672-1:2013: http://webstore.iec.ch/webstore/webstore.nsf/artnum/048669
+    pyoctaveband package: https://pypi.org/project/pyoctaveband/
 """
 
 import io
@@ -23,10 +26,10 @@ import numpy as np
 import pandas as pd
 from typing import Tuple, Dict
 from numpy.typing import NDArray
-from scipy.signal import zpk2tf
-from scipy.signal import lfilter, bilinear
+from scipy.signal import sosfilt, sosfreqz
 from .iso_tr_25417_2007 import REFERENCE_PRESSURE
 
+from pyoctaveband import time_weighting, WeightingFilter
 
 WEIGHTING_DATA = pd.read_csv(
     io.BytesIO(
@@ -73,6 +76,7 @@ WEIGHTING_VALUES: Dict[str, NDArray[np.float64]] = {
 }
 """Dictionary with weighting values 'A', 'C' and 'Z' weighting."""
 
+
 FAST: float = 0.125
 """FAST time-constant."""
 
@@ -80,372 +84,153 @@ SLOW: float = 1.000
 """SLOW time-constant."""
 
 
-def time_averaged_sound_level(
-    pressure: NDArray[np.float64],
-    sample_frequency: float,
-    averaging_time: float,
-    reference_pressure: float = REFERENCE_PRESSURE,
-) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
-    """Calculate time-averaged sound pressure level.
-
-    Args:
-        pressure: Dynamic pressure.
-        sample_frequency: Sample frequency in Hz.
-        averaging_time: Averaging time in seconds.
-        reference_pressure: Reference pressure. Defaults to REFERENCE_PRESSURE.
-
-    Returns:
-        Tuple containing:
-            - Time points in seconds
-            - Time-averaged sound pressure levels in dB
-    """
-    levels = 10.0 * np.log10(
-        average(pressure**2.0, sample_frequency, averaging_time)
-        / reference_pressure**2.0
-    )
-    times = np.arange(levels.shape[-1]) * averaging_time
-    return times, levels
-
-
-def average(
-    data: NDArray[np.float64], sample_frequency: float, averaging_time: float
-) -> NDArray[np.float64]:
-    """Average the sound pressure squared.
-
-    Args:
-        data: Energetic quantity, e.g. p².
-        sample_frequency: Sample frequency in Hz.
-        averaging_time: Averaging time in seconds.
-
-    Returns:
-        Averaged data with time weighting applied using a low-pass filter
-        with one real pole at -1/τ.
-
-    Note:
-        Because fs·ti is generally not an integer, samples are discarded.
-        This results in a drift of samples for longer signals (e.g. 60 minutes at 44.1 kHz).
-    """
-    averaging_time = np.asarray(averaging_time)
-    sample_frequency = np.asarray(sample_frequency)
-    samples = data.shape[-1]
-    n = np.floor(averaging_time * sample_frequency).astype(int)
-    data = data[..., 0 : n * (samples // n)]  # Drop the tail of the signal.
-    newshape = list(data.shape[0:-1])
-    newshape.extend([-1, n])
-    data = data.reshape(newshape)
-    # data = data.reshape((-1, n))
-    return data.mean(axis=-1)
-
-
-def time_weighted_sound_level(
-    pressure: NDArray[np.float64],
+def time_averaged_level(
+    signal: NDArray[np.float64],
     sample_frequency: float,
     integration_time: float,
-    reference_pressure: float = REFERENCE_PRESSURE,
+    reference: float = REFERENCE_PRESSURE,
 ) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
-    """Calculate time-weighted sound pressure level.
+    """Calculate time-averaged level.
 
     Args:
-        pressure: Dynamic pressure.
+        signal: Dynamic pressure.
         sample_frequency: Sample frequency in Hz.
         integration_time: Integration time in seconds.
-        reference_pressure: Reference pressure. Defaults to REFERENCE_PRESSURE.
+        reference: Reference for decibels. Defaults to REFERENCE_PRESSURE.
 
     Returns:
         Tuple containing:
             - Time points in seconds
-            - Time-weighted sound pressure levels in dB
+            - Time-averaged levels in dB
     """
-    levels = 10.0 * np.log10(
-        integrate(pressure**2.0, sample_frequency, integration_time)
-        / reference_pressure**2.0
-    )
+    signal = np.asarray(signal)
+    integration_time = np.asarray(integration_time)
+    sample_frequency = np.asarray(sample_frequency)
+    signal_samples = signal.shape[-1]
+
+    step = integration_time * sample_frequency
+    n_steps = int(signal_samples / step)
+
+    # Calculate end indices for each chunk (exclusive)
+    target_boundaries = np.arange(1, n_steps + 1) * step
+    end_indices = np.floor(target_boundaries - 1e-9).astype(int) + 1
+
+    # Calculate start indices for reduceat
+    start_indices = np.concatenate(([0], end_indices[:-1]))
+
+    # Truncate signal to the end of the last full chunk
+    limit = end_indices[-1]
+    sq_signal_truncated = signal[..., :limit]**2.0
+
+    # Sum squared values in each chunk
+    sums = np.add.reduceat(sq_signal_truncated, start_indices, axis=-1)
+
+    # Calculate chunk lengths (number of samples per chunk)
+    lengths = np.diff(np.concatenate(([0], end_indices)))
+
+    # Compute mean squared pressure
+    means = sums / lengths
+
+    levels = 10.0 * np.log10(means / reference**2.0)
     times = np.arange(levels.shape[-1]) * integration_time
     return times, levels
 
 
-def integrate(
-    data: NDArray[np.float64], sample_frequency: float, integration_time: float
-) -> NDArray[np.float64]:
-    """Integrate the sound pressure squared using exponential integration.
+def time_weighted_level(
+    signal: NDArray[np.float64],
+    sample_frequency: float,
+    time_mode: str,
+    integration_time: float = None,
+    reference: float = REFERENCE_PRESSURE,
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    """Calculate time-weighted levels at a given integration timestep.
 
     Args:
-        data: Energetic quantity, e.g. p².
+        signal: raw signal (can be multi-dimensional).
         sample_frequency: Sample frequency in Hz.
-        integration_time: Integration time in seconds.
-
-    Returns:
-        Integrated data with time weighting applied using a low-pass filter
-        with one real pole at -1/τ.
-
-    Note:
-        Because fs·ti is generally not an integer, samples are discarded.
-        This results in a drift of samples for longer signals (e.g. 60 minutes at 44.1 kHz).
-    """
-    samples = data.shape[-1]
-    b, a = zpk2tf([1.0], [1.0, integration_time], [1.0])
-    b, a = bilinear(b, a, fs=sample_frequency)
-    # b, a = bilinear([1.0], [1.0, integration_time], fs=sample_frequency) # Bilinear: Analog to Digital filter.
-    n = np.floor(integration_time * sample_frequency).astype(int)
-    data = data[..., 0 : n * (samples // n)]
-    newshape = list(data.shape[0:-1])
-    newshape.extend([-1, n])
-    data = data.reshape(newshape)
-    # data = data.reshape((-1, n)) # Divide in chunks over which to perform the integration.
-    return (
-        lfilter(b, a, data)[..., n - 1] / integration_time
-    )  # Perform the integration. Select the final value of the integration.
-
-
-def fast(data: NDArray[np.float64], fs: float) -> NDArray[np.float64]:
-    """Apply fast (F) time-weighting.
-
-    Args:
-        data: Energetic quantity, e.g. p².
-        fs: Sample frequency in Hz.
-
-    Returns:
-        Data with FAST time-weighting applied.
-
-    See Also:
-        integrate: Base integration function used for time-weighting.
-    """
-    return integrate(data, fs, FAST)
-    # return time_weighted_sound_level(data, fs, FAST)
-
-
-def slow(data: NDArray[np.float64], fs: float) -> NDArray[np.float64]:
-    """Apply slow (S) time-weighting.
-
-    Args:
-        data: Energetic quantity, e.g. p².
-        fs: Sample frequency in Hz.
-
-    Returns:
-        Data with SLOW time-weighting applied.
-
-    See Also:
-        integrate: Base integration function used for time-weighting.
-    """
-    return integrate(data, fs, SLOW)
-    # return time_weighted_sound_level(data, fs, SLOW)
-
-
-def fast_level(
-    data: NDArray[np.float64], fs: float
-) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
-    """Calculate time-weighted (FAST) sound pressure level.
-
-    Args:
-        data: Dynamic pressure.
-        fs: Sample frequency in Hz.
+        time_mode: Time weighting mode, either "fast" or "slow"
+        integration_time: timestep in seconds. defaults to 125ms for "fast" mode and 1s for "slow" mode.
+        reference: Reference for decibels. Defaults to REFERENCE_PRESSURE.
 
     Returns:
         Tuple containing:
             - Time points in seconds
-            - FAST time-weighted sound pressure levels in dB
-
-    See Also:
-        time_weighted_sound_level: Base function for calculating time-weighted levels.
+            - Time-weighted levels in dB
     """
-    return time_weighted_sound_level(data, fs, FAST)
+    if time_mode.lower() not in ["fast", "slow"]:
+        raise ValueError("time_mode must be either 'fast' or 'slow'.")
+
+    if integration_time is None:
+        integration_time = (FAST if time_mode.lower() == "fast" else SLOW)
+
+    signal_samples = signal.shape[-1]
+
+    # get time-weighted squared signal
+    tw_sq_signal = time_weighting(signal, sample_frequency, mode=time_mode.lower())
+
+    step = integration_time * sample_frequency
+    n_steps = int(signal_samples / step)
+
+    indices = np.arange(1, n_steps + 1) * step
+    # select the last sample before each integration time step
+    # we use - 1e-9 so that :
+    # - when step is an integer (e.g. 4000 * 0.125 = 500), we get the correct index (499 instead of 500)
+    # - when step is not an integer (e.g. 44100 * 0.125 = 5512.5), we get the correct index (5512 instead of 5512.5)
+    indices = np.floor(indices - 1e-9).astype(int)
+
+    tw_sq_values = tw_sq_signal[..., indices]
+
+    levels = 10.0 * np.log10(tw_sq_values / reference**2.0)
+    times = np.arange(levels.shape[-1]) * integration_time
+
+    return times, levels
 
 
-def slow_level(
-    data: NDArray[np.float64], fs: float
-) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
-    """Calculate time-weighted (SLOW) sound pressure level.
-
-    Args:
-        data: Dynamic pressure.
-        fs: Sample frequency in Hz.
-
-    Returns:
-        Tuple containing:
-            - Time points in seconds
-            - SLOW time-weighted sound pressure levels in dB
-
-    See Also:
-        time_weighted_sound_level: Base function for calculating time-weighted levels.
-    """
-    return time_weighted_sound_level(data, fs, SLOW)
 
 
-# ---- Annex E - Analytical expressions for frequency-weightings C, A, and Z.-#
-
-_POLE_FREQUENCIES: Dict[int, float] = {
-    1: 20.60,
-    2: 107.7,
-    3: 737.9,
-    4: 12194.0,
-}
-"""Approximate values for pole frequencies f_1, f_2, f_3 and f_4.
-
-See section E.4.1 of the standard.
-"""
-
-_NORMALIZATION_CONSTANTS: Dict[str, float] = {
-    "A": -2.000,
-    "C": -0.062,
-}
-"""Normalization constants $C_{1000}$ and $A_{1000}$.
-
-See section E.4.2 of the standard.
-"""
-
-
-def weighting_function_a(
-    frequencies: NDArray[np.float64] | float,
+def frequency_weighting(
+    signal: NDArray[np.float64],
+    sample_frequency: float,
+    weighting: str = 'A',
+    zero_phase: bool = False
 ) -> NDArray[np.float64]:
-    """Calculate A-weighting function in decibels.
+    """Apply frequency weighting to a signal.
 
     Args:
-        frequencies: Vector of frequencies at which to evaluate the weighting.
+        signal: Input signal (raw pressure/voltage).
+        sample_frequency: Sample rate.
+        weighting: 'A', 'C' or 'Z'.
+        zero_phase: Prevent phase shift.
+            If True, processing is done in the frequency domain (FFT) to ensure
+            zero phase shift while preserving the exact IEC 61672-1 magnitude response.
+            (Note: Standard forward-backward filtering would square the magnitude response).
 
     Returns:
-        Vector with A-weighting scaling factors in dB, calculated using
-        equation E.6 from the standard with A₁₀₀₀ = -2 dB.
-
-    Note:
-        Implementation of equation E.6 from the standard.
+        Frequency-weighted signal.
     """
-    f = np.asarray(frequencies)
-    offset = _NORMALIZATION_CONSTANTS["A"]
-    f1, f2, f3, f4 = _POLE_FREQUENCIES.values()
-    weighting = (
-        20.0
-        * np.log10(
-            (f4**2.0 * f**4.0)
-            / (
-                (f**2.0 + f1**2.0)
-                * np.sqrt(f**2.0 + f2**2.0)
-                * np.sqrt(f**2.0 + f3**2.0)
-                * (f**2.0 + f4**2.0)
-            )
+    if weighting == "Z":
+        return signal
+
+    wf = WeightingFilter(fs=sample_frequency, curve=weighting)
+
+    if zero_phase:
+        # Frequency domain filtering (zero phase)
+        # Get frequency response
+        w, h = sosfreqz(wf.sos, worN=signal.shape[-1], fs=sample_frequency)
+        # FFT of the signal
+        signal_fft = np.fft.rfft(signal, axis=-1)
+        # Interpolate filter response to match FFT bins
+        h_interp = np.interp(
+            np.fft.rfftfreq(signal.shape[-1], d=1/sample_frequency),
+            w,
+            np.abs(h)
         )
-        - offset
-    )
-    return weighting
+        # Apply filter in frequency domain
+        weighted_signal_fft = signal_fft * h_interp
+        # Inverse FFT to get time-domain signal
+        weighted_signal = np.fft.irfft(weighted_signal_fft, n=signal.shape[-1], axis=-1)
+    else:
+        # Time domain filtering (causal)
+        weighted_signal = sosfilt(wf.sos, signal, axis=-1)
 
-
-def weighting_function_c(
-    frequencies: NDArray[np.float64] | float,
-) -> NDArray[np.float64]:
-    """Calculate C-weighting function in decibels.
-
-    Args:
-        frequencies: Vector of frequencies at which to evaluate the weighting.
-
-    Returns:
-        Vector with C-weighting scaling factors in dB, calculated using
-        equation E.1 from the standard with C₁₀₀₀ = -0.062 dB.
-
-    Note:
-        Implementation of equation E.1 from the standard.
-    """
-    f = np.asarray(frequencies)
-    offset = _NORMALIZATION_CONSTANTS["C"]
-    f1, _, _, f4 = _POLE_FREQUENCIES.values()
-    weighting = (
-        20.0 * np.log10((f4**2.0 * f**2.0) / ((f**2.0 + f1**2.0) * (f**2.0 + f4**2.0)))
-        - offset
-    )
-    return weighting
-
-
-def weighting_function_z(
-    frequencies: NDArray[np.float64] | float,
-) -> NDArray[np.float64]:
-    """Calculate Z-weighting function in decibels.
-
-    Args:
-        frequencies: Vector of frequencies at which to evaluate the weighting.
-
-    Returns:
-        Vector of zeros (Z-weighting applies no frequency weighting).
-    """
-    frequencies = np.asarray(frequencies)
-    return np.zeros_like(frequencies)
-
-
-WEIGHTING_FUNCTIONS: Dict[str, callable] = {
-    "A": weighting_function_a,
-    "C": weighting_function_c,
-    "Z": weighting_function_z,
-}
-"""Dictionary with available weighting functions 'A', 'C' and 'Z'."""
-
-
-def weighting_system_a() -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
-    """Get A-weighting filter as polynomial transfer function.
-
-    Returns:
-        Tuple containing:
-            - Numerator coefficients of the transfer function
-            - Denominator coefficients of the transfer function
-
-    Note:
-        Implementation of equation E.6 from the standard.
-    """
-    f1 = _POLE_FREQUENCIES[1]
-    f2 = _POLE_FREQUENCIES[2]
-    f3 = _POLE_FREQUENCIES[3]
-    f4 = _POLE_FREQUENCIES[4]
-    offset = _NORMALIZATION_CONSTANTS["A"]
-    numerator = np.array(
-        [(2.0 * np.pi * f4) ** 2.0 * (10 ** (-offset / 20.0)), 0.0, 0.0, 0.0, 0.0]
-    )
-    part1 = [1.0, 4.0 * np.pi * f4, (2.0 * np.pi * f4) ** 2.0]
-    part2 = [1.0, 4.0 * np.pi * f1, (2.0 * np.pi * f1) ** 2.0]
-    part3 = [1.0, 2.0 * np.pi * f3]
-    part4 = [1.0, 2.0 * np.pi * f2]
-    denomenator = np.convolve(np.convolve(np.convolve(part1, part2), part3), part4)
-    return numerator, denomenator
-
-
-def weighting_system_c() -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
-    """Get C-weighting filter as polynomial transfer function.
-
-    Returns:
-        Tuple containing:
-            - Numerator coefficients of the transfer function
-            - Denominator coefficients of the transfer function
-
-    Note:
-        Implementation of equation E.1 from the standard.
-    """
-    f1 = _POLE_FREQUENCIES[1]
-    f4 = _POLE_FREQUENCIES[4]
-    offset = _NORMALIZATION_CONSTANTS["C"]
-    numerator = np.array(
-        [(2.0 * np.pi * f4) ** 2.0 * (10 ** (-offset / 20.0)), 0.0, 0.0]
-    )
-    part1 = [1.0, 4.0 * np.pi * f4, (2.0 * np.pi * f4) ** 2.0]
-    part2 = [1.0, 4.0 * np.pi * f1, (2.0 * np.pi * f1) ** 2.0]
-    denomenator = np.convolve(part1, part2)
-    return numerator, denomenator
-
-
-def weighting_system_z() -> Tuple[list[float], list[float]]:
-    """Get Z-weighting filter as polynomial transfer function.
-
-    Returns:
-        Tuple containing:
-            - [1] (numerator for unity gain)
-            - [1] (denominator for unity gain)
-
-    Note:
-        Z-weighting applies no frequency weighting (0.0 dB at all frequencies),
-        therefore corresponds to multiplication by 1.
-    """
-    numerator = [1]
-    denomenator = [1]
-    return numerator, denomenator
-
-
-WEIGHTING_SYSTEMS: Dict[str, callable] = {
-    "A": weighting_system_a,
-    "C": weighting_system_c,
-    "Z": weighting_system_z,
-}
-"""Dictionary with available weighting systems 'A', 'C' and 'Z'."""
+    return weighted_signal

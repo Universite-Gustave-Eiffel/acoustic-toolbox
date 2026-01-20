@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.11", "3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +25,7 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Lint with Ruff
-        run: uv run ruff check --output-format=github --target-version=py310 .
+        run: uv run ruff check --output-format=github --target-version=py311 .
         continue-on-error: true
 
       - name: Test with pytest
@@ -35,4 +35,3 @@ jobs:
 
       - name: Generate Coverage Report
         run: uv run coverage report -m
-      

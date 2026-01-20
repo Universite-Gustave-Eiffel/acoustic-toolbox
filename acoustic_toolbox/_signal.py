@@ -46,7 +46,10 @@ Methods:
     plot_phase_spectrum: Plot phase spectrum.
     spectrogram: Spectrogram.
     plot_spectrogram: Plot spectrogram.
-    levels: Levels.
+    fast_levels: Fast time-weighted level.
+    slow_levels: Slow time-weighted level.
+    leq_levels: Time-weighted levels.
+    levels: Levels (deprecated).
     leq: Leq.
     plot_levels: Plot levels.
     bandpass: Bandpass filter.
@@ -70,6 +73,7 @@ See Also:
 
 from __future__ import annotations
 import itertools
+import warnings
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import numpy as np
@@ -89,7 +93,11 @@ from acoustic_toolbox import standards
 from acoustic_toolbox.signal import Frequencies
 
 from acoustic_toolbox.standards.iso_tr_25417_2007 import REFERENCE_PRESSURE
-from acoustic_toolbox.standards.iec_61672_1_2013 import WEIGHTING_SYSTEMS
+from acoustic_toolbox.standards.iec_61672_1_2013 import (
+    frequency_weighting,
+    time_averaged_level,
+    time_weighted_level,
+)
 from acoustic_toolbox.standards.iec_61672_1_2013 import (
     NOMINAL_OCTAVE_CENTER_FREQUENCIES,
     NOMINAL_THIRD_OCTAVE_CENTER_FREQUENCIES,
@@ -371,24 +379,25 @@ class Signal(np.ndarray):
         """Apply frequency-weighting. By default 'A'-weighting is applied.
 
         Note:
-            By default the weighting filter is applied using
-            [`scipy.signal.lfilter`][scipy.signal.lfilter] causing a frequency-dependent delay.
+            By default the weighting filter is applied in the time domain using
+            [`scipy.signal.sosfilt`][scipy.signal.sosfilt] causing a frequency-dependent delay.
 
-            In case a delay is undesired, the filter can be applied using
-            [`scipy.signal.filtfilt`][scipy.signal.filtfilt] by setting `zero_phase=True`.
+            In case a delay is undesired, the filter can be applied in the frequency domain using
+            [`scipy.signal.fft`][scipy.signal.fft] by setting `zero_phase=True`.
 
         Args:
             weighting: Frequency-weighting filter to apply.
                        Valid options are 'A', 'C' and 'Z'. Default weighting is 'A'.
-            zero_phase: Prevent phase shift by filtering with ``filtfilt`` instead of ``lfilter``.
+            zero_phase: Prevent phase shift by filtering with ``fft`` instead of ``sosfilt``.
 
         Returns:
             Weighted signal.
         """
-        num, den = WEIGHTING_SYSTEMS[weighting]()
-        b, a = bilinear(num, den, self.fs)
-        func = filtfilt if zero_phase else lfilter
-        return self._construct(func(b, a, self))
+        return self._construct(
+            frequency_weighting(
+                self, self.fs, weighting=weighting, zero_phase=zero_phase
+            )
+        )
 
     def correlate(self, other: Signal | None = None, mode: str = "full"):
         """Correlate signal with `other` signal. In case `other==None` this
@@ -892,6 +901,41 @@ class Signal(np.ndarray):
 
         return ax0
 
+    def fast_levels(self, integration_time: float = 0.125):
+        """Calculate the FAST time weighted level as every `integration_time` seconds.
+
+        Args:
+            integration_time: timestep for the output. Default value is 0.125 second (FAST) but can set to other values if desired.
+
+        Returns:
+            sound pressure level as function of time.
+
+        See Also:
+            - [`acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_sound_level`][acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_sound_level]
+            - [`acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_sound_level`][acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_sound_level]
+
+        """
+        return standards.iec_61672_1_2013.time_weighted_level(
+            self.values, self.fs, time_mode="fast", integration_time=integration_time
+        )
+
+    def slow_levels(self, integration_time: float = 1.0):
+        """Calculate the SLOW time weighted level as every `integration_time` seconds.
+
+        Args:
+            integration_time: Averaging time constant. Default value is 1.0 second.
+        Returns:
+            sound pressure level as function of time.
+
+        See Also:
+            - [`acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_sound_level`][acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_sound_level]
+            - [`acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_sound_level`][acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_sound_level]
+
+        """
+        return standards.iec_61672_1_2013.time_averaged_level(
+            self.values, self.fs, time_mode="slow", integration_time=integration_time
+        )
+
     def levels(self, time: float = 0.125, method: str = "average"):
         """Calculate sound pressure level as function of time.
 
@@ -903,17 +947,28 @@ class Signal(np.ndarray):
             sound pressure level as function of time.
 
         See Also:
-            - [`acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_sound_level`][acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_sound_level]
-            - [`acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_sound_level`][acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_sound_level]
+            - [`acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_level`][acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_level]
+            - [`acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_level`][acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_level]
 
         """
+        warnings.warn(
+            'Signal.levels is deprecated. Use Signal.fast_levels, Signal.slow_levels (for "weighting") or Signal.leq_levels (for "average") instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if method == "average":
-            return standards.iec_61672_1_2013.time_averaged_sound_level(
-                self.values, self.fs, time
-            )
+            return time_averaged_level(self.values, self.fs, time)
         elif method == "weighting":
-            return standards.iec_61672_1_2013.time_weighted_sound_level(
-                self.values, self.fs, time
+            if time == 0.125:
+                time_mode = "fast"
+            elif time == 1.0:
+                time_mode = "slow"
+            else:
+                raise ValueError(
+                    "Invalid time for weighting. Use 0.125 (FAST) or 1.0 (SLOW)."
+                )
+            return time_weighted_level(
+                self.values, self.fs, time_mode=time_mode, integration_time=time
             )
         else:
             raise ValueError("Invalid method")
