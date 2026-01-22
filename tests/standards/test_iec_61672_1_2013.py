@@ -38,6 +38,18 @@ def test_fast_level():
     times, levels = time_weighted_level(x, fs, time_mode="fast")
     assert abs(levels[-1] - 103) < 0.05
 
+def test_big_signal_fast_level():
+    """Test whether integration with time-constant FAST gives the correct level for a big signal."""
+    fs = 48000.0
+    f = 400.0
+    duration = 350
+    samples = int(duration * fs)
+    t = np.arange(samples) / fs
+    x = np.sin(2.0 * np.pi * f * t)
+
+    times, levels = time_weighted_level(x, fs, time_mode="fast")
+    assert abs(levels[-1] - 91) < 0.05
+
 def test_slow_level():
     """Test whether integration with time-constant SLOW gives the correct level."""
     x, fs = signal_fs()

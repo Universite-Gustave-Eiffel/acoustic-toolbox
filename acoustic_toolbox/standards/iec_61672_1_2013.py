@@ -176,7 +176,7 @@ def time_weighted_level(
     # we use - 1e-9 so that :
     # - when step is an integer (e.g. 4000 * 0.125 = 500), we get the correct index (499 instead of 500)
     # - when step is not an integer (e.g. 44100 * 0.125 = 5512.5), we get the correct index (5512 instead of 5512.5)
-    indices = np.floor(indices - 1e-9).astype(int)
+    indices = np.floor(indices - 1e-4).astype(int)
 
     tw_sq_values = tw_sq_signal[..., indices]
 
