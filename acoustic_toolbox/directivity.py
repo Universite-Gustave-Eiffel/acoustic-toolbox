@@ -28,7 +28,7 @@ from matplotlib.colors import Normalize
 from matplotlib.figure import Figure
 import numpy as np
 from scipy.interpolate import interp2d as interpolate
-from scipy.special import sph_harm  # pylint: disable=no-name-in-module
+from scipy.special import sph_harm_y  # pylint: disable=no-name-in-module
 
 
 def cardioid(theta, a=1.0, k=1.0):
@@ -60,19 +60,16 @@ def figure_eight(theta, phi=0.0):
     return np.abs(np.cos(theta))
 
 
-def spherical_harmonic(theta, phi, m=0, n=0):
+def spherical_harmonic(theta, phi, m: int = 0, n: int = 0):
     """Spherical harmonic of order `m` and degree `n`.
 
     Note:
       The degree `n` is often denoted `l`.
 
     See Also:
-      [`scipy.special.sph_harm`][scipy.special.sph_harm]
+      [`scipy.special.sph_harm_y`][scipy.special.sph_harm_y]
     """
-    # TODO: `scipy.special.sph_harm` is deprecated since v1.15. Should use `sph_harm_y` instead.
-    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.sph_harm.html
-    # TODO: `scipy` expects `m` and `n` to be integers. Will need to adapt typehints
-    return sph_harm(m, n, phi, theta).real
+    return sph_harm_y(n, m, theta, phi).real
 
 
 def spherical_to_cartesian(r, theta, phi):
@@ -229,7 +226,7 @@ class FigureEight(Directivity):
 class SphericalHarmonic(Directivity):
     """Directivity of a spherical harmonic of degree `n` and order `m`."""
 
-    def __init__(self, rotation=None, m=None, n=None):
+    def __init__(self, rotation=None, m: int = 0, n: int = 0):
         """Constructor."""
         super().__init__(rotation=rotation)
         self.m = m
