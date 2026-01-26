@@ -113,7 +113,7 @@ def time_averaged_level(
 
     # Calculate end indices for each chunk (exclusive)
     target_boundaries = np.arange(1, n_steps + 1) * step
-    end_indices = np.floor(target_boundaries - 1e-9).astype(int) + 1
+    end_indices = np.floor(target_boundaries - 1e-4).astype(int) + 1
 
     # Calculate start indices for reduceat
     start_indices = np.concatenate(([0], end_indices[:-1]))
