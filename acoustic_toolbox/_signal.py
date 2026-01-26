@@ -928,12 +928,28 @@ class Signal(np.ndarray):
             sound pressure level as function of time.
 
         See Also:
-            - [`acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_sound_level`][acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_sound_level]
-            - [`acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_sound_level`][acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_sound_level]
+            - [`acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_level`][acoustic_toolbox.standards.iec_61672_1_2013.time_weighted_level]
+
+        """
+        return standards.iec_61672_1_2013.time_weighted_level(
+            self.values, self.fs, time_mode="slow", integration_time=integration_time
+        )
+
+    def leq_levels(self, integration_time: float = 1.0):
+        """Calculate the equivalent level (leq) as every `integration_time` seconds.
+
+        Args:
+            integration_time: timestep for the output. Default value is 1.0 second but can set to other values if desired.
+
+        Returns:
+            sound pressure level as function of time.
+
+        See Also:
+            - [`acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_level`][acoustic_toolbox.standards.iec_61672_1_2013.time_averaged_level]
 
         """
         return standards.iec_61672_1_2013.time_averaged_level(
-            self.values, self.fs, time_mode="slow", integration_time=integration_time
+            self.values, self.fs, integration_time=integration_time
         )
 
     def levels(self, time: float = 0.125, method: str = "average"):

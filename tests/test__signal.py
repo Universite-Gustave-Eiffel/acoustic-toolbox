@@ -168,6 +168,15 @@ class TestSignal:
     def test_levels(self, signal):
         times, levels = signal.levels()
 
+    def test_leq_levels(self, signal):
+        times, levels = signal.leq_levels()
+
+    def test_fast_levels(self, signal):
+        times, levels = signal.fast_levels()
+
+    def test_slow_levels(self, signal):
+        times, levels = signal.slow_levels()
+
     def test_leq(self, signal):
         # s = Signal(np.random.randn(10000), 22050)
 
